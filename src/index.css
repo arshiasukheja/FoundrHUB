@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═══════════════════════════════════════
+   FOUNDRHUB — Global Design System
+   ═══════════════════════════════════════ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: #ffffff;
+  color: #0a0a0a;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d1d1d1; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #aaa; }
+
+/* ── Glass Card Utility ── */
+@layer components {
+  .glass-card {
+    @apply bg-white/40 backdrop-blur-2xl rounded-3xl border border-white/60 shadow-[0_8px_60px_-12px_rgba(0,0,0,0.08)];
+  }
+  .glass-card-dark {
+    @apply bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10;
+  }
+  .glass-card-hover {
+    @apply hover:bg-white/60 hover:shadow-[0_12px_48px_-12px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-500;
+  }
+  .btn-primary {
+    @apply inline-flex items-center px-7 py-3.5 rounded-full bg-neutral-950 text-white text-[14px] font-semibold tracking-wide hover:bg-neutral-800 transition-all duration-300 hover:shadow-xl hover:shadow-neutral-200;
+  }
+  .btn-glass {
+    @apply inline-flex items-center px-7 py-3.5 rounded-full bg-white/60 backdrop-blur-xl border border-white/70 text-neutral-700 text-[14px] font-semibold hover:bg-white/80 transition-all duration-300 shadow-sm;
+  }
+  .section-label {
+    @apply text-[11px] font-semibold tracking-[0.15em] uppercase text-neutral-400 mb-4 block;
+  }
+  .section-title {
+    @apply font-serif text-[clamp(1.8rem,4vw,2.8rem)] leading-[1.1] text-neutral-950 mb-4;
+  }
+}
+
+/* ── Scroll Reveal (used with IntersectionObserver) ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Toast ── */
+.toast-enter {
+  animation: fadeInUp 0.4s ease-out;
+}
+.toast-exit {
+  animation: fadeInUp 0.3s ease-in reverse;
+}

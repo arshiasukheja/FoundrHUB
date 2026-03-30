@@ -1,37 +1,79 @@
-/* FoundrHUB — Main App Entry */
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom'
+import { AnimatePresence, motion } from 'framer-motion'
+import { useEffect, useState } from 'react'
+import { AuthProvider, useAuth } from './context/AuthContext'
+import ProtectedRoute from './components/ProtectedRoute'
+import Toast from './components/Toast'
 
-const App = () => {
-  /* Intersection Observer for reveal animations */
-  React.useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-          }
-        });
-      },
-      { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
-    );
+// Pages
+import HomePage from './pages/HomePage'
+import ExplorePage from './pages/ExplorePage'
+import VerifyPage from './pages/VerifyPage'
+import SignInPage from './pages/SignInPage'
+import DashboardPage from './pages/DashboardPage'
+import ProfilePage from './pages/ProfilePage'
+import SettingsPage from './pages/SettingsPage'
 
-    document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
+/* Page transition wrapper */
+const PageTransition = ({ children }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 12 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: -8 }}
+    transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+  >
+    {children}
+  </motion.div>
+)
+
+const AppRoutes = () => {
+  const location = useLocation()
+
+  // Scroll to top on route change
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [location.pathname])
 
   return (
-    <React.Fragment>
-      <Navbar />
-      <main>
-        <Hero />
-        <FeaturedGrid />
-        <FounderStory />
-        <AnalyticsDashboard />
-        <FooterCTA />
-      </main>
-    </React.Fragment>
-  );
-};
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<PageTransition><HomePage /></PageTransition>} />
+        <Route path="/explore" element={<PageTransition><ExplorePage /></PageTransition>} />
+        <Route path="/verify" element={<PageTransition><VerifyPage /></PageTransition>} />
+        <Route path="/signin" element={<PageTransition><SignInPage /></PageTransition>} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <PageTransition><DashboardPage /></PageTransition>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <PageTransition><ProfilePage /></PageTransition>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <PageTransition><SettingsPage /></PageTransition>
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </AnimatePresence>
+  )
+}
 
-/* Mount */
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);
+const App = () => (
+  <AuthProvider>
+    <AppRoutes />
+  </AuthProvider>
+)
+
+export default App
