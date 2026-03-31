@@ -121,16 +121,17 @@ export const ProductCard = ({
       key={product.title}
       className="group/product h-80 w-[24rem] relative flex-shrink-0"
     >
-      <div className="block group-hover/product:shadow-[0_20px_50px_rgba(0,0,0,0.15)] transition-all duration-500 rounded-[2rem] overflow-hidden bg-neutral-100 h-full w-full">
+      <div className="block group-hover/product:shadow-[0_20px_50px_rgba(0,0,0,0.15)] transition-all duration-500 rounded-[10px] overflow-hidden bg-neutral-100 h-full w-full border border-neutral-200/50 isolate">
         <img
           src={product.thumbnail}
           height="600"
           width="600"
-          className="object-cover object-center absolute h-full w-full inset-0 transition-transform duration-700 group-hover/product:scale-110"
+          loading="lazy"
+          className="object-cover object-center absolute h-full w-full inset-0 transition-transform duration-700 group-hover/product:scale-110 rounded-[10px]"
           alt={product.title}
         />
       </div>
-      <div className="absolute inset-0 h-full w-full opacity-0 group-hover/product:opacity-30 bg-black pointer-events-none rounded-[2rem] transition-all duration-500"></div>
+      <div className="absolute inset-0 h-full w-full opacity-0 group-hover/product:opacity-30 bg-black pointer-events-none rounded-[10px] transition-all duration-500"></div>
       <div className="absolute bottom-6 left-6 opacity-0 group-hover/product:opacity-100 transition-all duration-500 translate-y-2 group-hover/product:translate-y-0 text-white">
         <p className="text-[14px] font-bold tracking-wide uppercase opacity-70 mb-1">Featured Brand</p>
         <h2 className="text-[20px] font-bold">

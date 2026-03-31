@@ -64,9 +64,11 @@ const HeroSection = () => {
   const { isAuthenticated } = useAuth()
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-white via-neutral-50 to-amber-50/30" />
-      <div className="absolute top-20 right-20 w-[500px] h-[500px] bg-gradient-to-bl from-amber-100/40 via-transparent to-transparent rounded-full blur-3xl" />
-      <div className="absolute bottom-10 left-10 w-[400px] h-[400px] bg-gradient-to-tr from-emerald-50/30 via-transparent to-transparent rounded-full blur-3xl" />
+      {/* Background Enhancements */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-50/40 via-white to-transparent" />
+      <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-indigo-100/30 rounded-full blur-[120px] animate-pulse" />
+      <div className="absolute bottom-[10%] right-[-5%] w-[50%] h-[50%] bg-emerald-100/20 rounded-full blur-[100px]" />
+      <div className="absolute top-[20%] right-[10%] w-72 h-72 bg-amber-200/20 rounded-full blur-[80px]" />
 
       <div className="max-w-7xl mx-auto w-full px-6 lg:px-10 pt-32 pb-20 lg:pt-40 lg:pb-28 relative z-10">
         <div className="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
@@ -133,34 +135,57 @@ const HeroSection = () => {
 /* ═══════════════════════════════════════
    2. FOUNDER SPOTLIGHT
    ═══════════════════════════════════════ */
+import CircularTestimonials from '../components/CircularTestimonials'
+
+/* ── Testimonials Data ── */
+const founderTestimonials = [
+  {
+    name: 'Ananya Sharma',
+    designation: 'Founder, Bloomcraft Studio',
+    quote: "FoundrHUB has been instrumental in our journey. The platform's focus on homegrown brands helped us find initial traction and connect with a community of supportive builders.",
+    src: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=1200"
+  },
+  {
+    name: 'Rahul Kapoor',
+    designation: 'Founder, NeuralBrew AI',
+    quote: "Navigating the deep tech space in India was challenging until we joined FoundrHUB. The insights and visibility we gained here made our recent funding round a massive success.",
+    src: "https://images.unsplash.com/photo-1542744173-b33e14629f77?q=80&w=1200"
+  },
+  {
+    name: 'Meera Patel',
+    designation: 'Founder, GreenRoute',
+    quote: "Reliability is key for climate tech startups. Being a verified brand on FoundrHUB instantly established trust with our enterprise partners and logistics networks.",
+    src: "https://images.unsplash.com/photo-1556761175-4b413da4baf72?q=80&w=1200"
+  }
+]
+
 const FounderSpotlight = () => (
-  <section className="py-24 lg:py-32 relative overflow-hidden">
-    <div className="absolute inset-0 bg-gradient-to-b from-neutral-50/80 to-white" />
+  <section id="founders" className="py-24 lg:py-32 relative overflow-hidden">
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-indigo-50/40 via-white to-transparent" />
     <div className="max-w-7xl mx-auto px-6 lg:px-10 relative z-10">
       <div className="reveal max-w-2xl mb-16">
         <span className="section-label">Verified Founders</span>
         <h2 className="section-title">Meet the founders building India's next wave</h2>
         <p className="text-[16px] text-neutral-500 leading-relaxed">Verified builders on FoundrHUB — from student founders to serial entrepreneurs.</p>
       </div>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {founders.map((f, i) => (
-          <div key={f.name} className="reveal group glass-card glass-card-hover p-6" style={{ transitionDelay: `${i * 0.07}s` }}>
-            <div className="relative mb-4">
-              <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-[18px] font-bold text-neutral-700 shadow-lg" style={{ background: f.color }}>{f.initials}</div>
-              {f.verified && (
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-200 animate-pulse">
-                  <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-                </div>
-              )}
-            </div>
-            <h3 className="text-[15px] font-semibold text-neutral-900 mb-0.5">{f.name}</h3>
-            <p className="text-[12px] text-neutral-400 mb-3">{f.title}</p>
-            <div className="flex flex-wrap gap-1.5">
-              <span className="px-2.5 py-0.5 rounded-full bg-white/60 backdrop-blur-sm border border-white/40 text-[10px] font-medium text-neutral-500">{f.category}</span>
-              <span className="px-2.5 py-0.5 rounded-full bg-white/60 backdrop-blur-sm border border-white/40 text-[10px] font-medium text-neutral-500 flex items-center gap-1"><MapPin size={10} strokeWidth={1.5} /> {f.city}</span>
-            </div>
-          </div>
-        ))}
+      
+      <div className="reveal">
+        <CircularTestimonials 
+          testimonials={founderTestimonials} 
+          colors={{
+            name: "#0a0a0a",
+            designation: "#737373",
+            testimony: "#404040",
+            arrowBackground: "#0a0a0a",
+            arrowHoverBackground: "#737373",
+            arrowForeground: "#ffffff"
+          }}
+          fontSizes={{
+            name: "clamp(1.5rem, 4vw, 2.2rem)",
+            designation: "12px",
+            quote: "clamp(1rem, 2.5vw, 1.25rem)"
+          }}
+        />
       </div>
     </div>
   </section>
@@ -176,7 +201,8 @@ const FounderSpotlight = () => (
    ═══════════════════════════════════════ */
 const TrendingSection = () => (
   <section id="discover" className="py-24 lg:py-32 relative overflow-hidden">
-    <div className="absolute inset-0 bg-gradient-to-b from-white to-neutral-50/50" />
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-amber-50/40 via-white to-white" />
+    <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-neutral-200 to-transparent" />
     <div className="max-w-7xl mx-auto px-6 lg:px-10 relative z-10">
       <div className="reveal max-w-2xl mb-16">
         <span className="section-label">Trending Brands</span>
@@ -217,7 +243,8 @@ const VerificationSection = () => {
   ]
   return (
     <section id="get-verified" className="py-24 lg:py-32 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-white via-emerald-50/5 to-neutral-50/80" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-emerald-50/50 via-white to-white" />
+      <div className="absolute top-[-20%] right-[-10%] w-[70%] h-[70%] bg-emerald-100/20 rounded-full blur-[120px]" />
       <div className="max-w-7xl mx-auto px-6 lg:px-10 relative z-10">
         <div className="reveal text-center mb-16">
           <span className="section-label">How it works</span>
@@ -243,9 +270,10 @@ const VerificationSection = () => {
    7. FINAL CTA
    ═══════════════════════════════════════ */
 const FinalCTA = () => (
-  <section className="py-24 lg:py-32 bg-neutral-950 relative overflow-hidden">
-    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[450px] bg-gradient-to-b from-neutral-800/20 to-transparent rounded-full blur-3xl" />
-    <div className="absolute bottom-0 right-0 w-[300px] h-[300px] bg-gradient-to-tl from-emerald-900/10 to-transparent rounded-full blur-3xl" />
+  <section className="py-32 lg:py-48 bg-neutral-950 relative overflow-hidden">
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-neutral-800/40 via-neutral-950 to-neutral-950" />
+    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-indigo-900/20 rounded-full blur-[140px]" />
+    <div className="absolute -bottom-20 -right-20 w-[400px] h-[400px] bg-emerald-900/10 rounded-full blur-[100px]" />
     <div className="max-w-4xl mx-auto px-6 lg:px-10 text-center relative z-10">
       <div className="reveal">
         <span className="inline-flex items-center gap-2 mb-8 px-4 py-1.5 rounded-full border border-neutral-700 bg-white/5 backdrop-blur-xl">
