@@ -260,7 +260,7 @@ const CinematicHero = () => {
               <ArrowRight size={18} />
             </Link>
             <Link 
-              to="/signup?role=founder" 
+              to="/verify" 
               className="px-8 py-4 rounded-2xl bg-white border border-[#EEF0FD] text-[#122056] text-[15px] font-bold hover:bg-[#FAFAFD] transition-all"
             >
               List Your Startup

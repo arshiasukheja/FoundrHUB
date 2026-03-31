@@ -1,6 +1,7 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import SidebarMenu from '../components/SidebarMenu'
 import DashboardHeader from '../components/DashboardHeader'
 import StatCardsGrid from '../components/StatCardsGrid'
@@ -12,6 +13,7 @@ import { TrendingUp, ArrowUpRight, Zap, Bell, Search } from 'lucide-react'
 
 const FounderDashboard = () => {
   const navigate = useNavigate()
+  const { user } = useAuth()
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -50,19 +52,9 @@ const FounderDashboard = () => {
         {/* Cinematic Sticky Header */}
         <div className="sticky top-0 z-40 bg-[#FAFAFD]/80 backdrop-blur-xl border-b border-[#EEF0FD]">
           <div className="max-w-7xl mx-auto px-6 lg:px-10 py-5 flex items-center justify-between">
-            <DashboardHeader userName="Sarah Chen" />
+            <DashboardHeader />
             
-            <div className="flex items-center gap-4">
-              <div className="hidden md:flex items-center gap-3 px-4 py-2 rounded-2xl bg-white border border-[#EEF0FD] shadow-sm text-[#122056]/40">
-                <Search size={16} />
-                <span className="text-xs font-medium">Search anything...</span>
-                <span className="text-[10px] bg-[#EEF0FD] px-1.5 py-0.5 rounded-md font-bold text-[#122056]/60">⌘K</span>
-              </div>
-              <button className="p-2.5 rounded-xl bg-white border border-[#EEF0FD] text-[#122056]/60 hover:text-[#5B65DC] transition-all relative">
-                <Bell size={20} />
-                <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white" />
-              </button>
-            </div>
+            <div />
           </div>
         </div>
 
@@ -80,7 +72,7 @@ const FounderDashboard = () => {
               <span className="text-[10px] font-bold uppercase tracking-widest text-[#5B65DC]">Your morning briefing is ready</span>
             </div>
             <h1 className="font-serif text-[2.4rem] text-[#122056] leading-tight">
-              Good morning, <span className="text-[#5B65DC]">Sarah.</span>
+              Good morning, <span className="text-[#5B65DC]">{user?.name?.split(' ')[0] || "Founder"}.</span>
             </h1>
             <p className="text-[#122056]/50 text-sm mt-2 max-w-xl">
               You've had <span className="text-[#122056] font-bold">124 new views</span> on your profile since yesterday. 

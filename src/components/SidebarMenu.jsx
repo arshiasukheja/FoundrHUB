@@ -14,7 +14,7 @@ import {
 
 const SidebarMenu = ({ activeItem = 'dashboard' }) => {
   const navigate = useNavigate()
-  const { logout } = useAuth()
+  const { user, logout } = useAuth()
   const [isExpanded, setIsExpanded] = useState(true)
 
   const menuItems = [
@@ -104,8 +104,8 @@ const SidebarMenu = ({ activeItem = 'dashboard' }) => {
               <img src="https://i.pravatar.cc/100?img=20" alt="avatar" className="w-full h-full object-cover" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[12px] font-bold text-[#122056] truncate">Sarah Chen</p>
-              <p className="text-[10px] text-[#5B65DC] font-bold truncate">Premium Founder</p>
+              <p className="text-[12px] font-bold text-[#122056] truncate">{user?.name || "Founder"}</p>
+              <p className="text-[10px] text-[#5B65DC] font-bold truncate">{user?.role === 'founder' ? 'Verified Founder' : 'Premium Member'}</p>
             </div>
           </div>
         </div>

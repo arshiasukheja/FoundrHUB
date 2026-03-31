@@ -80,13 +80,13 @@ const founderTestimonials = [
     name: 'Rahul Kapoor',
     designation: 'Founder, NeuralBrew AI',
     quote: "Navigating the deep tech space in India was challenging until we joined FoundrHUB. The insights and visibility we gained here made our recent funding round a massive success.",
-    src: "https://images.unsplash.com/photo-1542744173-b33e14629f77?q=80&w=1200"
+    src: "/founder-rahul.png"
   },
   {
-    name: 'Meera Patel',
-    designation: 'Founder, GreenRoute',
-    quote: "Reliability is key for climate tech startups. Being a verified brand on FoundrHUB instantly established trust with our enterprise partners and logistics networks.",
-    src: "https://images.unsplash.com/photo-1556761175-4b413da4baf72?q=80&w=1200"
+    name: 'Arjun Desai',
+    designation: 'Founder, StackFin',
+    quote: "Being listed on FoundrHUB gave StackFin the credibility it needed to onboard our first 50 enterprise clients. The verified badge is worth more than any ad campaign we've run.",
+    src: "/founder-arjun.jpg"
   }
 ]
 

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 const roles = [
@@ -18,6 +18,7 @@ const roles = [
 
 const SignUpPage = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const [searchParams] = useSearchParams()
   const { signup, getDashboardPathForRole } = useAuth()
 
@@ -49,7 +50,8 @@ const SignUpPage = () => {
       return
     }
 
-    navigate(getDashboardPathForRole(result.user.role), { replace: true })
+    const from = location.state?.from?.pathname || getDashboardPathForRole(result.user.role)
+    navigate(from, { replace: true })
   }
 
   return (

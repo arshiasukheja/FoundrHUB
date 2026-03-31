@@ -41,7 +41,14 @@ const AppRoutes = () => {
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<PageTransition><HomePage /></PageTransition>} />
         <Route path="/explore" element={<PageTransition><ExplorePage /></PageTransition>} />
-        <Route path="/verify" element={<PageTransition><VerifyPage /></PageTransition>} />
+        <Route 
+          path="/verify" 
+          element={
+            <ProtectedRoute>
+              <PageTransition><VerifyPage /></PageTransition>
+            </ProtectedRoute>
+          } 
+        />
         <Route path="/signin" element={<PageTransition><SignInPage /></PageTransition>} />
         <Route path="/signup" element={<PageTransition><SignUpPage /></PageTransition>} />
         <Route

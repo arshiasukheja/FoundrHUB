@@ -23,7 +23,7 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
             onClose={() => setShowToast(false)}
           />
         )}
-        <Navigate to="/" state={{ from: location }} replace />
+        <Navigate to="/signin" state={{ from: location }} replace />
       </>
     )
   }

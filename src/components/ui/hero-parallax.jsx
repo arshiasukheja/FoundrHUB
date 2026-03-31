@@ -18,30 +18,28 @@ export const HeroParallax = ({
     offset: ["start start", "end start"],
   });
 
-  const springConfig = { stiffness: 50, damping: 20, bounce: 0 };
+  // Snappy spring ONLY for the 3D perspective entry — tracks scroll tightly
+  const springConfig = { stiffness: 300, damping: 40, bounce: 0 };
 
-  const translateX = useSpring(
-    useTransform(scrollYProgress, [0, 1], [0, 800]),
-    springConfig
-  );
-  const translateXReverse = useSpring(
-    useTransform(scrollYProgress, [0, 1], [0, -800]),
-    springConfig
-  );
+  // Row translations use raw transforms (no spring) — eliminates horizontal lag completely
+  const translateX = useTransform(scrollYProgress, [0, 1], [0, 600]);
+  const translateXReverse = useTransform(scrollYProgress, [0, 1], [0, -600]);
+
+  // 3D perspective entry — spring here is fine as it's a one-time entry animation
   const rotateX = useSpring(
-    useTransform(scrollYProgress, [0, 0.2], [10, 0]),
+    useTransform(scrollYProgress, [0, 0.2], [12, 0]),
     springConfig
   );
   const opacity = useSpring(
-    useTransform(scrollYProgress, [0, 0.2], [0.1, 1]),
+    useTransform(scrollYProgress, [0, 0.15], [0.05, 1]),
     springConfig
   );
   const rotateZ = useSpring(
-    useTransform(scrollYProgress, [0, 0.2], [15, 0]),
+    useTransform(scrollYProgress, [0, 0.2], [18, 0]),
     springConfig
   );
   const translateY = useSpring(
-    useTransform(scrollYProgress, [0, 0.2], [-600, 200]),
+    useTransform(scrollYProgress, [0, 0.2], [-700, 150]),
     springConfig
   );
 
@@ -117,6 +115,7 @@ export const ProductCard = ({
       }}
       whileHover={{
         y: -15,
+        transition: { duration: 0.2 }
       }}
       key={product.title}
       className="group/product h-80 w-[24rem] relative flex-shrink-0"

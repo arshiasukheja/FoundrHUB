@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 const AuthSidePanel = () => (
@@ -36,6 +36,7 @@ const AuthSidePanel = () => (
 
 const SignInPage = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const [searchParams] = useSearchParams()
   const { login, getDashboardPathForRole } = useAuth()
   const [form, setForm] = useState({ email: '', password: '', remember: false })
@@ -54,7 +55,8 @@ const SignInPage = () => {
       return
     }
 
-    navigate(getDashboardPathForRole(result.user.role), { replace: true })
+    const from = location.state?.from?.pathname || getDashboardPathForRole(result.user.role)
+    navigate(from, { replace: true })
   }
 
   return (

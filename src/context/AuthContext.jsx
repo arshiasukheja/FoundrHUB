@@ -5,6 +5,7 @@ const AuthContext = createContext({
   signup: async () => ({ ok: false }),
   login: () => {},
   logout: () => {},
+  updateUser: () => {},
   getDashboardPathForRole: () => '/signin',
   isAuthenticated: false,
 })
@@ -124,6 +125,21 @@ export const AuthProvider = ({ children }) => {
     return { ok: true, user: sessionUser }
   }, [setSession])
 
+  const updateUser = useCallback((uData) => {
+    if (!user) return
+    const updatedUser = { ...user, ...uData }
+    localStorage.setItem(USER_KEY, JSON.stringify(updatedUser))
+    setUser(updatedUser)
+
+    // Also update in the global users list
+    const users = readUsers()
+    const index = users.findIndex(u => u.id === user.id)
+    if (index !== -1) {
+      users[index] = { ...users[index], ...uData }
+      writeUsers(users)
+    }
+  }, [user])
+
   const logout = useCallback(() => {
     localStorage.removeItem(AUTH_KEY)
     localStorage.removeItem(USER_KEY)
@@ -137,6 +153,7 @@ export const AuthProvider = ({ children }) => {
         signup,
         login,
         logout,
+        updateUser,
         isAuthenticated: !!user,
         getDashboardPathForRole,
       }}
