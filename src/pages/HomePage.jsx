@@ -6,6 +6,7 @@ import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import GlassCard from '../components/GlassCard'
 import DashboardPreview from '../components/DashboardPreview'
+import AnalyticsPreview from '../components/AnalyticsPreview'
 import { HighlighterDemo } from '../components/Highlighter'
 import { HeroParallax } from '../components/ui/hero-parallax'
 import { MapPin, Eye, Bookmark, MessageSquare, Users, PenLine, ClipboardList, CheckCircle, Rocket } from 'lucide-react'
@@ -203,68 +204,6 @@ const TrendingSection = () => (
   </section>
 )
 
-/* ═══════════════════════════════════════
-   5. ANALYTICS PREVIEW
-   ═══════════════════════════════════════ */
-const AnalyticsPreview = () => (
-  <section id="analytics" className="py-24 lg:py-32 relative overflow-hidden">
-    <div className="absolute inset-0 bg-gradient-to-b from-neutral-50/50 via-amber-50/10 to-white" />
-    <div className="max-w-7xl mx-auto px-6 lg:px-10 relative z-10">
-      <div className="reveal text-center mb-16">
-        <span className="section-label">Analytics Dashboard</span>
-        <h2 className="section-title">Your startup performance at a glance</h2>
-        <p className="text-[16px] text-neutral-500 max-w-lg mx-auto">Premium OS-style analytics panels tailored for founders who want real-time insight.</p>
-      </div>
-      <div className="reveal">
-        <GlassCard className="p-6 lg:p-8">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="flex gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-red-400" /><div className="w-2.5 h-2.5 rounded-full bg-amber-400" /><div className="w-2.5 h-2.5 rounded-full bg-emerald-400" /></div>
-              <span className="text-[12px] font-medium text-neutral-400 ml-2">FoundrHUB Analytics — Bloomcraft Studio</span>
-            </div>
-            <div className="flex gap-2">
-              {['7D', '30D', '90D'].map((p, i) => (
-                <button key={p} className={`px-3 py-1 rounded-lg text-[10px] font-semibold ${i === 1 ? 'bg-neutral-950 text-white' : 'bg-white/50 backdrop-blur-sm text-neutral-500 border border-white/40'}`}>{p}</button>
-              ))}
-            </div>
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            {[{ l: 'Profile Views', v: '2,847', c: '+24%', icon: Eye }, { l: 'Saves', v: '342', c: '+18%', icon: Bookmark }, { l: 'Story Engagement', v: '89%', c: '+5%', icon: MessageSquare }, { l: 'Inbound Leads', v: '27', c: '+9', icon: Users }].map(m => (
-              <div key={m.l} className="bg-white/40 backdrop-blur-xl rounded-2xl border border-white/50 p-5 hover:bg-white/55 transition-all duration-300">
-                <div className="flex items-center justify-between mb-2"><span className="text-neutral-700"><m.icon size={20} strokeWidth={1.5} /></span><span className="text-[11px] font-semibold text-emerald-600">{m.c}</span></div>
-                <p className="text-[22px] font-semibold text-neutral-900 leading-tight">{m.v}</p>
-                <p className="text-[11px] text-neutral-400 font-medium mt-0.5">{m.l}</p>
-              </div>
-            ))}
-          </div>
-          <div className="grid lg:grid-cols-5 gap-4">
-            <div className="lg:col-span-3 bg-white/40 backdrop-blur-xl rounded-2xl border border-white/50 p-5">
-              <p className="text-[13px] font-semibold text-neutral-800 mb-1">Views Over Time</p>
-              <p className="text-[11px] text-neutral-400 mb-4">Last 30 days</p>
-              <div className="flex items-end gap-1.5 h-28">
-                {[20, 35, 28, 45, 52, 38, 60, 55, 72, 65, 78, 82, 70, 88, 92, 75, 95, 88, 80, 90, 85, 92, 78, 95, 100, 88, 92, 85, 98, 92].map((h, i) => (
-                  <div key={i} className="flex-1 rounded-t hover:opacity-70 transition-opacity" style={{ height: `${h}%`, background: i >= 27 ? '#0a0a0a' : i >= 20 ? '#525252' : '#d4d4d4' }} />
-                ))}
-              </div>
-            </div>
-            <div className="lg:col-span-2 bg-white/40 backdrop-blur-xl rounded-2xl border border-white/50 p-5">
-              <p className="text-[13px] font-semibold text-neutral-800 mb-1">Discovery Sources</p>
-              <p className="text-[11px] text-neutral-400 mb-4">Where your visitors come from</p>
-              <div className="space-y-3">
-                {[{ l: 'FoundrHUB Feed', pct: 45 }, { l: 'Direct Search', pct: 28 }, { l: 'Shared Links', pct: 18 }, { l: 'Social Media', pct: 9 }].map(s => (
-                  <div key={s.l}>
-                    <div className="flex justify-between mb-1"><span className="text-[11px] font-medium text-neutral-600">{s.l}</span><span className="text-[11px] font-semibold text-neutral-500">{s.pct}%</span></div>
-                    <div className="w-full h-1.5 rounded-full bg-white/50"><div className="h-full rounded-full transition-all duration-700" style={{ width: `${s.pct}%`, background: s.pct > 30 ? '#0a0a0a' : '#a3a3a3' }} /></div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </GlassCard>
-      </div>
-    </div>
-  </section>
-)
 
 /* ═══════════════════════════════════════
    6. VERIFICATION STEPS
@@ -343,10 +282,9 @@ const HomePage = () => {
         <TrendingSection />
         <AnalyticsPreview />
         <VerificationSection />
+        <HeroParallax products={products} />
         <FinalCTA />
       </main>
-      {/* Hero Parallax Section */}
-      <HeroParallax products={products} />
 
       <Footer />
     </>
@@ -355,79 +293,79 @@ const HomePage = () => {
 
 const products = [
   {
-    title: "Moonbeam",
-    link: "https://gomoonbeam.com",
-    thumbnail: "https://www.aceternity.com/images/products/thumbnails/new/moonbeam.png",
+    title: "Innovators Peak",
+    link: "#",
+    thumbnail: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=1200",
   },
   {
-    title: "Cursor",
-    link: "https://cursor.so",
-    thumbnail: "https://www.aceternity.com/images/products/thumbnails/new/cursor.png",
+    title: "EcoBrand Collective",
+    link: "#",
+    thumbnail: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200",
   },
   {
-    title: "Rogue",
-    link: "https://userogue.com",
-    thumbnail: "https://www.aceternity.com/images/products/thumbnails/new/rogue.png",
+    title: "TechFlow Solutions",
+    link: "#",
+    thumbnail: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1200",
   },
   {
-    title: "Editorially",
-    link: "https://editorially.org",
-    thumbnail: "https://www.aceternity.com/images/products/thumbnails/new/editorially.png",
+    title: "Pulse Digital",
+    link: "#",
+    thumbnail: "https://images.unsplash.com/photo-1551434678-e076c223a692?q=80&w=1200",
   },
   {
-    title: "Editrix AI",
-    link: "https://editrix.ai",
-    thumbnail: "https://www.aceternity.com/images/products/thumbnails/new/editrix.png",
+    title: "Lumina Studio",
+    link: "#",
+    thumbnail: "https://images.unsplash.com/photo-1556761175-4b413da4baf72?q=80&w=1200",
   },
   {
-    title: "Pixel Perfect",
-    link: "https://app.pixelperfect.quest",
-    thumbnail: "https://www.aceternity.com/images/products/thumbnails/new/pixelperfect.png",
+    title: "Nexus Hub",
+    link: "#",
+    thumbnail: "https://images.unsplash.com/photo-1542744173-b33e14629f77?q=80&w=1200",
   },
   {
-    title: "Algochurn",
-    link: "https://algochurn.com",
-    thumbnail: "https://www.aceternity.com/images/products/thumbnails/new/algochurn.png",
+    title: "Vantage Point",
+    link: "#",
+    thumbnail: "https://images.unsplash.com/photo-1581291417084-6d8e200277781c?q=80&w=1200",
   },
   {
-    title: "Aceternity UI",
-    link: "https://ui.aceternity.com",
-    thumbnail: "https://www.aceternity.com/images/products/thumbnails/new/aceternityui.png",
+    title: "Bloomcraft Studio",
+    link: "#",
+    thumbnail: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=1200",
   },
   {
-    title: "Tailwind Master Kit",
-    link: "https://tailwindmasterkit.com",
-    thumbnail: "https://www.aceternity.com/images/products/thumbnails/new/tailwindmasterkit.png",
+    title: "Core Innovations",
+    link: "#",
+    thumbnail: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=1200",
   },
   {
-    title: "SmartBridge",
-    link: "https://smartbridgetech.com",
-    thumbnail: "https://www.aceternity.com/images/products/thumbnails/new/smartbridge.png",
+    title: "Streamline Labs",
+    link: "#",
+    thumbnail: "https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=1200",
   },
   {
-    title: "Renderwork Studio",
-    link: "https://renderwork.studio",
-    thumbnail: "https://www.aceternity.com/images/products/thumbnails/new/renderwork.png",
+    title: "Zenwork Space",
+    link: "#",
+    thumbnail: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200",
   },
   {
-    title: "Creme Digital",
-    link: "https://cremedigital.com",
-    thumbnail: "https://www.aceternity.com/images/products/thumbnails/new/cremedigital.png",
+    title: "Apex Ventures",
+    link: "#",
+    thumbnail: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1200",
   },
   {
-    title: "Golden Bells Academy",
-    link: "https://goldenbellsacademy.com",
-    thumbnail: "https://www.aceternity.com/images/products/thumbnails/new/goldenbellsacademy.png",
+    title: "Creative Pulse",
+    link: "#",
+    thumbnail: "https://images.unsplash.com/photo-1522071823991-b5ae95bb9724?q=80&w=1200",
   },
   {
-    title: "Invoker Labs",
-    link: "https://invoker.lol",
-    thumbnail: "https://www.aceternity.com/images/products/thumbnails/new/invoker.png",
+    title: "Startup Forge",
+    link: "#",
+    thumbnail: "https://images.unsplash.com/photo-1559136555-9303baea8ebd?q=80&w=1200",
   },
   {
-    title: "E Free Invoice",
-    link: "https://efreeinvoice.com",
-    thumbnail: "https://www.aceternity.com/images/products/thumbnails/new/efreeinvoice.png",
+    title: "Momentum Tech",
+    link: "#",
+    thumbnail: "https://images.unsplash.com/photo-1553877522-43269d4ea984?q=80&w=1200",
   },
 ];
 

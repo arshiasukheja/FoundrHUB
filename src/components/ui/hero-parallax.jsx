@@ -18,37 +18,37 @@ export const HeroParallax = ({
     offset: ["start start", "end start"],
   });
 
-  const springConfig = { stiffness: 300, damping: 30, bounce: 100 };
+  const springConfig = { stiffness: 50, damping: 20, bounce: 0 };
 
   const translateX = useSpring(
-    useTransform(scrollYProgress, [0, 1], [0, 1000]),
+    useTransform(scrollYProgress, [0, 1], [0, 800]),
     springConfig
   );
   const translateXReverse = useSpring(
-    useTransform(scrollYProgress, [0, 1], [0, -1000]),
+    useTransform(scrollYProgress, [0, 1], [0, -800]),
     springConfig
   );
   const rotateX = useSpring(
-    useTransform(scrollYProgress, [0, 0.2], [15, 0]),
+    useTransform(scrollYProgress, [0, 0.2], [10, 0]),
     springConfig
   );
   const opacity = useSpring(
-    useTransform(scrollYProgress, [0, 0.2], [0.2, 1]),
+    useTransform(scrollYProgress, [0, 0.2], [0.1, 1]),
     springConfig
   );
   const rotateZ = useSpring(
-    useTransform(scrollYProgress, [0, 0.2], [20, 0]),
+    useTransform(scrollYProgress, [0, 0.2], [15, 0]),
     springConfig
   );
   const translateY = useSpring(
-    useTransform(scrollYProgress, [0, 0.2], [-700, 500]),
+    useTransform(scrollYProgress, [0, 0.2], [-600, 200]),
     springConfig
   );
 
   return (
     <div
       ref={ref}
-      className="h-[300vh] py-40 overflow-hidden antialiased relative flex flex-col self-auto [perspective:1000px] [transform-style:preserve-3d]"
+      className="h-[280vh] py-20 overflow-hidden antialiased relative flex flex-col self-auto [perspective:1000px] [transform-style:preserve-3d]"
     >
       <Header />
       <motion.div
@@ -60,7 +60,7 @@ export const HeroParallax = ({
         }}
         className=""
       >
-        <motion.div className="flex flex-row-reverse space-x-reverse space-x-20 mb-20">
+        <motion.div className="flex flex-row-reverse space-x-reverse space-x-16 mb-16">
           {firstRow.map((product) => (
             <ProductCard
               product={product}
@@ -69,7 +69,7 @@ export const HeroParallax = ({
             />
           ))}
         </motion.div>
-        <motion.div className="flex flex-row mb-20 space-x-20 ">
+        <motion.div className="flex flex-row mb-16 space-x-16 ">
           {secondRow.map((product) => (
             <ProductCard
               product={product}
@@ -78,7 +78,7 @@ export const HeroParallax = ({
             />
           ))}
         </motion.div>
-        <motion.div className="flex flex-row-reverse space-x-reverse space-x-20">
+        <motion.div className="flex flex-row-reverse space-x-reverse space-x-16">
           {thirdRow.map((product) => (
             <ProductCard
               product={product}
@@ -94,13 +94,13 @@ export const HeroParallax = ({
 
 export const Header = () => {
   return (
-    <div className="max-w-7xl relative mx-auto py-20 md:py-40 px-4 w-full left-0 top-0">
-      <h1 className="font-serif text-4xl md:text-7xl font-bold text-neutral-900">
-        Discover <br /> the next big things
+    <div className="max-w-7xl relative mx-auto py-20 md:py-32 px-6 w-full left-0 top-0">
+      <h1 className="font-serif text-[clamp(2.4rem,6vw,4.8rem)] font-bold text-neutral-950 leading-[1.1] tracking-tight">
+        Discover <br /> the next big things.
       </h1>
-      <p className="max-w-2xl text-base md:text-xl mt-8 text-neutral-500">
-        We showcase the most innovative startups and brands scaling across Bharat.
-        Explore the products that are defining the future of homegrown innovation.
+      <p className="max-w-2xl text-[16px] md:text-[18px] mt-8 text-neutral-500 leading-relaxed font-medium">
+        We showcase India's most innovative startups and rising brands building for the next billion.
+        Explore the visionary products defining the future of homegrown excellence.
       </p>
     </div>
   );
@@ -116,27 +116,27 @@ export const ProductCard = ({
         x: translate,
       }}
       whileHover={{
-        y: -10,
+        y: -15,
       }}
       key={product.title}
-      className="group/product h-96 w-[30rem] relative flex-shrink-0"
+      className="group/product h-80 w-[24rem] relative flex-shrink-0"
     >
-      <a
-        href={product.link}
-        className="block group-hover/product:shadow-2xl "
-      >
+      <div className="block group-hover/product:shadow-[0_20px_50px_rgba(0,0,0,0.15)] transition-all duration-500 rounded-[2rem] overflow-hidden bg-neutral-100 h-full w-full">
         <img
           src={product.thumbnail}
           height="600"
           width="600"
-          className="object-cover object-left-top absolute h-full w-full inset-0 rounded-2xl"
+          className="object-cover object-center absolute h-full w-full inset-0 transition-transform duration-700 group-hover/product:scale-110"
           alt={product.title}
         />
-      </a>
-      <div className="absolute inset-0 h-full w-full opacity-0 group-hover/product:opacity-40 bg-black pointer-events-none rounded-2xl transition-opacity"></div>
-      <h2 className="absolute bottom-4 left-4 opacity-0 group-hover/product:opacity-100 text-white font-semibold transition-opacity">
-        {product.title}
-      </h2>
+      </div>
+      <div className="absolute inset-0 h-full w-full opacity-0 group-hover/product:opacity-30 bg-black pointer-events-none rounded-[2rem] transition-all duration-500"></div>
+      <div className="absolute bottom-6 left-6 opacity-0 group-hover/product:opacity-100 transition-all duration-500 translate-y-2 group-hover/product:translate-y-0 text-white">
+        <p className="text-[14px] font-bold tracking-wide uppercase opacity-70 mb-1">Featured Brand</p>
+        <h2 className="text-[20px] font-bold">
+          {product.title}
+        </h2>
+      </div>
     </motion.div>
   );
 };
