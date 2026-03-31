@@ -1,111 +1,157 @@
 import React, { useEffect, useState } from 'react'
-import { motion, animate } from 'framer-motion'
+import { motion, animate, useInView } from 'framer-motion'
+import { Eye, Bookmark, MessageSquare, Users2 } from 'lucide-react'
 
 const Counter = ({ value, duration = 1.2, delay = 0.2 }) => {
   const [display, setDisplay] = useState(0)
+  const nodeRef = React.useRef(null)
+  const isInView = useInView(nodeRef, { once: true })
 
   useEffect(() => {
-    const controls = animate(0, value, {
-      duration,
-      delay,
-      ease: 'easeOut',
-      onUpdate: (latest) => setDisplay(Math.floor(latest)),
-    })
-    return () => controls.stop()
-  }, [value, duration, delay])
+    if (isInView) {
+      const controls = animate(0, value, {
+        duration,
+        delay,
+        ease: [0.16, 1, 0.3, 1],
+        onUpdate: (latest) => setDisplay(Math.floor(latest)),
+      })
+      return () => controls.stop()
+    }
+  }, [value, duration, delay, isInView])
 
-  return <span>{display.toLocaleString()}</span>
+  return <span ref={nodeRef}>{display.toLocaleString()}</span>
 }
 
-const StatItem = ({ label, value, change, delay }) => (
+const AnalyticsStat = ({ icon: Icon, label, value, change, delay, suffix = "" }) => (
   <motion.div
-    initial={{ opacity: 0, y: 15 }}
+    initial={{ opacity: 0, y: 10 }}
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
-    transition={{ delay, duration: 0.6, ease: 'easeOut' }}
+    transition={{ delay, duration: 0.5 }}
     className="flex-1"
   >
-    <p className="text-[11px] font-semibold text-neutral-400 uppercase tracking-[0.15em] mb-3">{label}</p>
-    <div className="flex items-baseline gap-2">
-      <p className="text-[32px] font-bold text-neutral-900 leading-none tracking-tight tabular-nums">
-        <Counter value={value} delay={delay + 0.3} />
-      </p>
-      <motion.span
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        transition={{ delay: delay + 0.8, duration: 0.5 }}
-        className="text-[14px] font-bold text-neutral-500"
-      >
-        {change}
-      </motion.span>
+    <div className="flex items-center gap-2 mb-4">
+      <div className="p-1 rounded-md text-neutral-400">
+        <Icon size={14} strokeWidth={1.5} />
+      </div>
+      <span className="text-[10px] font-bold text-emerald-500">+{change}</span>
     </div>
+    <p className="text-3xl font-bold text-[#122056] leading-none mb-1.5 tabular-nums tracking-tight">
+      <Counter value={value} delay={delay + 0.2} />{suffix}
+    </p>
+    <p className="text-[9px] font-bold text-neutral-400 uppercase tracking-[0.14em]">{label}</p>
   </motion.div>
 )
 
+const DiscoverySource = ({ label, value, percentage, delay }) => (
+  <div className="mb-6">
+    <div className="flex justify-between items-end mb-2">
+      <p className="text-[11px] font-bold text-[#122056]">{label}</p>
+      <p className="text-[10px] font-medium text-neutral-400">{percentage}%</p>
+    </div>
+    <div className="w-full h-1 bg-[#EEF0FD] rounded-full overflow-hidden">
+      <motion.div
+        initial={{ width: 0 }}
+        whileInView={{ width: `${percentage}%` }}
+        viewport={{ once: true }}
+        transition={{ delay: 0.5 + delay, duration: 1, ease: [0.16, 1, 0.3, 1] }}
+        className="h-full bg-[#122056] rounded-full"
+      />
+    </div>
+  </div>
+)
+
 const DashboardPreview = () => {
-  const barData = [35, 48, 42, 65, 58, 82, 70, 90, 78, 100, 88, 95]
-
+  const [activeRange, setActiveRange] = useState('30D')
+  const barData = [20, 30, 25, 40, 35, 45, 55, 40, 65, 60, 75, 85, 80, 95, 90, 100, 85, 90, 80, 95]
+  
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.8, ease: 'easeOut' }}
-      whileHover={{ scale: 1.01 }}
-      className="w-full max-w-5xl mx-0 py-8 select-none"
-    >
-      {/* Header Row */}
-      <div className="flex items-start justify-between mb-16">
-        <div className="flex items-center gap-5">
-          <div className="w-12 h-12 rounded-2xl bg-neutral-950 flex items-center justify-center shadow-lg">
-            <span className="text-white text-[13px] font-bold">FH</span>
+    <div className="w-full bg-[#FAFAFD] py-20">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8 }}
+        className="max-w-6xl mx-auto p-1 bg-white border border-[#EEF0FD] rounded-[2.5rem] shadow-[0_32px_120px_rgba(18,32,86,0.03)]"
+      >
+        {/* Header Bar */}
+        <div className="px-8 py-6 flex items-center justify-between border-b border-[#EEF0FD]">
+          <div className="flex items-center gap-4">
+             <div className="flex gap-1.5">
+               <div className="w-2.5 h-2.5 rounded-full bg-[#FF5F57]" />
+               <div className="w-2.5 h-2.5 rounded-full bg-[#FEBC2E]" />
+               <div className="w-2.5 h-2.5 rounded-full bg-[#28C840]" />
+             </div>
+             <span className="text-[11px] font-bold text-neutral-400 uppercase tracking-widest pl-2 border-l border-[#EEF0FD]">
+               FoundrHUB Analytics — <span className="text-neutral-500">Bloomcraft Studio</span>
+             </span>
           </div>
-          <div>
-            <h3 className="text-[18px] font-bold text-neutral-900 tracking-tight">FoundrHUB Dashboard</h3>
-            <p className="text-[13px] text-neutral-400 font-medium tracking-wide">Startup Discovery OS</p>
+          
+          <div className="flex items-center bg-[#FAFAFD] rounded-xl p-1 border border-[#EEF0FD]">
+            {['7D', '30D', '90D'].map(range => (
+              <button
+                key={range}
+                onClick={() => setActiveRange(range)}
+                className={`px-4 py-1.5 rounded-lg text-[10px] font-bold transition-all duration-300 ${
+                  activeRange === range 
+                  ? 'bg-[#122056] text-white shadow-md' 
+                  : 'text-neutral-400 hover:text-neutral-900'
+                }`}
+              >
+                {range}
+              </button>
+            ))}
           </div>
         </div>
-        
-        <div className="flex gap-2 pt-2">
-          {['bg-emerald-500', 'bg-amber-400', 'bg-rose-500'].map(c => (
-            <div key={c} className={`w-2.5 h-2.5 rounded-full ${c} opacity-90`} />
-          ))}
-        </div>
-      </div>
 
-      {/* Stats Horizontal Row */}
-      <div className="flex gap-12 mb-20 items-end">
-        <StatItem label="Active Startups" value={1247} change="+12%" delay={0.2} />
-        <StatItem label="Cities" value={86} change="+5" delay={0.3} />
-        <StatItem label="Verified" value={493} change="+28" delay={0.4} />
-      </div>
+        <div className="px-10 py-12">
+          {/* Stats Row */}
+          <div className="grid grid-cols-4 gap-12 mb-20">
+            <AnalyticsStat icon={Eye} label="Profile Views" value={2847} change="24%" delay={0.1} />
+            <AnalyticsStat icon={Bookmark} label="Saves" value={342} change="18%" delay={0.2} />
+            <AnalyticsStat icon={MessageSquare} label="Story Engagement" value={89} change="5" suffix="%" delay={0.3} />
+            <AnalyticsStat icon={Users2} label="Inbound Leads" value={27} change="9" delay={0.4} />
+          </div>
 
-      {/* Chart Section */}
-      <div className="pt-8 border-t border-neutral-100">
-        <p className="text-[11px] font-semibold text-neutral-400 mb-8 uppercase tracking-[0.15em]">Discovery Trend — 6 months</p>
-        
-        <div className="flex items-end gap-3.5 h-44">
-          {barData.map((h, i) => (
-            <motion.div
-              key={i}
-              initial={{ height: 0, opacity: 0 }}
-              whileInView={{ height: `${h}%`, opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ 
-                delay: 0.6 + i * 0.05, 
-                duration: 0.7, 
-                ease: 'easeOut'
-              }}
-              className="flex-1 rounded-[4px] bg-neutral-950/5 hover:bg-neutral-950/10 transition-colors"
-              style={{ 
-                backgroundColor: i >= 9 ? '#0a0a0a' : i >= 7 ? '#404040' : i >= 4 ? '#737373' : '#e5e5e5' 
-              }}
-            />
-          ))}
+          <div className="grid grid-cols-12 gap-20">
+            {/* Chart View */}
+            <div className="col-span-12 lg:col-span-7">
+              <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.16em] mb-12">Views over time</p>
+              <div className="flex items-end gap-2 h-44">
+                {barData.map((h, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ height: 0 }}
+                    whileInView={{ height: `${h}%` }}
+                    viewport={{ once: true }}
+                    transition={{ 
+                      delay: 0.3 + i * 0.03, 
+                      duration: 0.8, 
+                      ease: [0.16, 1, 0.3, 1] 
+                    }}
+                    className="flex-1 rounded-sm transition-colors duration-500"
+                    style={{ 
+                      backgroundColor: i > barData.length - 5 ? '#122056' : i > barData.length - 12 ? '#5B65DC' : '#EEF0FD' 
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Sources View */}
+            <div className="col-span-12 lg:col-span-5">
+              <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.16em] mb-12">Discovery Sources</p>
+              <div className="flex flex-col">
+                <DiscoverySource label="FoundrHUB Feed" percentage={45} delay={0.1} />
+                <DiscoverySource label="Direct Search" percentage={28} delay={0.2} />
+                <DiscoverySource label="Shared Links" percentage={18} delay={0.3} />
+                <DiscoverySource label="Social Media" percentage={9} delay={0.4} />
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+    </div>
   )
 }
 

@@ -10,9 +10,10 @@ import HomePage from './pages/HomePage'
 import ExplorePage from './pages/ExplorePage'
 import VerifyPage from './pages/VerifyPage'
 import SignInPage from './pages/SignInPage'
-import DashboardPage from './pages/DashboardPage'
+import SignUpPage from './pages/SignUpPage'
 import ProfilePage from './pages/ProfilePage'
 import SettingsPage from './pages/SettingsPage'
+import FounderDashboard from './pages/FounderDashboard'
 
 /* Page transition wrapper */
 const PageTransition = ({ children }) => (
@@ -41,14 +42,7 @@ const AppRoutes = () => {
         <Route path="/explore" element={<PageTransition><ExplorePage /></PageTransition>} />
         <Route path="/verify" element={<PageTransition><VerifyPage /></PageTransition>} />
         <Route path="/signin" element={<PageTransition><SignInPage /></PageTransition>} />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <PageTransition><DashboardPage /></PageTransition>
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/signup" element={<PageTransition><SignUpPage /></PageTransition>} />
         <Route
           path="/profile"
           element={
@@ -62,6 +56,30 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <PageTransition><SettingsPage /></PageTransition>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/founder/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={['founder']}>
+              <PageTransition><FounderDashboard /></PageTransition>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/founder"
+          element={
+            <ProtectedRoute allowedRoles={['founder']}>
+              <PageTransition><FounderDashboard /></PageTransition>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/explore"
+          element={
+            <ProtectedRoute allowedRoles={['discoverer']}>
+              <PageTransition><ExplorePage /></PageTransition>
             </ProtectedRoute>
           }
         />

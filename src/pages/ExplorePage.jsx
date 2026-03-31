@@ -1,162 +1,285 @@
-import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { Link } from 'react-router-dom'
-import { Search, MapPin } from 'lucide-react'
+import React, { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Search, Filter, ChevronDown, MessageSquare, ThumbsUp, Zap, SlidersHorizontal, LayoutGrid, List, ArrowUpRight } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
-
-const categories = ['All', 'AI / Deep Tech', 'Sustainable Fashion', 'Climate Tech', 'Fintech', 'D2C Beauty', 'EdTech', 'SaaS', 'Food & Beverage']
-const cities = ['All Cities', 'Chandigarh', 'Mumbai', 'Bengaluru', 'Delhi', 'Pune', 'Hyderabad']
-const stages = ['All Stages', 'Idea', 'MVP', 'Launched', 'Scaling']
-
-const allStartups = [
-  { name: 'Bloomcraft Studio', founder: 'Ananya Sharma', desc: 'Handcrafted sustainable fashion blending traditional textiles with modern minimalism.', category: 'Sustainable Fashion', city: 'Chandigarh', badge: 'Verified', color: '#e8d5c0', initials: 'BC', stage: 'Launched', traction: '10K+ orders' },
-  { name: 'NeuralBrew AI', founder: 'Rahul Kapoor', desc: 'AI-powered creative tools helping D2C brands generate compelling narratives at scale.', category: 'AI / Deep Tech', city: 'Chandigarh', badge: 'Rising', color: '#c9d5e0', initials: 'NB', stage: 'Scaling', traction: '5K users' },
-  { name: 'GreenRoute', founder: 'Meera Patel', desc: 'Last-mile delivery optimization reducing carbon footprint for hyperlocal brands.', category: 'Climate Tech', city: 'Chandigarh', badge: 'Funded', color: '#d5e0c9', initials: 'GR', stage: 'Scaling', traction: 'Series A' },
-  { name: 'KiraSkin', founder: 'Priya Nair', desc: 'Clean-label skincare powered by lab-tested Ayurvedic formulations.', category: 'D2C Beauty', city: 'Mumbai', badge: 'Verified', color: '#e0c9d5', initials: 'KS', stage: 'Launched', traction: '8K customers' },
-  { name: 'StackFin', founder: 'Arjun Desai', desc: 'Embedded finance infrastructure for SaaS founders to add payments in minutes.', category: 'Fintech', city: 'Pune', badge: 'Rising', color: '#d5d0e8', initials: 'SF', stage: 'MVP', traction: '120 waitlist' },
-  { name: 'CraftBox', founder: 'Sneha Joshi', desc: 'Subscription craft kits for curated DIY experiences delivered nationwide.', category: 'EdTech', city: 'Chandigarh', badge: 'Funded', color: '#e0dac9', initials: 'CB', stage: 'Launched', traction: '3K subs' },
-  { name: 'FreshPress', founder: 'Vikram Singh', desc: 'Cold-pressed juice subscriptions with hyperlocal farm-to-glass delivery in 60 minutes.', category: 'Food & Beverage', city: 'Chandigarh', badge: 'Verified', color: '#c9e0d5', initials: 'FP', stage: 'Launched', traction: '2K daily' },
-  { name: 'CodeCraft Academy', founder: 'Nisha Gupta', desc: 'Project-based coding bootcamp for tier-2 city students with placement guarantees.', category: 'EdTech', city: 'Bengaluru', badge: 'Rising', color: '#d5c9e0', initials: 'CA', stage: 'Scaling', traction: '4K students' },
-  { name: 'SolarLeaf', founder: 'Rajan Mehta', desc: 'Affordable rooftop solar solutions for Indian homes with AI-powered energy management.', category: 'Climate Tech', city: 'Delhi', badge: 'Funded', color: '#e0e0c9', initials: 'SL', stage: 'Scaling', traction: '1.2K installs' },
-  { name: 'PureThread', founder: 'Aarti Khanna', desc: 'Zero-waste fashion brand using recycled ocean plastics to create premium athleisure.', category: 'Sustainable Fashion', city: 'Mumbai', badge: 'Verified', color: '#c9d5d5', initials: 'PT', stage: 'Launched', traction: '6K orders' },
-  { name: 'MindPal', founder: 'Saurabh Roy', desc: 'AI mental wellness companion offering CBT-based therapy sessions at ₹99/month.', category: 'AI / Deep Tech', city: 'Hyderabad', badge: 'Rising', color: '#d5e8c9', initials: 'MP', stage: 'MVP', traction: '800 users' },
-  { name: 'QuickKart', founder: 'Lakshmi Iyer', desc: 'WhatsApp-first hyperlocal grocery delivery for tier-3 towns with 30-min delivery.', category: 'Food & Beverage', city: 'Pune', badge: 'Funded', color: '#e8c9d5', initials: 'QK', stage: 'Scaling', traction: '15K orders/mo' },
-]
-
-const badgeMap = {
-  Verified: 'bg-emerald-500/10 text-emerald-700 border-emerald-200/60',
-  Rising: 'bg-amber-500/10 text-amber-700 border-amber-200/60',
-  Funded: 'bg-blue-500/10 text-blue-700 border-blue-200/60',
-}
+import StartupDetailModal from '../components/StartupDetailModal'
 
 const ExplorePage = () => {
-  const [search, setSearch] = useState('')
-  const [activeCategory, setActiveCategory] = useState('All')
-  const [activeCity, setActiveCity] = useState('All Cities')
-  const [activeStage, setActiveStage] = useState('All Stages')
-  const [viewMode, setViewMode] = useState('grid')
+  const [selectedStartup, setSelectedStartup] = useState(null)
+  const [searchValue, setSearchValue] = useState('')
+  const [viewType, setViewType] = useState('grid')
 
-  const filtered = allStartups.filter(s => {
-    if (activeCategory !== 'All' && s.category !== activeCategory) return false
-    if (activeCity !== 'All Cities' && s.city !== activeCity) return false
-    if (activeStage !== 'All Stages' && s.stage !== activeStage) return false
-    if (search && !s.name.toLowerCase().includes(search.toLowerCase()) && !s.founder.toLowerCase().includes(search.toLowerCase()) && !s.category.toLowerCase().includes(search.toLowerCase())) return false
-    return true
-  })
+  const startups = [
+    {
+      id: 1,
+      name: 'Arcadia',
+      tagline: 'High-quality Gaming Everywhere',
+      logo: '🎮',
+      image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80',
+      description: 'Arcadia adalah platform game berbasis cloud yang memungkinkan pengguna untuk melakukan streaming game berlisensi resmi berkualitas tinggi...',
+      views: 28430,
+      growth: 45,
+      category: 'Gaming',
+      location: '📍 Bangalore',
+      stage: 'Growth',
+      verified: true
+    },
+    {
+      id: 2,
+      name: 'SkillSprint',
+      tagline: 'Akademi Upskilling Internal',
+      logo: '🚀',
+      description: 'Platform internal berbasis gamifikasi yang memungkinkan karyawan mengikuti pelatihan keterampilan baru yang sesuai dengan kebutuhan...',
+      views: 19240,
+      growth: 32,
+      category: 'EdTech',
+      location: '📍 Delhi',
+      stage: 'Seed',
+      verified: true
+    },
+    {
+      id: 3,
+      name: 'GreenOps',
+      tagline: 'Startup Pengelolalaan Limbah Kantor',
+      logo: '🌿',
+      image: 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&q=80',
+      description: 'Solusi berbasis IoT yang melacak penggunaan sumber daya di kantor (kertas, plastik, listrik) dan memberikan rekomendasi untuk mengurangi lim...',
+      views: 15620,
+      growth: 58,
+      category: 'Sustainability',
+      location: '📍 Mumbai',
+      stage: 'Scale',
+      verified: true
+    },
+    {
+       id: 4,
+       name: 'CulturePulse',
+       tagline: 'Analitik Budaya Perusahaan',
+       logo: '💓',
+       image: 'https://images.unsplash.com/photo-1522071823991-b5ae72643156?auto=format&fit=crop&q=80',
+       description: 'Platform yang menggunakan survei anonim dan analisis sentimen untuk mengukur kebahagiaan karyawan, mendeteksi potensi burnout, serta m...',
+       views: 31560,
+       growth: 72,
+       category: 'Well-being',
+       location: '📍 Bangalore',
+       stage: 'Growth',
+       verified: true
+    },
+    {
+      id: 5,
+      name: 'TalentX',
+      tagline: 'Karyawan sebagai Jasa Eksternal',
+      logo: '👔',
+      image: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80',
+      description: 'Platform yang memungkinkan karyawan dengan keahlian tertentu (misalnya data science, UX design, atau strategi bisnis) untuk menawarkan...',
+      views: 42310,
+      growth: 24,
+      category: 'Future of Work',
+      location: '📍 Delhi',
+      stage: 'Growth',
+      verified: true
+    },
+    {
+       id: 6,
+       name: 'Insightly',
+       tagline: 'AI untuk Analisis Pelanggan',
+       logo: '💡',
+       description: 'Sebuah startup internal yang menggunakan AI untuk menganalisis feedback pelanggan dari berbagai kanal (email, chat, media sosial) dan m...',
+       views: 8420,
+       growth: 15,
+       category: 'AI',
+       location: '📍 Mumbai',
+       stage: 'Seed',
+       verified: false
+    }
+  ]
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1, 
+      transition: { staggerChildren: 0.1 } 
+    }
+  }
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } 
+    }
+  }
 
   return (
-    <>
+    <div className="min-h-screen bg-[#FAFAFD] relative overflow-hidden">
+      {/* Background Decor */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-[-5%] right-[-5%] w-[40%] h-[40%] bg-[#5B65DC]/5 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[20%] left-[-10%] w-[30%] h-[40%] bg-[#122056]/30 rounded-full blur-[100px] opacity-10" />
+      </div>
+
       <Navbar />
-      <main className="pt-[72px] min-h-screen bg-gradient-to-b from-beige-50 to-white">
-        {/* Header */}
-        <section className="py-16 lg:py-20 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-gradient-to-bl from-amber-100/30 to-transparent rounded-full blur-3xl" />
-          <div className="max-w-7xl mx-auto px-6 lg:px-10 relative z-10">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-              <span className="text-[11px] font-semibold tracking-[0.15em] uppercase text-neutral-400 mb-4 block">Explore</span>
-              <h1 className="font-serif text-[clamp(2rem,4vw,3rem)] leading-[1.1] text-neutral-950 mb-4">Discover India's rising startups</h1>
-              <p className="text-[16px] text-neutral-500 max-w-lg mb-10">Browse verified founders, trending brands, and early-stage startups across categories and cities.</p>
-            </motion.div>
 
-            {/* Search */}
-            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.5 }}>
-              <div className="relative max-w-xl mb-8">
-                <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                </svg>
-                <input
-                  type="text"
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  placeholder="Search startups, founders, or categories..."
-                  id="explore-search"
-                  className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-white/60 backdrop-blur-xl border border-white/60 shadow-sm text-[14px] text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:border-neutral-300 focus:ring-2 focus:ring-neutral-100 transition-all duration-300"
-                />
-              </div>
-            </motion.div>
-
-            {/* Filters */}
-            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25, duration: 0.5 }} className="flex flex-wrap gap-6 mb-10">
-              <div>
-                <p className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-2">Category</p>
-                <div className="flex flex-wrap gap-2">
-                  {categories.map(c => (
-                    <button key={c} onClick={() => setActiveCategory(c)} className={`px-3.5 py-1.5 rounded-full text-[12px] font-medium border transition-all duration-300 ${activeCategory === c ? 'bg-neutral-950 text-white border-neutral-950' : 'bg-white/60 backdrop-blur-sm text-neutral-500 border-white/40 hover:border-neutral-300'}`}>{c}</button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <p className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-2">City</p>
-                <div className="flex flex-wrap gap-2">
-                  {cities.map(c => (
-                    <button key={c} onClick={() => setActiveCity(c)} className={`px-3.5 py-1.5 rounded-full text-[12px] font-medium border transition-all duration-300 ${activeCity === c ? 'bg-neutral-950 text-white border-neutral-950' : 'bg-white/60 backdrop-blur-sm text-neutral-500 border-white/40 hover:border-neutral-300'}`}>{c}</button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <p className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-2">Stage</p>
-                <div className="flex flex-wrap gap-2">
-                  {stages.map(c => (
-                    <button key={c} onClick={() => setActiveStage(c)} className={`px-3.5 py-1.5 rounded-full text-[12px] font-medium border transition-all duration-300 ${activeStage === c ? 'bg-neutral-950 text-white border-neutral-950' : 'bg-white/60 backdrop-blur-sm text-neutral-500 border-white/40 hover:border-neutral-300'}`}>{c}</button>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Results count */}
-            <p className="text-[13px] text-neutral-400 mb-6">
-              <span className="font-semibold text-neutral-600">{filtered.length}</span> startup{filtered.length !== 1 ? 's' : ''} found
-            </p>
+      <main className="max-w-7xl mx-auto px-6 lg:px-10 py-16 relative z-10">
+        
+        {/* Cinematic Header */}
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-16 text-center"
+        >
+          <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full bg-white border border-[#EEF0FD] shadow-sm">
+            <Zap size={14} className="text-[#5B65DC]" />
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#5B65DC]">Discovery Platform</span>
           </div>
-        </section>
+          <h1 className="text-[clamp(2.5rem,6vw,4.5rem)] font-serif font-black text-[#122056] tracking-tighter leading-none mb-6">
+            The <span className="text-[#5B65DC]">Founder</span> Ecosystem.
+          </h1>
+          <p className="text-[#122056]/50 text-xl max-w-2xl mx-auto font-medium">
+            Discover South Asia's most promising startups. Find your next partner, investment, or inspiration.
+          </p>
+        </motion.div>
 
-        {/* Results grid */}
-        <section className="pb-24 lg:pb-32">
-          <div className="max-w-7xl mx-auto px-6 lg:px-10">
-            {filtered.length === 0 ? (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20">
-                <div className="flex justify-center mb-4"><Search size={48} strokeWidth={1} className="text-neutral-200" /></div>
-                <p className="text-[18px] font-serif text-neutral-900 mb-2">No startups found</p>
-                <p className="text-[14px] text-neutral-400">Try adjusting your filters or search query</p>
-              </motion.div>
-            ) : (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3, duration: 0.5 }}
-                className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"
-              >
-                {filtered.map((s, i) => (
-                  <motion.div
-                    key={s.name}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.05, duration: 0.5 }}
-                    className="group bg-white/40 backdrop-blur-2xl rounded-3xl border border-white/60 p-7 hover:bg-white/60 hover:shadow-[0_12px_48px_-12px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-500 cursor-pointer"
-                  >
-                    <div className="flex items-start justify-between mb-5">
-                      <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-[14px] font-bold text-neutral-700 shadow-md" style={{ background: s.color }}>{s.initials}</div>
-                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-semibold border backdrop-blur-sm ${badgeMap[s.badge]}`}>{s.badge}</span>
-                    </div>
-                    <h3 className="text-[16px] font-semibold text-neutral-900 mb-1">{s.name}</h3>
-                    <p className="text-[12px] text-neutral-400 mb-3">by {s.founder}</p>
-                    <p className="text-[13px] text-neutral-500 leading-relaxed mb-5">{s.desc}</p>
-                    <div className="flex flex-wrap gap-1.5 mb-3">
-                      <span className="px-2.5 py-1 rounded-full bg-white/50 backdrop-blur-sm border border-white/40 text-[10px] font-medium text-neutral-600">{s.category}</span>
-                      <span className="px-2.5 py-1 rounded-full bg-white/50 backdrop-blur-sm border border-white/40 text-[10px] font-medium text-neutral-500 flex items-center gap-1"><MapPin size={10} strokeWidth={1.5} /> {s.city}</span>
-                      <span className="px-2.5 py-1 rounded-full bg-white/50 backdrop-blur-sm border border-white/40 text-[10px] font-medium text-neutral-500">{s.stage}</span>
-                    </div>
-                    <p className="text-[11px] font-semibold text-emerald-600">{s.traction}</p>
-                  </motion.div>
-                ))}
-              </motion.div>
-            )}
+        {/* Multi-Component Search Bar UI */}
+        <div className="max-w-4xl mx-auto mb-20 relative">
+          <div className="flex flex-col md:flex-row items-stretch gap-4 p-2.5 rounded-[2.5rem] bg-white border border-[#EEF0FD] shadow-[0_8px_40px_rgba(18,32,86,0.04)] focus-within:shadow-[0_12px_60px_rgba(91,101,220,0.1)] focus-within:border-[#5B65DC]/20 transition-all duration-500">
+             
+            {/* Search Input Part */}
+            <div className="flex-1 relative flex items-center group">
+              <Search size={22} className="absolute left-6 text-[#122056]/20 group-focus-within:text-[#5B65DC] transition-colors" />
+              <input 
+                type="text" 
+                placeholder="Search ideas, founders, or keywords..."
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+                className="w-full pl-16 pr-6 bg-transparent h-16 text-lg text-[#122056] placeholder:text-[#122056]/20 focus:outline-none"
+              />
+            </div>
+
+            {/* View & Filter Toggles */}
+            <div className="flex items-center gap-2 px-3">
+              <div className="hidden sm:flex items-center p-1.5 rounded-2xl bg-[#FAFAFD] border border-[#EEF0FD]">
+                <button 
+                  onClick={() => setViewType('grid')}
+                  className={`p-2.5 rounded-xl transition-all ${viewType === 'grid' ? 'bg-white text-[#5B65DC] shadow-sm' : 'text-[#122056]/30 hover:text-[#122056]/60'}`}
+                >
+                  <LayoutGrid size={18} />
+                </button>
+                <button 
+                  onClick={() => setViewType('list')}
+                  className={`p-2.5 rounded-xl transition-all ${viewType === 'list' ? 'bg-white text-[#5B65DC] shadow-sm' : 'text-[#122056]/30 hover:text-[#122056]/60'}`}
+                >
+                  <List size={18} />
+                </button>
+              </div>
+              
+              <button className="flex items-center gap-2 px-6 h-12 rounded-2xl bg-[#122056] text-white font-bold text-sm shadow-xl shadow-[#122056]/20 hover:scale-[1.02] transition-all">
+                 <SlidersHorizontal size={18} />
+                 <span>Filters</span>
+              </button>
+            </div>
           </div>
-        </section>
+
+          {/* Quick Shortcuts */}
+          <div className="flex items-center justify-center gap-6 mt-6 overflow-x-auto no-scrollbar pb-2">
+            {['All Ideas', 'Sustainability', 'FinTech', 'Artificial Intelligence', 'Future of Work', 'Social Impact'].map((cat, i) => (
+              <button key={i} className="text-[11px] font-bold uppercase tracking-widest text-[#122056]/30 hover:text-[#5B65DC] transition-colors whitespace-nowrap">
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Full Width Masonry-Style Grid */}
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10`}
+        >
+          {startups.map((startup) => (
+            <motion.div 
+              key={startup.id}
+              variants={itemVariants}
+              onClick={() => setSelectedStartup(startup)}
+              className="glass-card group cursor-pointer h-full flex flex-col"
+            >
+              <div className="p-8 flex flex-col h-full">
+                {/* Header Context */}
+                <div className="flex items-start justify-between mb-8">
+                  <div className="w-14 h-14 rounded-2xl bg-[#FAFAFD] border border-[#EEF0FD] group-hover:bg-[#5B65DC]/5 transition-all duration-500 flex items-center justify-center text-3xl">
+                    {startup.logo}
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#5B65DC] bg-[#5B65DC]/5 px-2.5 py-1 rounded-full mb-2">
+                      {startup.category}
+                    </span>
+                    <p className="text-[10px] font-bold text-[#122056]/20 group-hover:text-[#122056]/40 transition-colors uppercase tracking-widest">
+                      {startup.stage}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Cover Image (if any) */}
+                {startup.image && (
+                   <div className="aspect-[16/10] mb-8 rounded-[1.8rem] overflow-hidden border border-[#EEF0FD] relative">
+                     <div className="absolute inset-0 bg-[#122056]/5 group-hover:bg-transparent transition-colors z-10" />
+                     <img src={startup.image} alt={startup.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+                   </div>
+                )}
+
+                {/* Identity */}
+                <div className="flex-1">
+                  <h3 className="text-xl font-serif font-black text-[#122056] leading-tight mb-3 group-hover:text-[#5B65DC] transition-colors">
+                    {startup.name}
+                  </h3>
+                  <p className="text-[15px] font-medium text-[#122056]/50 group-hover:text-[#122056]/70 leading-relaxed transition-colors">
+                    {startup.tagline}. {startup.description}
+                  </p>
+                </div>
+
+                {/* Social Proof */}
+                <div className="flex items-center justify-between mt-10 pt-8 border-t border-[#EEF0FD]">
+                  <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-2 text-[11px] font-bold text-[#122056]/30">
+                      <ThumbsUp size={14} className="text-[#5B65DC]/40" />
+                      <span>{(startup.views / 15).toFixed(0)}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-[11px] font-bold text-[#122056]/30 text-nowrap">
+                      <MessageSquare size={14} className="text-[#5B65DC]/40" />
+                      <span>{Math.floor(Math.random() * 40)} Comments</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 font-bold text-[#5B65DC] group-hover:translate-x-1 transition-transform">
+                    <span className="text-[10px] uppercase tracking-widest">Profile</span>
+                    <ArrowUpRight size={14} />
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* View More Trigger */}
+        <div className="mt-20 flex justify-center">
+          <button className="flex items-center gap-3 px-10 py-5 rounded-3xl bg-white border border-[#EEF0FD] text-[#122056] font-bold text-sm tracking-widest uppercase hover:bg-[#122056] hover:text-white hover:border-[#122056] transition-all duration-500 shadow-sm">
+             Load More Ideas
+             <ChevronDown size={14} className="opacity-40" />
+          </button>
+        </div>
       </main>
+
       <Footer />
-    </>
+
+      {/* Modern Center Modal */}
+      <StartupDetailModal 
+        startup={selectedStartup} 
+        isOpen={!!selectedStartup} 
+        onClose={() => setSelectedStartup(null)} 
+      />
+    </div>
   )
 }
 

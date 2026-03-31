@@ -17,7 +17,7 @@ const categories = ['D2C / E-commerce', 'AI / Deep Tech', 'SaaS / B2B', 'Fintech
 const stages2 = ['Idea', 'MVP', 'Launched', 'Scaling']
 
 const VerifyPage = () => {
-  const { isAuthenticated, login } = useAuth()
+  const { isAuthenticated } = useAuth()
   const navigate = useNavigate()
   const [formStep, setFormStep] = useState(0)
   const [form, setForm] = useState({
@@ -28,9 +28,8 @@ const VerifyPage = () => {
   const up = (k, v) => setForm(p => ({ ...p, [k]: v }))
 
   const handleSubmit = () => {
-    login({ name: form.name, email: form.email, role: 'founder' })
     setSubmitted(true)
-    setTimeout(() => navigate('/dashboard'), 2500)
+    setTimeout(() => navigate('/signup?role=founder'), 2500)
   }
 
   return (

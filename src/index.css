@@ -16,17 +16,21 @@ html {
   scroll-behavior: smooth;
 }
 
+:root {
+  --brand-dark: #122056;
+  --brand-accent: #5B65DC;
+  --brand-bg: #FAFAFD;
+  --brand-soft: #EEF0FD;
+}
+
 body {
   font-family: 'Inter', system-ui, sans-serif;
-  background-color: #ffffff;
+  background-color: var(--brand-bg);
   background-image: 
-    radial-gradient(at 0% 0%, rgba(200, 182, 255, 0.1) 0px, transparent 50%),
-    radial-gradient(at 50% 0%, rgba(186, 230, 253, 0.1) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(254, 215, 170, 0.1) 0px, transparent 50%),
-    radial-gradient(at 0% 100%, rgba(186, 230, 253, 0.1) 0px, transparent 50%),
-    radial-gradient(at 50% 100%, rgba(251, 207, 232, 0.1) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(165, 243, 252, 0.1) 0px, transparent 50%);
-  color: #0a0a0a;
+    radial-gradient(at 0% 0%, rgba(91, 101, 220, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(18, 32, 86, 0.05) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(91, 101, 220, 0.08) 0px, transparent 50%);
+  color: var(--brand-dark);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   position: relative;
@@ -55,25 +59,25 @@ body::before {
 /* ── Glass Card Utility ── */
 @layer components {
   .glass-card {
-    @apply bg-white/40 backdrop-blur-2xl rounded-3xl border border-white/60 shadow-[0_8px_60px_-12px_rgba(0,0,0,0.08)];
+    @apply bg-white/70 backdrop-blur-2xl rounded-3xl border border-[#EEF0FD] shadow-[0_8px_30px_rgba(18,32,86,0.04)];
   }
   .glass-card-dark {
-    @apply bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10;
+    @apply bg-[#122056] backdrop-blur-xl rounded-3xl border border-white/10;
   }
   .glass-card-hover {
-    @apply hover:bg-white/60 hover:shadow-[0_12px_48px_-12px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-500;
+    @apply hover:bg-white/90 hover:shadow-[0_12px_48px_rgba(18,32,86,0.08)] hover:-translate-y-1 transition-all duration-500;
   }
   .btn-primary {
-    @apply inline-flex items-center px-7 py-3.5 rounded-full bg-neutral-950 text-white text-[14px] font-semibold tracking-wide hover:bg-neutral-800 transition-all duration-300 hover:shadow-xl hover:shadow-neutral-200;
+    @apply inline-flex items-center px-7 py-3.5 rounded-full bg-[#122056] text-white text-[14px] font-semibold tracking-wide hover:bg-[#5B65DC] transition-all duration-300 hover:shadow-xl hover:shadow-[#122056]/10;
   }
   .btn-glass {
-    @apply inline-flex items-center px-7 py-3.5 rounded-full bg-white/60 backdrop-blur-xl border border-white/70 text-neutral-700 text-[14px] font-semibold hover:bg-white/80 transition-all duration-300 shadow-sm;
+    @apply inline-flex items-center px-7 py-3.5 rounded-full bg-white/60 backdrop-blur-xl border border-[#EEF0FD] text-[#122056] text-[14px] font-semibold hover:bg-[#FAFAFD] transition-all duration-300 shadow-sm;
   }
   .section-label {
-    @apply text-[11px] font-semibold tracking-[0.15em] uppercase text-neutral-400 mb-4 block;
+    @apply text-[11px] font-semibold tracking-[0.15em] uppercase text-[#5B65DC]/60 mb-4 block;
   }
   .section-title {
-    @apply font-serif text-[clamp(1.8rem,4vw,2.8rem)] leading-[1.1] text-neutral-950 mb-4;
+    @apply font-serif text-[clamp(1.8rem,4vw,2.8rem)] leading-[1.1] text-[#122056] mb-4;
   }
 }
 

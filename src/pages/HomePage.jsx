@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
+import CinematicHero from '../components/CinematicHero'
 import GlassCard from '../components/GlassCard'
 import DashboardPreview from '../components/DashboardPreview'
 import AnalyticsPreview from '../components/AnalyticsPreview'
@@ -60,77 +61,7 @@ const fadeUp = {
 /* ═══════════════════════════════════════
    1. HERO
    ═══════════════════════════════════════ */
-const HeroSection = () => {
-  const { isAuthenticated } = useAuth()
-  return (
-    <section className="relative min-h-screen flex items-center overflow-hidden">
-      {/* Background Enhancements */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-50/40 via-white to-transparent" />
-      <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-indigo-100/30 rounded-full blur-[120px] animate-pulse" />
-      <div className="absolute bottom-[10%] right-[-5%] w-[50%] h-[50%] bg-emerald-100/20 rounded-full blur-[100px]" />
-      <div className="absolute top-[20%] right-[10%] w-72 h-72 bg-amber-200/20 rounded-full blur-[80px]" />
 
-      <div className="max-w-7xl mx-auto w-full px-6 lg:px-10 pt-32 pb-20 lg:pt-40 lg:pb-28 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
-          <motion.div initial="hidden" animate="visible" variants={fadeUp}>
-            <div className="inline-flex items-center gap-2 mb-8 px-4 py-1.5 rounded-full bg-white/50 backdrop-blur-xl border border-white/60 shadow-sm">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[11px] font-semibold tracking-[0.15em] uppercase text-neutral-500">Now in early access</span>
-            </div>
-            <motion.h1 
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="font-serif text-[clamp(2.6rem,5.5vw,4.4rem)] leading-[1.06] tracking-tight text-neutral-950 mb-7"
-            >
-              Discover the next big homegrown brands
-            </motion.h1>
-            <p className="text-[17px] lg:text-[18px] leading-relaxed text-neutral-500 max-w-lg mb-8">
-              A curated startup discovery OS for visionary founders, rising D2C brands, and verified local innovators across India.
-            </p>
-            <motion.div 
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6, duration: 0.8 }}
-              className="mb-12 pt-4 border-t border-neutral-100/50"
-            >
-              <HighlighterDemo />
-            </motion.div>
-            <div className="flex flex-wrap gap-4">
-              <Link to="/explore" className="btn-primary group">
-                Explore Startups
-                <svg className="ml-2 w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </Link>
-              {!isAuthenticated && (
-                <Link to="/verify" className="btn-glass">Get Verified</Link>
-              )}
-              {isAuthenticated && (
-                <Link to="/dashboard" className="btn-glass">Go to Dashboard</Link>
-              )}
-            </div>
-            <div className="mt-12 flex items-center gap-4">
-              <div className="flex -space-x-2.5">
-                {['#e8d5c0', '#c9d5e0', '#d5e0c9', '#e0c9d5'].map((bg, i) => (
-                  <div key={i} className="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-bold text-neutral-600 shadow-sm" style={{ background: bg }}>
-                    {['AS', 'RK', 'MP', 'JD'][i]}
-                  </div>
-                ))}
-              </div>
-              <p className="text-[13px] text-neutral-400"><span className="font-semibold text-neutral-600">240+</span> founders building in public</p>
-            </div>
-          </motion.div>
-
-          {/* Dashboard Preview Card */}
-          <div className="hidden lg:block relative">
-            <DashboardPreview />
-          </div>
-        </div>
-      </div>
-    </section>
-  )
-}
 
 /* ═══════════════════════════════════════
    2. FOUNDER SPOTLIGHT
@@ -283,11 +214,11 @@ const FinalCTA = () => (
         <h2 className="font-serif text-[clamp(2rem,5vw,3.4rem)] leading-[1.08] tracking-tight text-white mb-6">Built for founders shaping what's next.</h2>
         <p className="text-[17px] text-neutral-400 leading-relaxed max-w-xl mx-auto mb-10">Whether you're launching your first product or scaling your hundredth, FoundrHUB is where India's most ambitious founders get discovered.</p>
         <div className="flex flex-wrap justify-center gap-4">
-          <Link to="/verify" className="inline-flex items-center px-8 py-4 rounded-full bg-white text-neutral-950 text-[15px] font-semibold tracking-wide hover:bg-neutral-100 transition-all duration-300 hover:shadow-[0_0_40px_rgba(255,255,255,0.12)] group">
+          <Link to="/signup?role=founder" className="inline-flex items-center px-8 py-4 rounded-full bg-white text-neutral-950 text-[15px] font-semibold tracking-wide hover:bg-neutral-100 transition-all duration-300 hover:shadow-[0_0_40px_rgba(255,255,255,0.12)] group">
             Launch on FoundrHUB
             <svg className="ml-2 w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
           </Link>
-          <Link to="/explore" className="inline-flex items-center px-8 py-4 rounded-full border border-neutral-700 text-neutral-300 text-[15px] font-medium hover:border-neutral-500 hover:text-white hover:bg-white/5 backdrop-blur-sm transition-all duration-300">Explore Startups</Link>
+          <Link to="/signup?role=discoverer" className="inline-flex items-center px-8 py-4 rounded-full border border-neutral-700 text-neutral-300 text-[15px] font-medium hover:border-neutral-500 hover:text-white hover:bg-white/5 backdrop-blur-sm transition-all duration-300">Explore Startups</Link>
         </div>
       </div>
     </div>
@@ -305,7 +236,7 @@ const HomePage = () => {
     <>
       <Navbar />
       <main>
-        <HeroSection />
+        <CinematicHero />
         <FounderSpotlight />
         <TrendingSection />
         <AnalyticsPreview />

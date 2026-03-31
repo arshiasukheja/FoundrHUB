@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 const AuthSidePanel = () => (
@@ -36,14 +36,25 @@ const AuthSidePanel = () => (
 
 const SignInPage = () => {
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const [searchParams] = useSearchParams()
+  const { login, getDashboardPathForRole } = useAuth()
   const [form, setForm] = useState({ email: '', password: '', remember: false })
+  const [error, setError] = useState('')
   const up = (k, v) => setForm(p => ({ ...p, [k]: v }))
 
-  const handleSignIn = (e) => {
+  const roleIntent = searchParams.get('role') === 'founder' ? 'founder' : 'discoverer'
+
+  const handleSignIn = async (e) => {
     e.preventDefault()
-    login({ email: form.email, name: form.email.split('@')[0], role: 'founder' })
-    navigate('/dashboard')
+    setError('')
+    const result = await login({ email: form.email, password: form.password })
+
+    if (!result.ok) {
+      setError(result.error || 'Unable to sign in.')
+      return
+    }
+
+    navigate(getDashboardPathForRole(result.user.role), { replace: true })
   }
 
   return (
@@ -58,7 +69,9 @@ const SignInPage = () => {
               Foundr<span className="text-neutral-400">HUB</span>
             </Link>
             <h1 className="font-serif text-[clamp(1.8rem,3vw,2.4rem)] leading-[1.1] tracking-tight text-neutral-950 mb-2">Welcome back</h1>
-            <p className="text-[15px] text-neutral-400 mb-10">Sign in to your FoundrHUB account</p>
+            <p className="text-[15px] text-neutral-400 mb-10">
+              Sign in as a {roleIntent === 'founder' ? 'Founder' : 'Discoverer'}
+            </p>
 
             <form onSubmit={handleSignIn}>
               <div className="mb-5">
@@ -81,6 +94,8 @@ const SignInPage = () => {
               <button type="submit" id="signin-btn" className="w-full py-3.5 rounded-full bg-neutral-950 text-white text-[14px] font-semibold tracking-wide hover:bg-neutral-800 transition-all duration-300 hover:shadow-lg hover:shadow-neutral-200 mb-6">
                 Sign In
               </button>
+
+              {error && <p className="text-[13px] text-red-500 mb-4">{error}</p>}
             </form>
 
             <div className="relative mb-6">
@@ -100,7 +115,7 @@ const SignInPage = () => {
             </div>
 
             <p className="text-center text-[13px] text-neutral-400">
-              Don't have an account? <Link to="/verify" className="font-semibold text-neutral-900 hover:text-neutral-600 transition-colors">Get Verified</Link>
+              Don't have an account? <Link to={`/signup?role=${roleIntent}`} className="font-semibold text-neutral-900 hover:text-neutral-600 transition-colors">Create account</Link>
             </p>
           </div>
         </div>
