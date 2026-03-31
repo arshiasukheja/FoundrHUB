@@ -14,6 +14,7 @@ import SignUpPage from './pages/SignUpPage'
 import ProfilePage from './pages/ProfilePage'
 import SettingsPage from './pages/SettingsPage'
 import FounderDashboard from './pages/FounderDashboard'
+import AIAnalyticsPage from './pages/AIAnalyticsPage'
 
 /* Page transition wrapper */
 const PageTransition = ({ children }) => (
@@ -72,6 +73,14 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute allowedRoles={['founder']}>
               <PageTransition><FounderDashboard /></PageTransition>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/ai-analytics"
+          element={
+            <ProtectedRoute allowedRoles={['founder']}>
+              <PageTransition><AIAnalyticsPage /></PageTransition>
             </ProtectedRoute>
           }
         />

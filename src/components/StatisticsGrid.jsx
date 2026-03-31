@@ -1,6 +1,6 @@
 import React from 'react'
 import { motion } from 'framer-motion'
-import { TrendingUp, Users, Zap } from 'lucide-react'
+import { TrendingUp, Users, Zap, MoreHorizontal } from 'lucide-react'
 
 const StatisticsGrid = () => {
   const stats = [
@@ -10,7 +10,8 @@ const StatisticsGrid = () => {
       value: '+18.4%',
       comparison: '+2.1% from last week',
       icon: TrendingUp,
-      color: 'from-emerald-400 to-teal-500',
+      bg: 'bg-[#F0FDF4]', // Soft Mint
+      iconColor: 'text-[#166534]', // Forest Green
     },
     {
       id: 2,
@@ -18,7 +19,8 @@ const StatisticsGrid = () => {
       value: '8,924',
       comparison: '+340 new people',
       icon: Users,
-      color: 'from-blue-400 to-indigo-500',
+      bg: 'bg-[#EEF2FF]', // Soft Ice Blue
+      iconColor: 'text-[#5B65DC]', // Accent Blue
     },
     {
       id: 3,
@@ -26,7 +28,8 @@ const StatisticsGrid = () => {
       value: '6.2%',
       comparison: 'Above industry avg',
       icon: Zap,
-      color: 'from-amber-400 to-orange-500',
+      bg: 'bg-[#FFF7ED]', // Soft Peach
+      iconColor: 'text-[#C2410C]', // Dark Orange
     },
   ]
 
@@ -35,18 +38,19 @@ const StatisticsGrid = () => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
+        staggerChildren: 0.12,
+        delayChildren: 0.3,
       },
     },
   }
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 15, scale: 0.98 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
+      scale: 1,
+      transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
     },
   }
 
@@ -55,7 +59,7 @@ const StatisticsGrid = () => {
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="space-y-4"
+      className="space-y-5"
     >
       {stats.map((stat) => {
         const Icon = stat.icon
@@ -63,23 +67,34 @@ const StatisticsGrid = () => {
           <motion.div
             key={stat.id}
             variants={itemVariants}
-            whileHover={{ scale: 1.02 }}
-            className="bg-white rounded-xl border border-[#EEF0FD] p-5 shadow-[0_2px_12px_rgba(18,32,86,0.04)] hover:shadow-[0_8px_24px_rgba(18,32,86,0.08)] transition-all duration-300 cursor-pointer group"
+            className="bg-white rounded-[2rem] border border-[#EEF0FD] p-7 shadow-[0_4px_24px_rgba(18,32,86,0.02)] hover:shadow-[0_12px_44px_rgba(18,32,86,0.06)] hover:-translate-y-1 transition-all duration-500 cursor-pointer group"
           >
-            <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start justify-between">
               <div className="flex-1">
-                <p className="text-xs font-bold text-[#122056]/60 uppercase tracking-wide mb-2">
-                  {stat.label}
-                </p>
-                <p className="text-2xl font-bold text-[#122056] tracking-tight mb-2">
+                <div className="flex items-center gap-2 mb-3">
+                  <p className="text-[10px] font-black text-[#122056]/30 uppercase tracking-[0.2em]">
+                    {stat.label}
+                  </p>
+                  <div className="w-1 h-1 rounded-full bg-[#EEF0FD]" />
+                </div>
+                
+                <p className="text-3xl font-serif font-bold text-[#122056] tracking-tight leading-none mb-3">
                   {stat.value}
                 </p>
-                <p className="text-xs text-[#122056]/50 font-medium">
-                  {stat.comparison}
-                </p>
+                
+                <div className="flex items-center gap-2">
+                  <span className={`w-1.5 h-1.5 rounded-full ${stat.bg.replace('bg-', 'bg-opacity-80 bg-')}`} />
+                  <p className="text-[11px] font-bold text-[#122056]/50">
+                    {stat.comparison}
+                  </p>
+                </div>
               </div>
-              <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${stat.color} flex items-center justify-center text-white flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform`}>
-                <Icon size={18} />
+
+              <div className="flex flex-col items-center gap-4">
+                <div className={`w-12 h-12 rounded-2xl ${stat.bg} ${stat.iconColor} flex items-center justify-center transition-transform group-hover:scale-110 duration-500`}>
+                  <Icon size={20} />
+                </div>
+                <MoreHorizontal size={16} className="text-[#EEF0FD] group-hover:text-[#5B65DC]/30 transition-colors" />
               </div>
             </div>
           </motion.div>

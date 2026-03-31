@@ -19,8 +19,8 @@ const SidebarMenu = ({ activeItem = 'dashboard' }) => {
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, route: '/dashboard/founder' },
-    { id: 'analytics', label: 'Analytics', icon: BarChart3, route: '/dashboard/founder' },
-    { id: 'discovery', label: 'Discovery', icon: Compass, route: '/dashboard/explore' },
+    { id: 'analytics', label: 'AI Analytics', icon: BarChart3, route: '/dashboard/ai-analytics' },
+    { id: 'discovery', label: 'Discovery', icon: Compass, route: '/explore' },
     { id: 'messages', label: 'Messages', icon: MessageCircle, route: '/' },
     { id: 'settings', label: 'Settings', icon: Settings, route: '/settings' },
   ]

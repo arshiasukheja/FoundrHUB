@@ -1,6 +1,6 @@
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Eye, UserPlus, Bookmark, MessageCircle, Heart } from 'lucide-react'
+import { Eye, UserPlus, Bookmark, MessageCircle, Heart, Share2, Star } from 'lucide-react'
 
 const ActivityFeed = () => {
   const activities = [
@@ -10,7 +10,8 @@ const ActivityFeed = () => {
       text: '12 people viewed your startup',
       time: '2 hours ago',
       icon: Eye,
-      color: 'from-blue-400 to-indigo-500',
+      bg: 'bg-[#EEF2FF]', // Soft Ice Blue
+      iconColor: 'text-[#5B65DC]', // Accent Blue
       count: '+12',
     },
     {
@@ -19,7 +20,8 @@ const ActivityFeed = () => {
       text: '3 saves today',
       time: '4 hours ago',
       icon: Bookmark,
-      color: 'from-pink-400 to-rose-500',
+      bg: 'bg-[#FFF1F2]', // Soft Blush
+      iconColor: 'text-[#E11D48]', // Deep Rose
       count: '+3',
     },
     {
@@ -28,7 +30,8 @@ const ActivityFeed = () => {
       text: '1 new collaboration request',
       time: '6 hours ago',
       icon: UserPlus,
-      color: 'from-emerald-400 to-teal-500',
+      bg: 'bg-[#F0FDF4]', // Soft Mint
+      iconColor: 'text-[#166534]', // Forest Green
       count: '+1',
     },
     {
@@ -37,7 +40,8 @@ const ActivityFeed = () => {
       text: '5 new messages from investors',
       time: '8 hours ago',
       icon: MessageCircle,
-      color: 'from-purple-400 to-pink-500',
+      bg: 'bg-[#F5F3FF]', // Soft Lavender
+      iconColor: 'text-[#7C3AED]', // Deep Purple
       count: '+5',
     },
     {
@@ -45,9 +49,10 @@ const ActivityFeed = () => {
       type: 'engagement',
       text: 'Your demo got featured in weekly digest',
       time: '1 day ago',
-      icon: Heart,
-      color: 'from-red-400 to-pink-500',
-      count: '⭐',
+      icon: Star,
+      bg: 'bg-[#FFFBEB]', // Soft Amber
+      iconColor: 'text-[#D97706]', // Gold
+      count: '🔥',
     },
   ]
 
@@ -56,16 +61,23 @@ const ActivityFeed = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.4, duration: 0.5 }}
-      className="bg-white rounded-2xl border border-[#EEF0FD] shadow-[0_4px_24px_rgba(18,32,86,0.04)] overflow-hidden"
+      className="bg-white rounded-[2.5rem] border border-[#EEF0FD] shadow-[0_4px_24px_rgba(18,32,86,0.04)] overflow-hidden"
     >
       {/* Header */}
-      <div className="px-6 py-5 border-b border-[#EEF0FD]">
-        <h2 className="text-lg font-bold text-[#122056]">Startup Activity</h2>
-        <p className="text-xs text-[#122056]/50 mt-1">Recent actions and engagement</p>
+      <div className="px-8 py-7 border-b border-[#EEF0FD]">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-serif font-bold text-[#122056]">Live Feedback</h2>
+            <p className="text-[11px] font-bold text-[#122056]/30 uppercase tracking-[0.2em] mt-1">Real-time Pulse</p>
+          </div>
+          <div className="w-10 h-10 rounded-2xl bg-[#FAFAFD] border border-[#EEF0FD] flex items-center justify-center">
+            <Share2 size={18} className="text-[#122056]/40" />
+          </div>
+        </div>
       </div>
 
       {/* Activity List */}
-      <div className="divide-y divide-[#EEF0FD]">
+      <div className="divide-y divide-[#EEF0FD]/50">
         {activities.map((activity, i) => {
           const Icon = activity.icon
           return (
@@ -74,28 +86,28 @@ const ActivityFeed = () => {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.5 + i * 0.05, duration: 0.4 }}
-              className="px-6 py-4 hover:bg-[#FAFAFD] transition-colors group cursor-pointer"
+              className="px-8 py-5 hover:bg-[#FAFAFD] transition-all group cursor-pointer relative"
             >
-              <div className="flex items-center gap-4">
-                {/* Icon */}
+              <div className="flex items-center gap-5">
+                {/* Icon Container with Soft Tint */}
                 <div
-                  className={`w-10 h-10 rounded-xl bg-gradient-to-br ${activity.color} flex items-center justify-center text-white flex-shrink-0 shadow-md`}
+                  className={`w-12 h-12 rounded-2xl ${activity.bg} flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110 duration-500`}
                 >
-                  <Icon size={18} />
+                  <Icon size={20} className={`${activity.iconColor}`} />
                 </div>
 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-[#122056] group-hover:text-[#5B65DC] transition-colors">
+                  <p className="text-[14px] font-bold text-[#122056] group-hover:text-[#5B65DC] transition-colors leading-tight">
                     {activity.text}
                   </p>
-                  <p className="text-xs text-[#122056]/50 mt-0.5">
+                  <p className="text-[11px] font-semibold text-[#122056]/30 mt-1 uppercase tracking-wider">
                     {activity.time}
                   </p>
                 </div>
 
-                {/* Count Badge */}
-                <div className={`flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br ${activity.color} flex items-center justify-center text-white text-xs font-bold shadow-md`}>
+                {/* Status Indicator */}
+                <div className={`px-3 py-1 rounded-full ${activity.bg} ${activity.iconColor} text-[10px] font-black uppercase tracking-widest`}>
                   {activity.count}
                 </div>
               </div>
@@ -105,9 +117,9 @@ const ActivityFeed = () => {
       </div>
 
       {/* Footer CTA */}
-      <div className="px-6 py-4 bg-[#FAFAFD] border-t border-[#EEF0FD]">
-        <button className="w-full text-sm font-semibold text-[#5B65DC] hover:text-[#122056] transition-colors text-center">
-          View All Activity →
+      <div className="px-8 py-6 bg-[#FAFAFD]/50 border-t border-[#EEF0FD]">
+        <button className="w-full text-xs font-bold text-[#5B65DC] hover:text-[#122056] transition-colors text-center uppercase tracking-[0.2em]">
+          Access Extended History →
         </button>
       </div>
     </motion.div>
