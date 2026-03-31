@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
+import { Search, MapPin } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 
@@ -115,7 +116,7 @@ const ExplorePage = () => {
           <div className="max-w-7xl mx-auto px-6 lg:px-10">
             {filtered.length === 0 ? (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20">
-                <p className="text-5xl mb-4">🔍</p>
+                <div className="flex justify-center mb-4"><Search size={48} strokeWidth={1} className="text-neutral-200" /></div>
                 <p className="text-[18px] font-serif text-neutral-900 mb-2">No startups found</p>
                 <p className="text-[14px] text-neutral-400">Try adjusting your filters or search query</p>
               </motion.div>
@@ -143,7 +144,7 @@ const ExplorePage = () => {
                     <p className="text-[13px] text-neutral-500 leading-relaxed mb-5">{s.desc}</p>
                     <div className="flex flex-wrap gap-1.5 mb-3">
                       <span className="px-2.5 py-1 rounded-full bg-white/50 backdrop-blur-sm border border-white/40 text-[10px] font-medium text-neutral-600">{s.category}</span>
-                      <span className="px-2.5 py-1 rounded-full bg-white/50 backdrop-blur-sm border border-white/40 text-[10px] font-medium text-neutral-500">📍 {s.city}</span>
+                      <span className="px-2.5 py-1 rounded-full bg-white/50 backdrop-blur-sm border border-white/40 text-[10px] font-medium text-neutral-500 flex items-center gap-1"><MapPin size={10} strokeWidth={1.5} /> {s.city}</span>
                       <span className="px-2.5 py-1 rounded-full bg-white/50 backdrop-blur-sm border border-white/40 text-[10px] font-medium text-neutral-500">{s.stage}</span>
                     </div>
                     <p className="text-[11px] font-semibold text-emerald-600">{s.traction}</p>

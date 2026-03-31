@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import GlassCard from '../components/GlassCard'
 import { useAuth } from '../context/AuthContext'
+import { Sparkles, Eye, Bookmark, MessageSquare, Users, PenLine, FileText, FileSignature, BarChart, Link as LinkIcon } from 'lucide-react'
 
 const DashboardPage = () => {
   const { user } = useAuth()
@@ -21,8 +22,8 @@ const DashboardPage = () => {
               <h1 className="font-serif text-[clamp(1.6rem,3vw,2.2rem)] leading-[1.1] text-neutral-950 mb-2">Welcome back, {firstName}</h1>
               <p className="text-[14px] text-neutral-400">Here's how your startup is performing on FoundrHUB.</p>
             </div>
-            <button className="inline-flex items-center px-6 py-2.5 rounded-full bg-neutral-950 text-white text-[13px] font-semibold hover:bg-neutral-800 transition-all duration-300 self-start sm:self-auto">
-              ✨ Upgrade to Featured
+            <button className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-neutral-950 text-white text-[13px] font-semibold hover:bg-neutral-800 transition-all duration-300 self-start sm:self-auto">
+              <Sparkles size={14} className="text-amber-400" /> Upgrade to Featured
             </button>
           </motion.div>
 
@@ -87,9 +88,9 @@ const DashboardPage = () => {
               <p className="text-[15px] font-semibold text-neutral-900 mb-1">Quick Actions</p>
               <p className="text-[13px] text-neutral-400 mb-5">Keep your profile updated</p>
               <div className="space-y-3">
-                {[['Edit Brand Profile', '✏️'], ['Upload Pitch Deck', '📄'], ['Write Founder Story', '📝'], ['View Analytics', '📊'], ['Share Profile Link', '🔗']].map(([label, emoji]) => (
+                {[['Edit Brand Profile', PenLine], ['Upload Pitch Deck', FileText], ['Write Founder Story', FileSignature], ['View Analytics', BarChart], ['Share Profile Link', LinkIcon]].map(([label, Icon]) => (
                   <button key={label} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-neutral-100 text-[13px] font-medium text-neutral-600 hover:border-neutral-300 hover:text-neutral-900 hover:bg-beige-50/40 transition-all duration-300 text-left">
-                    <span>{emoji}</span>{label}
+                    <Icon size={16} strokeWidth={1.5} className="text-neutral-400" />{label}
                   </button>
                 ))}
               </div>

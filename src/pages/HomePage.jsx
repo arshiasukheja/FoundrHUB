@@ -5,6 +5,10 @@ import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import GlassCard from '../components/GlassCard'
+import DashboardPreview from '../components/DashboardPreview'
+import { HighlighterDemo } from '../components/Highlighter'
+import { HeroParallax } from '../components/ui/hero-parallax'
+import { MapPin, Eye, Bookmark, MessageSquare, Users, PenLine, ClipboardList, CheckCircle, Rocket } from 'lucide-react'
 
 /* ── Reveal Observer ── */
 const useReveal = () => {
@@ -43,17 +47,6 @@ const badgeMap = {
   Funded: 'bg-blue-500/10 text-blue-700 border-blue-200/60',
 }
 
-const mapPins = [
-  { x: 45, y: 25, name: 'NeuralBrew AI', cat: 'AI/ML', sector: '17' },
-  { x: 55, y: 40, name: 'Bloomcraft Studio', cat: 'Fashion', sector: '22' },
-  { x: 35, y: 50, name: 'GreenRoute', cat: 'Climate', sector: '35' },
-  { x: 65, y: 35, name: 'StackFin', cat: 'Fintech', sector: 'IT Park' },
-  { x: 50, y: 60, name: 'CraftBox', cat: 'EdTech', sector: '43' },
-  { x: 40, y: 35, name: 'KiraSkin', cat: 'Beauty', sector: '26' },
-  { x: 60, y: 55, name: 'FreshPress', cat: 'Food', sector: 'Elante' },
-  { x: 30, y: 42, name: 'CodeCraft', cat: 'SaaS', sector: '34' },
-]
-
 /* ── Fade Variants ── */
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -81,12 +74,25 @@ const HeroSection = () => {
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <span className="text-[11px] font-semibold tracking-[0.15em] uppercase text-neutral-500">Now in early access</span>
             </div>
-            <h1 className="font-serif text-[clamp(2.6rem,5.5vw,4.4rem)] leading-[1.06] tracking-tight text-neutral-950 mb-7">
-              Discover the next big homegrown brands in your&nbsp;city.
-            </h1>
-            <p className="text-[17px] lg:text-[18px] leading-relaxed text-neutral-500 max-w-lg mb-10">
+            <motion.h1 
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="font-serif text-[clamp(2.6rem,5.5vw,4.4rem)] leading-[1.06] tracking-tight text-neutral-950 mb-7"
+            >
+              Discover the next big homegrown brands
+            </motion.h1>
+            <p className="text-[17px] lg:text-[18px] leading-relaxed text-neutral-500 max-w-lg mb-8">
               A curated startup discovery OS for visionary founders, rising D2C brands, and verified local innovators across India.
             </p>
+            <motion.div 
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.8 }}
+              className="mb-12 pt-4 border-t border-neutral-100/50"
+            >
+              <HighlighterDemo />
+            </motion.div>
             <div className="flex flex-wrap gap-4">
               <Link to="/explore" className="btn-primary group">
                 Explore Startups
@@ -114,37 +120,9 @@ const HeroSection = () => {
           </motion.div>
 
           {/* Dashboard Preview Card */}
-          <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={2} className="hidden lg:block">
-            <div className="relative">
-              <div className="absolute -inset-6 bg-gradient-to-br from-amber-100/30 via-white/20 to-emerald-50/20 rounded-[2rem] blur-2xl" />
-              <GlassCard className="relative p-8">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-neutral-950 flex items-center justify-center"><span className="text-white text-[11px] font-bold">FH</span></div>
-                    <div><p className="text-[14px] font-semibold text-neutral-900">FoundrHUB Dashboard</p><p className="text-[12px] text-neutral-400">Startup Discovery OS</p></div>
-                  </div>
-                  <div className="flex gap-1.5"><div className="w-2 h-2 rounded-full bg-emerald-400" /><div className="w-2 h-2 rounded-full bg-amber-400" /><div className="w-2 h-2 rounded-full bg-red-400" /></div>
-                </div>
-                <div className="grid grid-cols-3 gap-3 mb-5">
-                  {[{ l: 'Active Startups', v: '1,247', c: '+12%' }, { l: 'Cities', v: '86', c: '+5' }, { l: 'Verified', v: '493', c: '+28' }].map(s => (
-                    <div key={s.l} className="bg-white/50 backdrop-blur-xl rounded-2xl border border-white/60 p-3.5">
-                      <p className="text-[10px] font-medium text-neutral-400 uppercase tracking-wider mb-1">{s.l}</p>
-                      <p className="text-[20px] font-semibold text-neutral-900 leading-tight">{s.v}</p>
-                      <span className="text-[11px] font-semibold text-emerald-600">{s.c}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="bg-white/30 backdrop-blur-xl rounded-2xl border border-white/50 p-4">
-                  <p className="text-[11px] font-medium text-neutral-400 mb-3">Discovery Trend — 6 months</p>
-                  <div className="flex items-end gap-2 h-20">
-                    {[35, 48, 42, 65, 58, 82, 70, 90, 78, 95, 88, 100].map((h, i) => (
-                      <div key={i} className="flex-1 rounded-t-md transition-all duration-500" style={{ height: `${h}%`, background: i >= 10 ? '#0a0a0a' : i >= 8 ? '#525252' : '#d4d4d4' }} />
-                    ))}
-                  </div>
-                </div>
-              </GlassCard>
-            </div>
-          </motion.div>
+          <div className="hidden lg:block relative">
+            <DashboardPreview />
+          </div>
         </div>
       </div>
     </section>
@@ -178,7 +156,7 @@ const FounderSpotlight = () => (
             <p className="text-[12px] text-neutral-400 mb-3">{f.title}</p>
             <div className="flex flex-wrap gap-1.5">
               <span className="px-2.5 py-0.5 rounded-full bg-white/60 backdrop-blur-sm border border-white/40 text-[10px] font-medium text-neutral-500">{f.category}</span>
-              <span className="px-2.5 py-0.5 rounded-full bg-white/60 backdrop-blur-sm border border-white/40 text-[10px] font-medium text-neutral-500">📍 {f.city}</span>
+              <span className="px-2.5 py-0.5 rounded-full bg-white/60 backdrop-blur-sm border border-white/40 text-[10px] font-medium text-neutral-500 flex items-center gap-1"><MapPin size={10} strokeWidth={1.5} /> {f.city}</span>
             </div>
           </div>
         ))}
@@ -190,54 +168,7 @@ const FounderSpotlight = () => (
 /* ═══════════════════════════════════════
    3. CITY MAP
    ═══════════════════════════════════════ */
-const CityMapSection = () => {
-  const [active, setActive] = useState(null)
-  return (
-    <section className="py-24 lg:py-32 bg-neutral-950 relative overflow-hidden">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-b from-amber-900/10 to-transparent rounded-full blur-3xl" />
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 relative z-10">
-        <div className="reveal text-center mb-16">
-          <span className="text-[11px] font-semibold tracking-[0.15em] uppercase text-neutral-500 mb-4 block">City Discovery</span>
-          <h2 className="font-serif text-[clamp(1.8rem,4vw,2.8rem)] leading-[1.1] text-white mb-4">Startup hub: Chandigarh</h2>
-          <p className="text-[16px] text-neutral-400 max-w-lg mx-auto">Explore verified startups across sectors in India's best-planned city.</p>
-        </div>
-        <div className="reveal grid lg:grid-cols-3 gap-8 items-start">
-          <div className="lg:col-span-2 relative">
-            <div className="relative aspect-[16/10] bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 overflow-hidden">
-              <svg className="absolute inset-0 w-full h-full opacity-10" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.3" /></pattern></defs><rect width="100" height="100" fill="url(#grid)" /></svg>
-              <svg className="absolute inset-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] opacity-20" viewBox="0 0 100 80"><path d="M50 5 C25 5 10 20 10 40 C10 60 25 75 50 75 C75 75 90 60 90 40 C90 20 75 5 50 5Z" fill="none" stroke="white" strokeWidth="0.5" strokeDasharray="2 2" /></svg>
-              {mapPins.map((pin, i) => (
-                <div key={i} onMouseEnter={() => setActive(i)} onMouseLeave={() => setActive(null)} className="absolute cursor-pointer group" style={{ left: `${pin.x}%`, top: `${pin.y}%`, transform: 'translate(-50%,-50%)' }}>
-                  <div className={`relative transition-all duration-500 ${active === i ? 'scale-150' : 'scale-100'}`}>
-                    <div className={`w-3 h-3 rounded-full bg-emerald-400 shadow-lg shadow-emerald-400/40 ${active === i ? 'animate-ping' : ''}`} style={{ position: 'absolute', inset: 0 }} />
-                    <div className="w-3 h-3 rounded-full bg-emerald-400 relative z-10" />
-                  </div>
-                  {active === i && (
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 bg-white/90 backdrop-blur-xl rounded-xl px-4 py-2.5 border border-white/60 shadow-2xl whitespace-nowrap z-30 animate-fade-in-up">
-                      <p className="text-[12px] font-semibold text-neutral-900">{pin.name}</p>
-                      <p className="text-[10px] text-neutral-400">{pin.cat} · Sector {pin.sector}</p>
-                    </div>
-                  )}
-                </div>
-              ))}
-              <div className="absolute top-6 left-6"><p className="text-[18px] font-serif text-white/30">Chandigarh</p><p className="text-[10px] text-white/15 tracking-widest uppercase">Tricity Region</p></div>
-              <div className="absolute bottom-6 right-6 text-right"><p className="text-[11px] text-white/20">{mapPins.length} active startups</p></div>
-            </div>
-          </div>
-          <div className="space-y-4">
-            {[{ l: 'Active Startups', v: '48', c: '+12 this month' }, { l: 'Verified Founders', v: '31', c: '64% rate' }, { l: 'Top Category', v: 'AI / SaaS', c: '38% of startups' }, { l: 'Avg Traction', v: '3.2x', c: 'Growth YoY' }].map(s => (
-              <div key={s.l} className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-5 hover:bg-white/[0.08] transition-all duration-400">
-                <p className="text-[22px] font-semibold text-white leading-tight">{s.v}</p>
-                <p className="text-[12px] text-neutral-500 font-medium">{s.l}</p>
-                <p className="text-[11px] text-emerald-400 mt-1">{s.c}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  )
-}
+
 
 /* ═══════════════════════════════════════
    4. TRENDING BRANDS
@@ -263,7 +194,7 @@ const TrendingSection = () => (
             <p className="text-[13px] text-neutral-500 leading-relaxed mb-5">{s.desc}</p>
             <div className="flex flex-wrap gap-1.5">
               <span className="px-2.5 py-1 rounded-full bg-white/50 backdrop-blur-sm border border-white/40 text-[10px] font-medium text-neutral-600">{s.category}</span>
-              <span className="px-2.5 py-1 rounded-full bg-white/50 backdrop-blur-sm border border-white/40 text-[10px] font-medium text-neutral-500">📍 {s.city}</span>
+              <span className="px-2.5 py-1 rounded-full bg-white/50 backdrop-blur-sm border border-white/40 text-[10px] font-medium text-neutral-500 flex items-center gap-1"><MapPin size={10} strokeWidth={1.5} /> {s.city}</span>
             </div>
           </div>
         ))}
@@ -298,9 +229,9 @@ const AnalyticsPreview = () => (
             </div>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            {[{ l: 'Profile Views', v: '2,847', c: '+24%', icon: '👁' }, { l: 'Saves', v: '342', c: '+18%', icon: '🔖' }, { l: 'Story Engagement', v: '89%', c: '+5%', icon: '💬' }, { l: 'Inbound Leads', v: '27', c: '+9', icon: '🤝' }].map(m => (
+            {[{ l: 'Profile Views', v: '2,847', c: '+24%', icon: Eye }, { l: 'Saves', v: '342', c: '+18%', icon: Bookmark }, { l: 'Story Engagement', v: '89%', c: '+5%', icon: MessageSquare }, { l: 'Inbound Leads', v: '27', c: '+9', icon: Users }].map(m => (
               <div key={m.l} className="bg-white/40 backdrop-blur-xl rounded-2xl border border-white/50 p-5 hover:bg-white/55 transition-all duration-300">
-                <div className="flex items-center justify-between mb-2"><span className="text-lg">{m.icon}</span><span className="text-[11px] font-semibold text-emerald-600">{m.c}</span></div>
+                <div className="flex items-center justify-between mb-2"><span className="text-neutral-700"><m.icon size={20} strokeWidth={1.5} /></span><span className="text-[11px] font-semibold text-emerald-600">{m.c}</span></div>
                 <p className="text-[22px] font-semibold text-neutral-900 leading-tight">{m.v}</p>
                 <p className="text-[11px] text-neutral-400 font-medium mt-0.5">{m.l}</p>
               </div>
@@ -340,10 +271,10 @@ const AnalyticsPreview = () => (
    ═══════════════════════════════════════ */
 const VerificationSection = () => {
   const steps = [
-    { num: '01', title: 'Create your profile', desc: 'Sign up and tell us about your startup — name, category, stage, and your founding story.', icon: '✏️' },
-    { num: '02', title: 'Submit for review', desc: 'Upload documents and verification details. Our team reviews every application personally.', icon: '📋' },
-    { num: '03', title: 'Get verified badge', desc: 'Once approved, your startup receives a verified badge — trusted by the community.', icon: '✅' },
-    { num: '04', title: 'Go live on FoundrHUB', desc: 'Your brand is now discoverable. Get featured, attract users, and grow organically.', icon: '🚀' },
+    { num: '01', title: 'Create your profile', desc: 'Sign up and tell us about your startup — name, category, stage, and your founding story.', icon: PenLine },
+    { num: '02', title: 'Submit for review', desc: 'Upload documents and verification details. Our team reviews every application personally.', icon: ClipboardList },
+    { num: '03', title: 'Get verified badge', desc: 'Once approved, your startup receives a verified badge — trusted by the community.', icon: CheckCircle },
+    { num: '04', title: 'Go live on FoundrHUB', desc: 'Your brand is now discoverable. Get featured, attract users, and grow organically.', icon: Rocket },
   ]
   return (
     <section id="get-verified" className="py-24 lg:py-32 relative overflow-hidden">
@@ -357,7 +288,7 @@ const VerificationSection = () => {
         <div className="reveal grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {steps.map((s, i) => (
             <div key={s.num} className="group glass-card glass-card-hover p-7" style={{ transitionDelay: `${i * 0.08}s` }}>
-              <div className="text-3xl mb-5">{s.icon}</div>
+              <div className="text-neutral-700 mb-5"><s.icon size={28} strokeWidth={1.5} /></div>
               <div className="text-[11px] font-bold text-neutral-300 tracking-widest mb-2">{s.num}</div>
               <h3 className="text-[16px] font-semibold text-neutral-900 mb-2">{s.title}</h3>
               <p className="text-[13px] text-neutral-500 leading-relaxed">{s.desc}</p>
@@ -399,7 +330,6 @@ const FinalCTA = () => (
 /* ═══════════════════════════════════════
    PAGE WRAPPER
    ═══════════════════════════════════════ */
-import { useState } from 'react'
 
 const HomePage = () => {
   useReveal()
@@ -410,15 +340,95 @@ const HomePage = () => {
       <main>
         <HeroSection />
         <FounderSpotlight />
-        <CityMapSection />
         <TrendingSection />
         <AnalyticsPreview />
         <VerificationSection />
         <FinalCTA />
       </main>
+      {/* Hero Parallax Section */}
+      <HeroParallax products={products} />
+
       <Footer />
     </>
   )
 }
+
+const products = [
+  {
+    title: "Moonbeam",
+    link: "https://gomoonbeam.com",
+    thumbnail: "https://www.aceternity.com/images/products/thumbnails/new/moonbeam.png",
+  },
+  {
+    title: "Cursor",
+    link: "https://cursor.so",
+    thumbnail: "https://www.aceternity.com/images/products/thumbnails/new/cursor.png",
+  },
+  {
+    title: "Rogue",
+    link: "https://userogue.com",
+    thumbnail: "https://www.aceternity.com/images/products/thumbnails/new/rogue.png",
+  },
+  {
+    title: "Editorially",
+    link: "https://editorially.org",
+    thumbnail: "https://www.aceternity.com/images/products/thumbnails/new/editorially.png",
+  },
+  {
+    title: "Editrix AI",
+    link: "https://editrix.ai",
+    thumbnail: "https://www.aceternity.com/images/products/thumbnails/new/editrix.png",
+  },
+  {
+    title: "Pixel Perfect",
+    link: "https://app.pixelperfect.quest",
+    thumbnail: "https://www.aceternity.com/images/products/thumbnails/new/pixelperfect.png",
+  },
+  {
+    title: "Algochurn",
+    link: "https://algochurn.com",
+    thumbnail: "https://www.aceternity.com/images/products/thumbnails/new/algochurn.png",
+  },
+  {
+    title: "Aceternity UI",
+    link: "https://ui.aceternity.com",
+    thumbnail: "https://www.aceternity.com/images/products/thumbnails/new/aceternityui.png",
+  },
+  {
+    title: "Tailwind Master Kit",
+    link: "https://tailwindmasterkit.com",
+    thumbnail: "https://www.aceternity.com/images/products/thumbnails/new/tailwindmasterkit.png",
+  },
+  {
+    title: "SmartBridge",
+    link: "https://smartbridgetech.com",
+    thumbnail: "https://www.aceternity.com/images/products/thumbnails/new/smartbridge.png",
+  },
+  {
+    title: "Renderwork Studio",
+    link: "https://renderwork.studio",
+    thumbnail: "https://www.aceternity.com/images/products/thumbnails/new/renderwork.png",
+  },
+  {
+    title: "Creme Digital",
+    link: "https://cremedigital.com",
+    thumbnail: "https://www.aceternity.com/images/products/thumbnails/new/cremedigital.png",
+  },
+  {
+    title: "Golden Bells Academy",
+    link: "https://goldenbellsacademy.com",
+    thumbnail: "https://www.aceternity.com/images/products/thumbnails/new/goldenbellsacademy.png",
+  },
+  {
+    title: "Invoker Labs",
+    link: "https://invoker.lol",
+    thumbnail: "https://www.aceternity.com/images/products/thumbnails/new/invoker.png",
+  },
+  {
+    title: "E Free Invoice",
+    link: "https://efreeinvoice.com",
+    thumbnail: "https://www.aceternity.com/images/products/thumbnails/new/efreeinvoice.png",
+  },
+];
 
 export default HomePage

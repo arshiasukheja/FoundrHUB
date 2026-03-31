@@ -4,12 +4,13 @@ import { Link, useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import { useAuth } from '../context/AuthContext'
+import { PenLine, ClipboardList, CheckCircle, Rocket } from 'lucide-react'
 
 const steps = [
-  { num: '01', title: 'Create your profile', desc: 'Sign up and tell us about your startup — name, category, stage, and your founding story.', icon: '✏️' },
-  { num: '02', title: 'Submit for review', desc: 'Upload documents and verification details. Our team reviews every application personally.', icon: '📋' },
-  { num: '03', title: 'Get verified badge', desc: 'Once approved, your startup receives a verified badge — trusted by the community.', icon: '✅' },
-  { num: '04', title: 'Go live on FoundrHUB', desc: 'Your brand is now discoverable. Get featured, attract users, and grow organically.', icon: '🚀' },
+  { num: '01', title: 'Create your profile', desc: 'Sign up and tell us about your startup — name, category, stage, and your founding story.', icon: PenLine },
+  { num: '02', title: 'Submit for review', desc: 'Upload documents and verification details. Our team reviews every application personally.', icon: ClipboardList },
+  { num: '03', title: 'Get verified badge', desc: 'Once approved, your startup receives a verified badge — trusted by the community.', icon: CheckCircle },
+  { num: '04', title: 'Go live on FoundrHUB', desc: 'Your brand is now discoverable. Get featured, attract users, and grow organically.', icon: Rocket },
 ]
 
 const categories = ['D2C / E-commerce', 'AI / Deep Tech', 'SaaS / B2B', 'Fintech', 'EdTech', 'HealthTech', 'Climate Tech', 'Fashion / Lifestyle', 'Food / Beverage', 'Media / Content', 'Other']
@@ -56,7 +57,7 @@ const VerifyPage = () => {
                   transition={{ delay: 0.1 + i * 0.1, duration: 0.5 }}
                   className="group bg-white/40 backdrop-blur-2xl rounded-3xl border border-white/60 p-7 hover:bg-white/60 hover:shadow-[0_12px_48px_-12px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-500"
                 >
-                  <div className="text-3xl mb-5">{s.icon}</div>
+                  <div className="text-neutral-700 mb-5"><s.icon size={30} strokeWidth={1.5} /></div>
                   <div className="text-[11px] font-bold text-neutral-300 tracking-widest mb-2">{s.num}</div>
                   <h3 className="text-[16px] font-semibold text-neutral-900 mb-2">{s.title}</h3>
                   <p className="text-[13px] text-neutral-500 leading-relaxed">{s.desc}</p>
@@ -152,7 +153,7 @@ const VerifyPage = () => {
 
                   {formStep === 2 && (
                     <div className="text-center py-6">
-                      <div className="text-5xl mb-6">🚀</div>
+                      <div className="flex justify-center mb-6"><Rocket size={48} strokeWidth={1.5} className="text-neutral-900" /></div>
                       <h2 className="font-serif text-[1.6rem] text-neutral-950 mb-2">Ready to submit?</h2>
                       <p className="text-[14px] text-neutral-400 mb-4 max-w-md mx-auto">Your application will be reviewed by our team. Verification typically takes 24–48 hours.</p>
                       <div className="bg-beige-50 rounded-2xl border border-beige-200/40 p-5 text-left max-w-md mx-auto mb-4">

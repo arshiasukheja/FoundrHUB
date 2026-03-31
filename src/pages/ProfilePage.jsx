@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import { useAuth } from '../context/AuthContext'
+import { ClipboardList, CheckCircle, Rocket } from 'lucide-react'
 
 const ProfilePage = () => {
   const { user } = useAuth()
@@ -85,12 +86,12 @@ const ProfilePage = () => {
             <h2 className="text-[16px] font-semibold text-neutral-900 mb-6">Recent Activity</h2>
             <div className="space-y-4">
               {[
-                { action: 'Submitted for verification', time: 'Just now', icon: '📋' },
-                { action: 'Profile created', time: '2 minutes ago', icon: '✅' },
-                { action: 'Joined FoundrHUB', time: 'Today', icon: '🚀' },
+                { action: 'Submitted for verification', time: 'Just now', icon: ClipboardList },
+                { action: 'Profile created', time: '2 minutes ago', icon: CheckCircle },
+                { action: 'Joined FoundrHUB', time: 'Today', icon: Rocket },
               ].map((a, i) => (
                 <div key={i} className="flex items-center gap-4 py-3 border-b border-neutral-50 last:border-0">
-                  <span className="text-xl">{a.icon}</span>
+                  <span className="text-neutral-500"><a.icon size={20} strokeWidth={1.5} /></span>
                   <div className="flex-1">
                     <p className="text-[13px] font-medium text-neutral-700">{a.action}</p>
                     <p className="text-[11px] text-neutral-400">{a.time}</p>
