@@ -1,5 +1,6 @@
 import React from 'react'
 import { motion } from 'framer-motion'
+import { Search, PenLine } from 'lucide-react'
 import StartupCard from './StartupCard'
 
 const StartupGrid = ({ startups, onStartupClick, isLoading }) => {
@@ -28,7 +29,9 @@ const StartupGrid = ({ startups, onStartupClick, isLoading }) => {
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col items-center justify-center py-16"
       >
-        <div className="text-6xl mb-4">🔍</div>
+        <div className="w-16 h-16 mb-4 rounded-2xl border border-[#EEF0FD] bg-white flex items-center justify-center text-[#5B65DC]">
+          <Search size={24} />
+        </div>
         <h3 className="text-xl font-bold text-[#122056] mb-2">No startups found</h3>
         <p className="text-[#122056]/60 text-center max-w-md">
           Try adjusting your filters or search terms to discover more startups

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Search, Filter, ChevronDown, Flame } from 'lucide-react'
+import { Search, Filter, ChevronDown, Flame, TrendingUp, Eye, PenLine } from 'lucide-react'
 
 const ExploreHeader = ({ onSearch, onFilterClick, sortOrder, onSort }) => {
   const [searchValue, setSearchValue] = useState('')
@@ -54,9 +54,13 @@ const ExploreHeader = ({ onSearch, onFilterClick, sortOrder, onSort }) => {
             onClick={() => onSort()}
             className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-white border border-[#EEF0FD] text-[#122056] font-bold text-sm shadow-sm hover:shadow-md transition-all whitespace-nowrap min-w-[140px] justify-center"
           >
-            <span className="text-[15px]">
-              {sortOrder === 'trending' ? '🔥' : sortOrder === 'new' ? '✨' : '👁️'}
-            </span>
+            {sortOrder === 'trending' ? (
+              <TrendingUp size={16} className="text-[#5B65DC]" />
+            ) : sortOrder === 'new' ? (
+              <PenLine size={16} className="text-[#5B65DC]" />
+            ) : (
+              <Eye size={16} className="text-[#5B65DC]" />
+            )}
             <span>
               {sortOrder === 'trending'
                 ? 'Trending'

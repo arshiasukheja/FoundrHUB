@@ -52,7 +52,7 @@ const ActivityFeed = () => {
       icon: Star,
       bg: 'bg-[#FFFBEB]', // Soft Amber
       iconColor: 'text-[#D97706]', // Gold
-      count: '🔥',
+      count: '+Hot',
     },
   ]
 

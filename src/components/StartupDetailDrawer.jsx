@@ -81,7 +81,7 @@ const StartupDetailDrawer = ({ startup, isOpen, onClose }) => {
                     <MapPin size={18} />
                     <span className="text-xs font-bold uppercase tracking-wider">Location</span>
                   </div>
-                  <p className="text-lg font-bold text-[#122056]">{startup.location.replace('📍 ', '')}</p>
+                  <p className="text-lg font-bold text-[#122056]">{startup.location}</p>
                 </div>
                 <div className="p-6 rounded-3xl bg-[#FAFAFD] border border-[#EEF0FD]">
                   <div className="flex items-center gap-3 text-[#122056]/40 mb-3">
@@ -97,7 +97,7 @@ const StartupDetailDrawer = ({ startup, isOpen, onClose }) => {
                 <h3 className="text-lg font-serif font-bold text-[#122056] mb-4">About the Company</h3>
                 <p className="text-[#122056]/70 leading-relaxed">
                   {startup.name} is revolutionizing the {startup.category} sector with cutting-edge technology and a user-centric approach. 
-                  Currently in the {startup.stage} stage, they are rapidly expanding their presence in {startup.location.replace('📍 ', '')} and beyond.
+                  Currently in the {startup.stage} stage, they are rapidly expanding their presence in {startup.location} and beyond.
                   The team is focused on delivering exceptional value to enterprise clients and scaling their operations globally.
                 </p>
               </div>

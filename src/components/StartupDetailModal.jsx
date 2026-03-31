@@ -46,7 +46,7 @@ const StartupDetailModal = ({ startup, isOpen, onClose }) => {
                   {/* Floating Logo */}
                   <div className="absolute bottom-8 left-10">
                     <div className="w-24 h-24 rounded-[1.8rem] bg-white shadow-2xl border-4 border-white flex items-center justify-center text-4xl">
-                      {startup.logo || '🚀'}
+                      {startup.logo || startup.name.slice(0, 2).toUpperCase()}
                     </div>
                   </div>
                 </div>
@@ -79,7 +79,7 @@ const StartupDetailModal = ({ startup, isOpen, onClose }) => {
                           <MapPin size={16} />
                           <span className="text-[10px] font-bold uppercase tracking-wider">Base</span>
                         </div>
-                        <p className="text-sm font-bold text-[#122056]">{startup.location.replace('📍 ', '')}</p>
+                        <p className="text-sm font-bold text-[#122056]">{startup.location}</p>
                       </div>
                       <div className="p-5 rounded-2xl bg-[#FAFAFD] border border-[#EEF0FD]">
                         <div className="flex items-center gap-2 text-[#122056]/40 mb-2">

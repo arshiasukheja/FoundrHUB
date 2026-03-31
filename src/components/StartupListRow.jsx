@@ -53,7 +53,7 @@ const StartupListRow = ({ startup, index, onClick }) => {
             <MapPin size={14} />
             <span className="text-[10px] font-bold uppercase tracking-wider">Location</span>
           </div>
-          <span className="text-sm font-semibold text-[#122056]">{startup.location.replace('📍 ', '')}</span>
+          <span className="text-sm font-semibold text-[#122056]">{startup.location}</span>
         </div>
         
         <div className="flex flex-col items-center md:items-start gap-1">

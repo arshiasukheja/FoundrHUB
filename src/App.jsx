@@ -15,6 +15,10 @@ import ProfilePage from './pages/ProfilePage'
 import SettingsPage from './pages/SettingsPage'
 import FounderDashboard from './pages/FounderDashboard'
 import AIAnalyticsPage from './pages/AIAnalyticsPage'
+import RoadmapPage from './pages/RoadmapPage'
+import PricingPage from './pages/PricingPage'
+import AnalyserPage from './pages/AnalyserPage'
+import StartupDiscoveryMapPage from './pages/StartupDiscoveryMapPage'
 
 /* Page transition wrapper */
 const PageTransition = ({ children }) => (
@@ -41,6 +45,10 @@ const AppRoutes = () => {
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<PageTransition><HomePage /></PageTransition>} />
         <Route path="/explore" element={<PageTransition><ExplorePage /></PageTransition>} />
+        <Route path="/roadmap" element={<PageTransition><RoadmapPage /></PageTransition>} />
+        <Route path="/pricing" element={<PageTransition><PricingPage /></PageTransition>} />
+        <Route path="/analyser" element={<PageTransition><AnalyserPage /></PageTransition>} />
+        <Route path="/startup-map" element={<PageTransition><StartupDiscoveryMapPage /></PageTransition>} />
         <Route 
           path="/verify" 
           element={

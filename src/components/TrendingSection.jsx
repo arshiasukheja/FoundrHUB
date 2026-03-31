@@ -1,6 +1,6 @@
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Flame, Eye, Bookmark, ArrowUpRight } from 'lucide-react'
+import { Flame, Eye, Bookmark, ArrowUpRight, MapPin, PenLine } from 'lucide-react'
 
 const TrendingSection = ({ startups, onStartupClick }) => {
   return (
@@ -32,7 +32,7 @@ const TrendingSection = ({ startups, onStartupClick }) => {
               {/* Logo & Details */}
               <div className="flex items-start gap-4 mb-6">
                 <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#5B65DC] to-[#122056] flex-shrink-0 flex items-center justify-center text-white font-bold text-xl">
-                  {startup.logo}
+                  {startup.logo || <PenLine size={20} />}
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-bold text-[#122056] text-lg group-hover:text-[#5B65DC] transition-colors">
@@ -47,8 +47,9 @@ const TrendingSection = ({ startups, onStartupClick }) => {
                 <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-[#EEF0FD] text-[#5B65DC]">
                   {startup.category}
                 </span>
-                <span className="text-xs font-semibold text-[#122056]/60">
-                  📍 {startup.location}
+                <span className="text-xs font-semibold text-[#122056]/60 inline-flex items-center gap-1.5">
+                  <MapPin size={12} />
+                  {startup.location}
                 </span>
               </div>
 
