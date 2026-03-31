@@ -11,7 +11,6 @@ import ExplorePage from './pages/ExplorePage'
 import VerifyPage from './pages/VerifyPage'
 import SignInPage from './pages/SignInPage'
 import DashboardPage from './pages/DashboardPage'
-import AnalyticsPage from './pages/AnalyticsPage'
 import ProfilePage from './pages/ProfilePage'
 import SettingsPage from './pages/SettingsPage'
 
@@ -47,14 +46,6 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <PageTransition><DashboardPage /></PageTransition>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard/analytics"
-          element={
-            <ProtectedRoute>
-              <PageTransition><AnalyticsPage /></PageTransition>
             </ProtectedRoute>
           }
         />
