@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import GlassCard from '../components/GlassCard'
+import QuickActions from '../components/dashboard/QuickActions'
 import { useAuth } from '../context/AuthContext'
 
 const DashboardPage = () => {
@@ -83,17 +84,7 @@ const DashboardPage = () => {
                 ))}
               </div>
             </div>
-            <div className="lg:col-span-2 bg-white rounded-3xl border border-neutral-100 p-7">
-              <p className="text-[15px] font-semibold text-neutral-900 mb-1">Quick Actions</p>
-              <p className="text-[13px] text-neutral-400 mb-5">Keep your profile updated</p>
-              <div className="space-y-3">
-                {[['Edit Brand Profile', '✏️'], ['Upload Pitch Deck', '📄'], ['Write Founder Story', '📝'], ['View Analytics', '📊'], ['Share Profile Link', '🔗']].map(([label, emoji]) => (
-                  <button key={label} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-neutral-100 text-[13px] font-medium text-neutral-600 hover:border-neutral-300 hover:text-neutral-900 hover:bg-beige-50/40 transition-all duration-300 text-left">
-                    <span>{emoji}</span>{label}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <QuickActions />
           </motion.div>
         </div>
       </main>
