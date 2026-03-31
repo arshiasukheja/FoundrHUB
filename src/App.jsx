@@ -10,9 +10,11 @@ import HomePage from './pages/HomePage'
 import ExplorePage from './pages/ExplorePage'
 import VerifyPage from './pages/VerifyPage'
 import SignInPage from './pages/SignInPage'
-import DashboardPage from './pages/DashboardPage'
+import SignUpPage from './pages/SignUpPage'
 import ProfilePage from './pages/ProfilePage'
 import SettingsPage from './pages/SettingsPage'
+import FounderDashboard from './pages/FounderDashboard'
+import AIAnalyticsPage from './pages/AIAnalyticsPage'
 
 /* Page transition wrapper */
 const PageTransition = ({ children }) => (
@@ -39,16 +41,16 @@ const AppRoutes = () => {
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<PageTransition><HomePage /></PageTransition>} />
         <Route path="/explore" element={<PageTransition><ExplorePage /></PageTransition>} />
-        <Route path="/verify" element={<PageTransition><VerifyPage /></PageTransition>} />
-        <Route path="/signin" element={<PageTransition><SignInPage /></PageTransition>} />
-        <Route
-          path="/dashboard"
+        <Route 
+          path="/verify" 
           element={
             <ProtectedRoute>
-              <PageTransition><DashboardPage /></PageTransition>
+              <PageTransition><VerifyPage /></PageTransition>
             </ProtectedRoute>
-          }
+          } 
         />
+        <Route path="/signin" element={<PageTransition><SignInPage /></PageTransition>} />
+        <Route path="/signup" element={<PageTransition><SignUpPage /></PageTransition>} />
         <Route
           path="/profile"
           element={
@@ -62,6 +64,38 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <PageTransition><SettingsPage /></PageTransition>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/founder/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={['founder']}>
+              <PageTransition><FounderDashboard /></PageTransition>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/founder"
+          element={
+            <ProtectedRoute allowedRoles={['founder']}>
+              <PageTransition><FounderDashboard /></PageTransition>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/ai-analytics"
+          element={
+            <ProtectedRoute allowedRoles={['founder']}>
+              <PageTransition><AIAnalyticsPage /></PageTransition>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/explore"
+          element={
+            <ProtectedRoute allowedRoles={['discoverer']}>
+              <PageTransition><ExplorePage /></PageTransition>
             </ProtectedRoute>
           }
         />
