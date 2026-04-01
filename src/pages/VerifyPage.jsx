@@ -213,7 +213,7 @@ const VerifyPage = () => {
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-[10px] font-black uppercase text-[#122056]/30 px-1">Description Sync</span>
-                          <span className="text-sm font-bold text-[#122056]">{form.fullConcept ? 'Ready ✅' : 'Required ❌'}</span>
+                          <span className="text-sm font-bold text-[#122056]">{form.fullConcept ? 'Ready' : 'Required'}</span>
                         </div>
                       </div>
                     </div>

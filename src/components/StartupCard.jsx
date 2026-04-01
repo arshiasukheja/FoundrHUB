@@ -1,6 +1,6 @@
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Eye, Bookmark, ArrowUpRight, Flame } from 'lucide-react'
+import { Eye, Bookmark, ArrowUpRight, Flame, MapPin, PenLine } from 'lucide-react'
 
 const StartupCard = ({ startup, index, onClick }) => {
   return (
@@ -23,7 +23,7 @@ const StartupCard = ({ startup, index, onClick }) => {
       {/* Logo & Header */}
       <div className="flex items-start gap-4 mb-4">
         <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#5B65DC] to-[#122056] flex-shrink-0 flex items-center justify-center text-white font-bold text-lg">
-          {startup.logo}
+          {startup.logo || <PenLine size={20} />}
         </div>
         <div className="flex-1 min-w-0">
           <h3 className="font-bold text-[#122056] truncate group-hover:text-[#5B65DC] transition-colors">
@@ -38,8 +38,9 @@ const StartupCard = ({ startup, index, onClick }) => {
         <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-[#EEF0FD] text-[#5B65DC]">
           {startup.category}
         </span>
-        <span className="text-xs font-semibold text-[#122056]/60">
-          📍 {startup.location}
+        <span className="text-xs font-semibold text-[#122056]/60 inline-flex items-center gap-1.5">
+          <MapPin size={12} />
+          {startup.location}
         </span>
       </div>
 
