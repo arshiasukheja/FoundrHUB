@@ -13,6 +13,42 @@ import { HeroParallax } from '../components/ui/hero-parallax'
 import StartupNetwork from '../components/StartupNetwork'
 import { MapPin, Eye, Bookmark, MessageSquare, Users, PenLine, ClipboardList, CheckCircle, Rocket, Sparkles, ArrowUpRight, BarChart3, Layers3, Target, ShieldCheck, Wand2, MessageCircle, CalendarDays, NotebookPen, Star, Video, Shirt, Palette, Wheat, UtensilsCrossed, Lightbulb, ArrowRight, ChevronRight, TrendingUp, Zap } from 'lucide-react'
 
+/* ── Global Mouse Tracker ── */
+const useMousePosition = () => {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  useEffect(() => {
+    const handleGlobalMouseMove = (e) => {
+      setMousePos({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener('mousemove', handleGlobalMouseMove);
+    return () => window.removeEventListener('mousemove', handleGlobalMouseMove);
+  }, []);
+  return mousePos;
+};
+
+const GlobalGridBackground = () => {
+  const { x, y } = useMousePosition();
+  return (
+    <div 
+      className="fixed inset-0 pointer-events-none z-0 overflow-hidden"
+      style={{
+        "--x": `${x}px`,
+        "--y": `${y}px`,
+      }}
+    >
+      {/* 
+         Subtle Darkening Glow: 
+         Instead of a white light, we use a very soft navy radial shift 
+         that makes the area feel slightly more 'dense' or 'darkened'.
+      */}
+      <div className="absolute inset-0 [background:radial-gradient(circle_at_var(--x)_var(--y),rgba(18,32,86,0.06)_0%,transparent_500px)]" />
+      
+      {/* The Constant Grid Lines */}
+      <div className="absolute inset-0 [background:linear-gradient(rgba(18,32,86,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(18,32,86,0.03)_1px,transparent_1px)] [background-size:60px_60px]" />
+    </div>
+  );
+};
+
 /* ── Reveal Observer ── */
 const useReveal = () => {
   useEffect(() => {
@@ -60,6 +96,137 @@ const fadeUp = {
 }
 
 /* ═══════════════════════════════════════
+   2.5 PROBLEM CLUSTER
+   ═══════════════════════════════════════ */
+const ProblemCluster = () => {
+  const founderProblems = [
+    { 
+      title: "Idea Validation Gap", 
+      desc: "Spending 6+ months building products that nobody actually wants or needs.",
+      top: "20%", left: "10%", delay: 0 
+    },
+    { 
+      title: "Scattered Intelligence", 
+      desc: "Switching between 10+ tools just to manage basic market research and feedback.",
+      top: "75%", left: "10%", delay: 1 
+    },
+    { 
+      title: "Growth Stagnation", 
+      desc: "No clear roadmap to move from MVP to a scalable, revenue-generating venture.",
+      top: "45%", left: "5%", delay: 0.5 
+    },
+  ];
+
+  const investorProblems = [
+    { 
+      title: "Discovery Friction", 
+      desc: "Missing out on unicorn founders because they are buried under high-volume noise.",
+      top: "20%", right: "10%", delay: 0.2 
+    },
+    { 
+      title: "Data Blindspots", 
+      desc: "Relying on quarterly decks instead of real-time growth and engagement metrics.",
+      top: "75%", right: "10%", delay: 1.2 
+    },
+    { 
+      title: "Unstructured Sourcing", 
+      desc: "Inconsistent deal flow leading to suboptimal investment timing and FOMO.",
+      top: "45%", right: "5%", delay: 0.7 
+    },
+  ];
+
+  return (
+    <section 
+      className="relative bg-transparent text-[#122056] py-32 lg:py-52 flex justify-center items-center overflow-hidden"
+    >
+      {/* Background Glows kept for depth */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-[#5B65DC]/5 blur-[120px] rounded-full pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col items-center gap-10">
+        <div className="text-center reveal mb-4">
+           <span className="text-[11px] font-black uppercase tracking-[0.4em] text-[#5B65DC] mb-3 block">The Growth Barrier</span>
+           <h2 className="text-3xl lg:text-4xl font-serif tracking-tight text-[#122056]">A Systemically <span className="italic text-neutral-400">Inefficient</span> Ecosystem</h2>
+        </div>
+
+        {/* CORE CARDS (Horizontal Layout) */}
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 relative">
+          {/* Founder Core Card */}
+          <motion.div 
+            whileHover={{ y: -5, scale: 1.02 }}
+            animate={{ y: [0, -6, 0] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            className="group relative bg-[#FAFAFD] border border-[#EEF0FD] p-10 rounded-[2.5rem] w-80 lg:w-[420px] shadow-[0_20px_50px_rgba(18,32,86,0.06)] overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-white to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="relative z-10">
+               <h3 className="text-2xl font-bold mb-4 text-[#122056]">Founders Build Blind</h3>
+               <p className="text-neutral-500 text-[15px] leading-relaxed font-medium">
+                 Founders spend months developing features based on guesswork rather than validated market intelligence.
+               </p>
+            </div>
+            <div className="absolute -bottom-1 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#5B65DC] to-transparent" />
+          </motion.div>
+
+          {/* Investor Core Card */}
+          <motion.div 
+            whileHover={{ y: 5, scale: 1.02 }}
+            animate={{ y: [0, 6, 0] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+            className="group relative bg-[#FAFAFD] border border-[#EEF0FD] p-10 rounded-[2.5rem] w-80 lg:w-[420px] shadow-[0_20px_50px_rgba(18,32,86,0.06)] overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-gradient-to-bl from-white to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="relative z-10">
+               <h3 className="text-2xl font-bold mb-4 text-[#5B65DC]">Investors Invest Blind</h3>
+               <p className="text-neutral-500 text-[15px] leading-relaxed font-medium">
+                 Investors rely heavily on outdated pitch decks instead of having a direct pulse on a startup's real-time trajectory.
+               </p>
+            </div>
+            <div className="absolute -top-1 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#122056]/20 to-transparent" />
+          </motion.div>
+        </div>
+      </div>
+
+      {/* SURROUNDING PROBLEM NODES (Bigger + More Info) */}
+      <div className="absolute inset-0 pointer-events-none">
+        {/* Left Side (Founder) */}
+        {founderProblems.map((p, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            animate={{ y: [0, -12, 0] }}
+            transition={{ y: { duration: 4 + i, repeat: Infinity, ease: "easeInOut" }, opacity: { delay: p.delay } }}
+            style={{ top: p.top, left: p.left }}
+            className="absolute max-w-[200px] bg-white border border-[#EEF0FD] p-5 rounded-2xl shadow-[0_15px_40px_rgba(18,32,86,0.08)] pointer-events-auto cursor-default hover:border-[#5B65DC]/30 transition-all hover:scale-[1.03]"
+          >
+            <h4 className="text-[12px] font-black uppercase tracking-wider text-[#122056] mb-1.5">{p.title}</h4>
+            <p className="text-[11px] font-medium text-neutral-400 leading-normal">{p.desc}</p>
+          </motion.div>
+        ))}
+
+        {/* Right Side (Investor) */}
+        {investorProblems.map((p, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            animate={{ y: [0, -10, 0] }}
+            transition={{ y: { duration: 4.5 + i, repeat: Infinity, ease: "easeInOut" }, opacity: { delay: p.delay } }}
+            style={{ top: p.top, right: p.right }}
+            className="absolute max-w-[200px] bg-white border border-[#EEF0FD] p-5 rounded-2xl shadow-[0_15px_40px_rgba(91,101,220,0.08)] pointer-events-auto cursor-default hover:border-[#5B65DC] transition-all hover:scale-[1.03]"
+          >
+            <h4 className="text-[12px] font-black uppercase tracking-wider text-[#5B65DC] mb-1.5">{p.title}</h4>
+            <p className="text-[11px] font-medium text-neutral-400 leading-normal">{p.desc}</p>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+};
+
+/* ═══════════════════════════════════════
    3. AI LAYERS
    ═══════════════════════════════════════ */
 const LayerLabel = ({ num, light = false }) => (
@@ -75,12 +242,7 @@ const AILayersSection = () => {
   useReveal()
 
   return (
-    <section id="ai-layers" className="relative bg-white text-[#122056] py-20 lg:py-28 overflow-hidden">
-      {/* Subtle Pattern Background */}
-      <div className="absolute inset-0 pointer-events-none opacity-[0.03]">
-        <div className="absolute inset-0 bg-[linear-gradient(#122056_1px,transparent_1px),linear-gradient(90deg,#122056_1px,transparent_1px)] bg-[size:60px_60px]" />
-      </div>
-
+    <section id="ai-layers" className="relative bg-transparent text-[#122056] py-20 lg:py-28 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-10 relative z-10">
         <div className="reveal mb-20 lg:mb-24 text-center lg:text-left">
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#EEF0FD] bg-[#FAFAFD] text-[11px] font-bold uppercase tracking-[0.2em] text-[#5B65DC] mb-6">
@@ -1012,8 +1174,11 @@ const HomePage = () => {
   return (
     <>
       <Navbar />
-      <main>
+      <main className="relative bg-white">
+        <GlobalGridBackground />
         <CinematicHero />
+
+        <ProblemCluster />
 
         <div className="mx-4 lg:mx-10 my-12 lg:my-16 p-2 lg:p-4 rounded-[3.5rem] bg-gradient-to-br from-[#122056] via-[#122056] to-[#0A1128] border border-[#1e2d63] shadow-[0_40px_100px_rgba(10,17,40,0.4)] relative overflow-hidden">
           {/* Inner Subtle Glow */}
