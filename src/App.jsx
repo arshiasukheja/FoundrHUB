@@ -31,6 +31,7 @@ import PricingPage from './pages/PricingPage'
 import AnalyserPage from './pages/AnalyserPage'
 import StartupDiscoveryMapPage from './pages/StartupDiscoveryMapPage'
 import FounderIntelligencePage from './pages/FounderIntelligencePage'
+import InvestorMVPDashboard from './pages/InvestorMVPDashboard'
 
 /* Page transition wrapper */
 const PageTransition = ({ children }) => (
@@ -147,6 +148,7 @@ const AppRoutes = () => {
             <Navigate to="/dashboard/insights" replace />
           }
         />
+        <Route path="/investor-mvp" element={<PageTransition><InvestorMVPDashboard /></PageTransition>} />
       </Routes>
     </AnimatePresence>
   )
