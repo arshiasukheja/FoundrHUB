@@ -4,7 +4,7 @@ import Toast from './Toast'
 import { useState, useEffect } from 'react'
 
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
-  const { isAuthenticated, user, getDashboardPathForRole } = useAuth()
+  const { isAuthenticated, isReady, user, getDashboardPathForRole } = useAuth()
   const location = useLocation()
   const [showToast, setShowToast] = useState(false)
 
@@ -13,6 +13,10 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
       setShowToast(true)
     }
   }, [isAuthenticated])
+
+  if (!isReady) {
+    return null
+  }
 
   if (!isAuthenticated) {
     return (

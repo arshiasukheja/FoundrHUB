@@ -1,4 +1,14 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import {
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signOut,
+  updateProfile
+} from 'firebase/auth'
+import { get, ref } from 'firebase/database'
+import { auth, db } from '../lib/firebase'
+import { ensureUserData, updateUserProfile } from '../lib/firebaseData'
 
 const AuthContext = createContext({
   user: null,
@@ -12,138 +22,97 @@ const AuthContext = createContext({
 
 export const useAuth = () => useContext(AuthContext)
 
-const AUTH_KEY = 'foundrhub_auth'
-const USER_KEY = 'foundrhub_user'
-const USERS_KEY = 'foundrhub_users'
-
-const normalizeEmail = (email = '') => email.trim().toLowerCase()
-
 const getDashboardPathForRole = (role) => {
   if (role === 'founder') return '/dashboard/founder'
   if (role === 'investor') return '/dashboard/investor'
   return '/signin'
 }
 
-const readUsers = () => {
-  try {
-    const raw = localStorage.getItem(USERS_KEY)
-    const parsed = raw ? JSON.parse(raw) : []
-    return Array.isArray(parsed) ? parsed : []
-  } catch {
-    return []
-  }
-}
-
-const writeUsers = (users) => {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users))
-}
-
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
+  const [isReady, setIsReady] = useState(false)
 
-  // Restore session on mount
   useEffect(() => {
-    try {
-      const token = localStorage.getItem(AUTH_KEY)
-      const savedUser = localStorage.getItem(USER_KEY)
-      if (token && savedUser) {
-        setUser(JSON.parse(savedUser))
+    const unsub = onAuthStateChanged(auth, async (authUser) => {
+      if (!authUser) {
+        setUser(null)
+        setIsReady(true)
+        return
       }
-    } catch {
-      localStorage.removeItem(AUTH_KEY)
-      localStorage.removeItem(USER_KEY)
-    }
-  }, [])
 
-  const setSession = useCallback((userData) => {
-    const token = 'fh_' + Date.now() + '_' + Math.random().toString(36).slice(2)
-    localStorage.setItem(AUTH_KEY, token)
-    localStorage.setItem(USER_KEY, JSON.stringify(userData))
-    setUser(userData)
+      const profileSnap = await get(ref(db, `users/${authUser.uid}/profile`))
+      const profile = profileSnap.exists() ? profileSnap.val() : {}
+      const normalizedUser = {
+        uid: authUser.uid,
+        email: authUser.email || profile.email || '',
+        name: authUser.displayName || profile.name || 'Founder',
+        role: profile.role || 'founder'
+      }
+
+      setUser(normalizedUser)
+      setIsReady(true)
+    })
+
+    return () => unsub()
   }, [])
 
   const signup = useCallback(async ({ name, email, password, role }) => {
-    const cleanEmail = normalizeEmail(email)
-    const cleanName = (name || '').trim() || cleanEmail.split('@')[0].replace(/[._-]+/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())
-
-    if (!cleanName || !cleanEmail || !password) {
+    const cleanName = (name || '').trim() || (email || '').split('@')[0]
+    if (!cleanName || !email || !password) {
       return { ok: false, error: 'Please fill in all required fields.' }
     }
 
-    const selectedRole = role === 'founder' ? 'founder' : 'investor'
-    const users = readUsers()
-    const exists = users.some(u => normalizeEmail(u.email) === cleanEmail)
+    const selectedRole = role === 'investor' ? 'investor' : role === 'mentor' ? 'mentor' : 'founder'
 
-    if (exists) {
-      return { ok: false, error: 'An account with this email already exists.' }
+    try {
+      const credential = await createUserWithEmailAndPassword(auth, email, password)
+      await updateProfile(credential.user, { displayName: cleanName })
+
+      const profile = {
+        name: cleanName,
+        email: credential.user.email || email,
+        role: selectedRole
+      }
+
+      await ensureUserData(credential.user.uid, profile)
+      const sessionUser = { uid: credential.user.uid, ...profile }
+      setUser(sessionUser)
+
+      return { ok: true, user: sessionUser }
+    } catch (error) {
+      return { ok: false, error: error?.message || 'Unable to create your account.' }
     }
-
-    const newUser = {
-      id: 'u_' + Date.now(),
-      name: cleanName,
-      email: cleanEmail,
-      password,
-      role: selectedRole,
-      avatar: null,
-      createdAt: new Date().toISOString(),
-    }
-
-    users.push(newUser)
-    writeUsers(users)
-
-    const sessionUser = { ...newUser }
-    delete sessionUser.password
-    setSession(sessionUser)
-
-    return { ok: true, user: sessionUser }
-  }, [setSession])
+  }, [])
 
   const login = useCallback(async ({ email, password }) => {
-    const cleanEmail = normalizeEmail(email)
-    const users = readUsers()
-    const index = users.findIndex(u => normalizeEmail(u.email) === cleanEmail)
+    try {
+      const credential = await signInWithEmailAndPassword(auth, email, password)
+      const profileSnap = await get(ref(db, `users/${credential.user.uid}/profile`))
+      const profile = profileSnap.exists() ? profileSnap.val() : { role: 'founder', name: credential.user.displayName || 'Founder', email }
 
-    if (index === -1) {
-      return { ok: false, error: 'No account found for this email.' }
+      await ensureUserData(credential.user.uid, profile)
+      const sessionUser = {
+        uid: credential.user.uid,
+        name: profile.name || credential.user.displayName || 'Founder',
+        email: credential.user.email || email,
+        role: profile.role || 'founder'
+      }
+      setUser(sessionUser)
+      return { ok: true, user: sessionUser }
+    } catch (error) {
+      return { ok: false, error: error?.message || 'Unable to sign in.' }
     }
+  }, [])
 
-    const account = users[index]
-    const hasPassword = typeof account.password === 'string' && account.password.length > 0
-
-    if (hasPassword && account.password !== password) {
-      return { ok: false, error: 'Incorrect password.' }
-    }
-
-    if (!hasPassword) {
-      users[index] = { ...account, password }
-      writeUsers(users)
-    }
-
-    const sessionUser = { ...users[index] }
-    delete sessionUser.password
-    setSession(sessionUser)
-
-    return { ok: true, user: sessionUser }
-  }, [setSession])
-
-  const updateUser = useCallback((uData) => {
-    if (!user) return
+  const updateUser = useCallback(async (uData) => {
+    if (!user?.uid) return
     const updatedUser = { ...user, ...uData }
-    localStorage.setItem(USER_KEY, JSON.stringify(updatedUser))
     setUser(updatedUser)
-
-    // Also update in the global users list
-    const users = readUsers()
-    const index = users.findIndex(u => u.id === user.id)
-    if (index !== -1) {
-      users[index] = { ...users[index], ...uData }
-      writeUsers(users)
-    }
+    await updateUserProfile(user.uid, uData)
   }, [user])
 
-  const logout = useCallback(() => {
-    localStorage.removeItem(AUTH_KEY)
-    localStorage.removeItem(USER_KEY)
+  const logout = useCallback(async () => {
+    await signOut(auth)
     setUser(null)
   }, [])
 
@@ -155,6 +124,7 @@ export const AuthProvider = ({ children }) => {
         login,
         logout,
         updateUser,
+        isReady,
         isAuthenticated: !!user,
         getDashboardPathForRole,
       }}
