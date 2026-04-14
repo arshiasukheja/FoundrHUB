@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation, useNavigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { AuthProvider, useAuth } from './context/AuthContext'
@@ -14,6 +14,17 @@ import SignUpPage from './pages/SignUpPage'
 import ProfilePage from './pages/ProfilePage'
 import SettingsPage from './pages/SettingsPage'
 import FounderDashboard from './pages/FounderDashboard'
+import InvestorDashboard from './pages/InvestorDashboard'
+import DailyInsightsDashboard from './pages/DailyInsightsDashboard'
+import InvestorDecisionDashboardPage from './pages/investor/InvestorDecisionDashboardPage'
+import InvestorDiscoveryPage from './pages/investor/InvestorDiscoveryPage'
+import InvestorDealFlowPage from './pages/investor/InvestorDealFlowPage'
+import InvestorWatchlistPage from './pages/investor/InvestorWatchlistPage'
+import TractionDashboardPage from './pages/investor/TractionDashboardPage'
+import FounderConsistencyPage from './pages/investor/FounderConsistencyPage'
+import MemoGeneratorPage from './pages/investor/MemoGeneratorPage'
+import DealInboxPage from './pages/investor/DealInboxPage'
+import CityInsightsPage from './pages/investor/CityInsightsPage'
 import AIAnalyticsPage from './pages/AIAnalyticsPage'
 import RoadmapPage from './pages/RoadmapPage'
 import PricingPage from './pages/PricingPage'
@@ -33,6 +44,7 @@ const PageTransition = ({ children }) => (
 )
 
 const AppRoutes = () => {
+  const { user, isAuthenticated, getDashboardPathForRole } = useAuth()
   const location = useLocation()
 
   // Scroll to top on route change
@@ -92,6 +104,34 @@ const AppRoutes = () => {
           }
         />
         <Route
+          path="/dashboard/insights"
+          element={
+            <ProtectedRoute allowedRoles={['founder', 'investor']}>
+              <PageTransition><DailyInsightsDashboard /></PageTransition>
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/dashboard" element={<Navigate to={isAuthenticated ? getDashboardPathForRole(user?.role) : '/signin'} replace />} />
+        <Route
+          path="/dashboard/investor"
+          element={
+            <ProtectedRoute allowedRoles={['investor']}>
+              <PageTransition><InvestorDashboard /></PageTransition>
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<PageTransition><InvestorDecisionDashboardPage /></PageTransition>} />
+          <Route path="discovery" element={<PageTransition><InvestorDiscoveryPage /></PageTransition>} />
+          <Route path="deal-flow" element={<PageTransition><InvestorDealFlowPage /></PageTransition>} />
+          <Route path="watchlist" element={<PageTransition><InvestorWatchlistPage /></PageTransition>} />
+          <Route path="traction" element={<PageTransition><TractionDashboardPage /></PageTransition>} />
+          <Route path="consistency" element={<PageTransition><FounderConsistencyPage /></PageTransition>} />
+          <Route path="memo" element={<PageTransition><MemoGeneratorPage /></PageTransition>} />
+          <Route path="inbox" element={<PageTransition><DealInboxPage /></PageTransition>} />
+          <Route path="city" element={<PageTransition><CityInsightsPage /></PageTransition>} />
+        </Route>
+        <Route path="/investor/dashboard" element={<Navigate to="/dashboard/insights" replace />} />
+        <Route
           path="/dashboard/ai-analytics"
           element={
             <ProtectedRoute allowedRoles={['founder']}>
@@ -102,9 +142,7 @@ const AppRoutes = () => {
         <Route
           path="/dashboard/explore"
           element={
-            <ProtectedRoute allowedRoles={['discoverer']}>
-              <PageTransition><ExplorePage /></PageTransition>
-            </ProtectedRoute>
+            <Navigate to="/dashboard/insights" replace />
           }
         />
       </Routes>

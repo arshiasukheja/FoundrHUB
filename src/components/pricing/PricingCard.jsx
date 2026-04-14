@@ -64,8 +64,8 @@ function Description({ children }) {
 function Price({ amount, period, strike }) {
   return (
     <div className="mt-4 flex items-end gap-2">
-      {strike ? <span className="text-base text-[#122056]/40 line-through">${strike}</span> : null}
-      <span className="text-3xl font-extrabold tracking-tight text-[#122056]">${amount}</span>
+      {strike ? <span className="text-base text-[#122056]/40 line-through">₹{strike}</span> : null}
+      <span className="text-3xl font-extrabold tracking-tight text-[#122056]">₹{amount}</span>
       <span className="pb-1 text-sm text-[#122056]/70">/{period}</span>
     </div>
   )
