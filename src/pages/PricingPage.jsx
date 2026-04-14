@@ -23,8 +23,8 @@ const plans = [
   {
     name: 'Pro',
     description: 'For founders ready to scale with confidence.',
-    priceMonthly: 29,
-    priceYearly: 19,
+    priceMonthly: 499,
+    priceYearly: 349,
     popular: true,
     cta: 'Upgrade to Pro',
     features: [
@@ -38,8 +38,8 @@ const plans = [
   {
     name: 'Scale',
     description: 'For teams optimizing growth and operations.',
-    priceMonthly: 79,
-    priceYearly: 59,
+    priceMonthly: 699,
+    priceYearly: 499,
     popular: false,
     cta: 'Upgrade to Scale',
     features: [
