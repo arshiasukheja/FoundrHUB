@@ -145,7 +145,7 @@ const ProblemCluster = () => {
       <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col items-center gap-10">
         <div className="text-center reveal mb-4">
            <span className="text-[11px] font-black uppercase tracking-[0.4em] text-[#5B65DC] mb-3 block">The Growth Barrier</span>
-           <h2 className="text-3xl lg:text-4xl font-serif tracking-tight text-[#122056]">A Systemically <span className="italic text-neutral-400">Inefficient</span> Ecosystem</h2>
+           <h2 className="text-3xl lg:text-4xl font-bold tracking-tight text-[#122056]">A Systemically <span className="italic text-neutral-400">Inefficient</span> Ecosystem</h2>
         </div>
 
         {/* CORE CARDS (Horizontal Layout) */}
@@ -248,7 +248,7 @@ const AILayersSection = () => {
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#EEF0FD] bg-[#FAFAFD] text-[11px] font-bold uppercase tracking-[0.2em] text-[#5B65DC] mb-6">
             The Intelligence Stack
           </span>
-          <h2 className="font-serif text-[clamp(2.2rem,4vw,3.5rem)] leading-[1.1] tracking-tight text-[#122056] mb-6">
+          <h2 className="font-bold text-[clamp(2.2rem,4vw,3.5rem)] leading-[1.1] tracking-tight text-[#122056] mb-6">
             Five layers of <span className="text-[#5B65DC] italic">Unmatched</span> AI
           </h2>
           <p className="text-[17px] text-neutral-500 max-w-xl leading-relaxed">
@@ -436,7 +436,7 @@ const mentorCards = [
     title: 'Next meeting',
     value: 'Fri, 4:30 PM',
     note: 'with Product mentor',
-    pos: 'bottom-10 right-10 lg:right-16',
+    pos: 'bottom-11 right-10 lg:right-16',
     delay: 0.28,
   },
 ]
@@ -455,7 +455,7 @@ const MentorSessionSection = () => (
           className="reveal"
         >
           <span className="section-label !text-white/60 !border-white/20">1 on 1 Mentor Session</span>
-          <h3 className="font-serif text-[clamp(2rem,4vw,3.4rem)] leading-[1.05] tracking-tight text-white mb-5">
+          <h3 className="font-bold text-[clamp(2rem,4vw,3.4rem)] leading-[1.05] tracking-tight text-white mb-5">
             Comprehensive feature set for private mentoring.
           </h3>
           <p className="text-[16px] lg:text-[18px] text-white/70 leading-relaxed mb-8 max-w-xl">
@@ -797,7 +797,7 @@ const FinalCTA = () => (
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
           <span className="text-[11px] font-semibold tracking-[0.15em] uppercase text-neutral-400">Open for founders</span>
         </span>
-        <h2 className="font-serif text-[clamp(2rem,5vw,3.4rem)] leading-[1.08] tracking-tight text-white mb-6">Built for founders shaping what's next.</h2>
+        <h2 className="font-bold text-[clamp(2rem,5vw,3.4rem)] leading-[1.08] tracking-tight text-white mb-6">Built for founders shaping what's next.</h2>
         <p className="text-[17px] text-neutral-400 leading-relaxed max-w-xl mx-auto mb-10">Whether you're launching your first product or scaling your hundredth, FoundrHUB is where India's most ambitious founders get discovered.</p>
         <div className="flex flex-wrap justify-center gap-4">
           <Link to="/signup?role=founder" className="inline-flex items-center px-8 py-4 rounded-full bg-white text-neutral-950 text-[15px] font-semibold tracking-wide hover:bg-neutral-100 transition-all duration-300 hover:shadow-[0_0_40px_rgba(255,255,255,0.12)] group">
@@ -810,359 +810,6 @@ const FinalCTA = () => (
     </div>
   </section>
 )
-
-/* ═══════════════════════════════════════
-   FOUNDER QUESTIONNAIRE
-   ═══════════════════════════════════════ */
-
-const nicheQuestions = {
-  Clothing: {
-    title: "What stage is your brand at?",
-    options: [
-      { label: 'Idea', icon: '💡' },
-      { label: 'Sampling', icon: '🧵' },
-      { label: 'Manufacturing', icon: '🏭' },
-      { label: 'Selling', icon: '📦' }
-    ]
-  },
-  Makeup: {
-    title: "What's your biggest challenge right now?",
-    options: [
-      { label: 'Formulation', icon: '🧪' },
-      { label: 'Branding', icon: '🎨' },
-      { label: 'Packaging', icon: '📦' },
-      { label: 'Distribution', icon: '🚚' }
-    ]
-  },
-  Skincare: {
-    title: "Are you targeting mass market or premium?",
-    options: [
-      { label: 'Mass', icon: '👥' },
-      { label: 'Premium', icon: '✨' },
-      { label: 'Clinical', icon: '⚕️' }
-    ]
-  },
-  Food: {
-    title: "What business model are you building?",
-    options: [
-      { label: 'D2C', icon: '🛒' },
-      { label: 'Retail shelves', icon: '🏪' },
-      { label: 'Cloud kitchen', icon: '☁️' },
-      { label: 'Subscription', icon: '📬' }
-    ]
-  },
-  Other: {
-    title: "Tell us your startup category",
-    isText: true,
-    placeholder: 'e.g., SaaS, Deep Tech, EdTech, FinTech...'
-  }
-}
-
-const QuestionnaireSection = () => {
-  const [step, setStep] = useState(0)
-  const [founder, setFounder] = useState(null)
-  const [niche, setNiche] = useState(null)
-  const [answer3, setAnswer3] = useState(null)
-  const [textInput, setTextInput] = useState('')
-  const [fadeOut, setFadeOut] = useState(false)
-
-  const handleNext = (value) => {
-    setFadeOut(true)
-    setTimeout(() => {
-      if (step === 0) {
-        setFounder(value)
-        if (value === 'No') {
-          setStep(4)
-        } else {
-          setStep(1)
-        }
-      } else if (step === 1) {
-        setNiche(value)
-        setStep(2)
-      } else if (step === 2) {
-        setAnswer3(value)
-        setStep(3)
-      }
-      setFadeOut(false)
-    }, 300)
-  }
-
-  const resetQuestionnaire = () => {
-    setStep(0)
-    setFounder(null)
-    setNiche(null)
-    setAnswer3(null)
-    setTextInput('')
-    setFadeOut(false)
-  }
-
-  const containerVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } }
-  }
-
-  return (
-    <section className="relative overflow-hidden bg-white py-20 lg:py-32">
-      {/* Animated Background Shapes */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden" />
-
-      <div className="max-w-2xl mx-auto px-6 lg:px-10 relative z-10">
-        {/* Progress Indicator */}
-        {step < 4 && (
-          <motion.div
-            className="mb-12 text-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6 }}
-          >
-            <div className="flex items-center justify-center gap-3 mb-6">
-              {[0, 1, 2].map((i) => (
-                <motion.div
-                  key={i}
-                  className={`h-2 rounded-full transition-all duration-500 ${i < step ? 'bg-[#5B65DC] w-8' : i === step ? 'bg-[#5B65DC] w-6' : 'bg-neutral-300 w-2'
-                    }`}
-                  animate={{ width: i < step ? '32px' : i === step ? '24px' : '8px' }}
-                />
-              ))}
-            </div>
-            <p className="text-[13px] font-semibold text-neutral-500 tracking-wide">
-              {step === 0 ? 'Question 1 of 3' : step === 1 ? 'Question 2 of 3' : step === 2 ? 'Question 3 of 3' : 'Almost there!'}
-            </p>
-          </motion.div>
-        )}
-
-        {/* Step 0: Are you a founder? */}
-        {step === 0 && (
-          <motion.div
-            key="step-0"
-            variants={containerVariants}
-            initial="hidden"
-            animate={fadeOut ? { opacity: 0, y: 20 } : 'visible'}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="text-center mb-12">
-              <h2 className="font-serif text-[clamp(2rem,5vw,3.2rem)] leading-tight text-[#122056] mb-4">
-                Are you a founder?
-              </h2>
-              <p className="text-[16px] text-neutral-500">Help us match you with the right resources and community.</p>
-            </div>
-
-            <div className="grid sm:grid-cols-3 gap-4">
-              {['Yes', 'No', 'Just exploring'].map((option) => (
-                <motion.button
-                  key={option}
-                  onClick={() => handleNext(option)}
-                  className="group relative px-8 py-5 rounded-2xl border-2 border-neutral-200 bg-white hover:border-[#5B65DC] hover:bg-[#5B65DC]/3 transition-all duration-300"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <span className="text-[16px] font-semibold text-[#122056] group-hover:text-[#5B65DC]">
-                    {option}
-                  </span>
-                  <motion.div
-                    className="absolute inset-0 rounded-2xl bg-gradient-to-r from-[#5B65DC]/10 to-emerald-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    layoutId="hoverBg"
-                  />
-                </motion.button>
-              ))}
-            </div>
-          </motion.div>
-        )}
-
-        {/* Step 1: What niche? */}
-        {step === 1 && (
-          <motion.div
-            key="step-1"
-            variants={containerVariants}
-            initial="hidden"
-            animate={fadeOut ? { opacity: 0, y: 20 } : 'visible'}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="text-center mb-12">
-              <h2 className="font-serif text-[clamp(2rem,5vw,3.2rem)] leading-tight text-[#122056] mb-4">
-                What niche are you building in?
-              </h2>
-              <p className="text-[16px] text-neutral-500">This helps us personalize your experience.</p>
-            </div>
-
-            <div className="grid sm:grid-cols-2 gap-4">
-              {[
-                { label: 'Clothing', icon: Shirt, color: 'from-pink-400' },
-                { label: 'Makeup', icon: Palette, color: 'from-purple-400' },
-                { label: 'Skincare', icon: Sparkles, color: 'from-cyan-400' },
-                { label: 'Food', icon: UtensilsCrossed, color: 'from-amber-400' },
-                { label: 'Other', icon: Lightbulb, color: 'from-indigo-400' }
-              ].map((niche) => {
-                const IconComponent = niche.icon
-                return (
-                  <motion.button
-                    key={niche.label}
-                    onClick={() => handleNext(niche.label)}
-                    className="group relative p-6 rounded-2xl border-2 border-neutral-200 bg-white hover:border-[#5B65DC] transition-all duration-300 flex items-center gap-4"
-                    whileHover={{ scale: 1.02, borderColor: '#5B65DC' }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <div className={`p-3 rounded-xl bg-gradient-to-br ${niche.color} to-neutral-300/30 text-white`}>
-                      <IconComponent size={24} />
-                    </div>
-                    <span className="text-[16px] font-semibold text-[#122056] group-hover:text-[#5B65DC]">
-                      {niche.label}
-                    </span>
-                    <ChevronRight size={18} className="ml-auto text-neutral-300 group-hover:text-[#5B65DC] transition-colors" />
-                  </motion.button>
-                )
-              })}
-            </div>
-          </motion.div>
-        )}
-
-        {/* Step 2: Niche-based question */}
-        {step === 2 && niche && (
-          <motion.div
-            key="step-2"
-            variants={containerVariants}
-            initial="hidden"
-            animate={fadeOut ? { opacity: 0, y: 20 } : 'visible'}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="text-center mb-12">
-              <h2 className="font-serif text-[clamp(2rem,5vw,3.2rem)] leading-tight text-[#122056] mb-4">
-                {nicheQuestions[niche]?.title || 'Tell us more'}
-              </h2>
-              <p className="text-[16px] text-neutral-500">We'll match you with relevant insights.</p>
-            </div>
-
-            {nicheQuestions[niche]?.isText ? (
-              <div className="space-y-4">
-                <input
-                  type="text"
-                  placeholder={nicheQuestions[niche]?.placeholder}
-                  value={textInput}
-                  onChange={(e) => setTextInput(e.target.value)}
-                  className="w-full px-6 py-4 rounded-2xl border-2 border-neutral-200 bg-white focus:border-[#5B65DC] focus:outline-none transition-colors duration-300 text-[16px]"
-                />
-                <motion.button
-                  onClick={() => handleNext(textInput || 'Not specified')}
-                  className="w-full px-8 py-4 rounded-2xl bg-[#5B65DC] text-white font-semibold hover:bg-[#5B65DC]/90 transition-all duration-300 flex items-center justify-center gap-2"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  Continue <ArrowRight size={18} />
-                </motion.button>
-              </div>
-            ) : (
-              <div className="grid sm:grid-cols-2 gap-4">
-                {nicheQuestions[niche]?.options.map((option) => (
-                  <motion.button
-                    key={option.label}
-                    onClick={() => handleNext(option.label)}
-                    className="group relative p-6 rounded-2xl border-2 border-neutral-200 bg-white hover:border-[#5B65DC] transition-all duration-300 text-center"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <span className="text-[28px] block mb-3">{option.icon}</span>
-                    <span className="text-[16px] font-semibold text-[#122056] group-hover:text-[#5B65DC]">
-                      {option.label}
-                    </span>
-                  </motion.button>
-                ))}
-              </div>
-            )}
-          </motion.div>
-        )}
-
-        {/* Step 3: Conversion Screen */}
-        {step === 3 && (
-          <motion.div
-            key="step-3"
-            variants={containerVariants}
-            initial="hidden"
-            animate={fadeOut ? { opacity: 0, y: 20 } : 'visible'}
-            transition={{ duration: 0.5 }}
-            className="text-center"
-          >
-            <motion.div
-              className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[#5B65DC] to-emerald-400 mb-8"
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              <CheckCircle size={32} className="text-white" />
-            </motion.div>
-
-            <h2 className="font-serif text-[clamp(2rem,5vw,3.2rem)] leading-tight text-[#122056] mb-6">
-              Perfect match found!
-            </h2>
-            <p className="text-[18px] text-neutral-600 leading-relaxed mb-2 max-w-xl mx-auto">
-              Get deeper founder insights, curated connections, and startup guidance with FoundrHub.
-            </p>
-            <p className="text-[16px] text-neutral-500 leading-relaxed mb-10 max-w-xl mx-auto">
-              Sign up today to unlock niche-specific founder matches, growth resources, and startup playbooks.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                to="/signup?role=founder"
-                className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-[#5B65DC] text-white font-semibold hover:bg-[#5B65DC]/90 transition-all duration-300 gap-2"
-              >
-                Get Insights <ArrowRight size={18} />
-              </Link>
-              <button
-                onClick={resetQuestionnaire}
-                className="inline-flex items-center justify-center px-8 py-4 rounded-full border-2 border-neutral-200 text-[#122056] font-semibold hover:border-[#5B65DC] hover:text-[#5B65DC] transition-all duration-300"
-              >
-                Start Over
-              </button>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Not a Founder Screen */}
-        {step === 4 && (
-          <motion.div
-            key="step-not-founder"
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="text-center"
-          >
-            <motion.div
-              className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-orange-400 mb-8"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-            >
-              <Lightbulb size={32} className="text-white" />
-            </motion.div>
-
-            <h2 className="font-serif text-[clamp(2rem,5vw,3.2rem)] leading-tight text-[#122056] mb-6">
-              Explore India's most exciting startups
-            </h2>
-            <p className="text-[18px] text-neutral-600 leading-relaxed mb-2 max-w-xl mx-auto">
-              Discover early-stage founders building the future, connect with emerging brands, and stay ahead of market trends.
-            </p>
-            <p className="text-[16px] text-neutral-500 leading-relaxed mb-10 max-w-xl mx-auto">
-              Get exclusive access to startup insights, investment opportunities, and industry connections.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                to="/signup?role=investor"
-                className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-[#5B65DC] text-white font-semibold hover:bg-[#5B65DC]/90 transition-all duration-300 gap-2"
-              >
-                Explore Startups <ArrowRight size={18} />
-              </Link>
-              <button
-                onClick={resetQuestionnaire}
-                className="inline-flex items-center justify-center px-8 py-4 rounded-full border-2 border-neutral-200 text-[#122056] font-semibold hover:border-[#5B65DC] hover:text-[#5B65DC] transition-all duration-300"
-              >
-                Go Back
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </div>
-    </section>
-  )
-}
 
 /* ═══════════════════════════════════════
    PAGE WRAPPER
@@ -1180,6 +827,10 @@ const HomePage = () => {
 
         <ProblemCluster />
 
+        <div className="flex justify-center py-8 lg:py-12">
+          <span className="text-[13px] font-black uppercase tracking-[0.8em] text-[#5B65DC]/30">Welcome to FoundrHUB</span>
+        </div>
+
         <div className="mx-4 lg:mx-10 my-12 lg:my-16 p-2 lg:p-4 rounded-[3.5rem] bg-gradient-to-br from-[#122056] via-[#122056] to-[#0A1128] border border-[#1e2d63] shadow-[0_40px_100px_rgba(10,17,40,0.4)] relative overflow-hidden">
           {/* Inner Subtle Glow */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_50%_0%,rgba(91,101,220,0.15),transparent_70%)] pointer-events-none" />
@@ -1194,7 +845,6 @@ const HomePage = () => {
           <MentorSessionSection />
         </div>
 
-        <QuestionnaireSection />
         <StartupNetwork />
       </main>
 

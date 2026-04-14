@@ -124,7 +124,7 @@ const CinematicHero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.28 }}
-            className="font-sans font-semibold text-[clamp(2.5rem,6vw,5.2rem)] tracking-[-0.04em] leading-[1.02] text-[#14171b] mb-6"
+            className="font-semibold text-[clamp(2.5rem,6vw,5.2rem)] tracking-[-0.04em] leading-[1.02] text-[#14171b] mb-6"
           >
             Find Your Strategic Workforce
             <br />

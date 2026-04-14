@@ -126,7 +126,7 @@ const Navbar = () => {
       >
         <Link
           to="/"
-          className="font-serif text-[24px] tracking-tight text-[#122056] hover:opacity-70 transition-opacity"
+          className="text-[24px] font-extrabold tracking-tighter text-[#122056] hover:opacity-70 transition-opacity"
         >
           Foundr<span className="text-[#5B65DC]">HUB</span>
         </Link>
@@ -142,16 +142,16 @@ const Navbar = () => {
             duration: 1, 
             ease: [0.16, 1, 0.3, 1] 
           }}
-          className="bg-neutral-950/90 backdrop-blur-xl border border-white/10 rounded-full px-7 py-3 flex items-center gap-10 shadow-2xl shadow-black/20 pointer-events-auto"
+          className="bg-white/80 backdrop-blur-xl border border-[#EEF0FD] rounded-full px-7 py-3 flex items-center gap-10 shadow-[0_20px_50px_rgba(18,32,86,0.06)] pointer-events-auto"
         >
           {/* Navigation Buttons */}
-          <div className={`flex items-center gap-7 pr-7 relative ${hasFounderAccess ? 'border-r border-white/10' : ''}`} ref={featuresRef}>
+          <div className={`flex items-center gap-7 pr-7 relative ${hasFounderAccess ? 'border-r border-[#EEF0FD]' : ''}`} ref={featuresRef}>
             {hasFounderAccess && (
               <>
                 <button
                   type="button"
                   onClick={() => setFeaturesOpen((prev) => !prev)}
-                  className={`text-[12px] font-bold tracking-wide uppercase transition-colors duration-300 flex items-center gap-1.5 ${featuresActive || featuresOpen ? 'text-white' : 'text-neutral-500 hover:text-white'}`}
+                  className={`text-[12px] font-bold tracking-wide uppercase transition-colors duration-300 flex items-center gap-1.5 ${featuresActive || featuresOpen ? 'text-[#122056]' : 'text-neutral-400 hover:text-[#122056]'}`}
                 >
                   Features
                   <svg className={`h-3.5 w-3.5 transition-transform ${featuresOpen ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -166,7 +166,7 @@ const Navbar = () => {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 8, scale: 0.98 }}
                       transition={{ duration: 0.2, ease: 'easeOut' }}
-                      className="absolute left-0 top-full mt-4 w-[560px] rounded-2xl border border-white/10 bg-neutral-950/95 backdrop-blur-xl p-3.5 shadow-2xl"
+                      className="absolute left-0 top-full mt-4 w-[560px] rounded-2xl border border-[#EEF0FD] bg-white/95 backdrop-blur-xl p-3.5 shadow-2xl shadow-[#122056]/5"
                     >
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         {featureItems.map((item) => (
@@ -177,10 +177,10 @@ const Navbar = () => {
                               setFeaturesOpen(false)
                               navigate(item.to)
                             }}
-                            className="rounded-xl px-3.5 py-3 text-left hover:bg-white/5 transition-colors"
+                            className="rounded-xl px-3.5 py-3 text-left hover:bg-[#FAFAFD] transition-colors"
                           >
-                            <p className="text-sm font-semibold text-white">{item.label}</p>
-                            <p className="mt-1 text-xs text-neutral-400">{item.desc}</p>
+                            <p className="text-sm font-semibold text-[#122056]">{item.label}</p>
+                            <p className="mt-1 text-xs text-neutral-400 font-medium">{item.desc}</p>
                           </button>
                         ))}
                       </div>
@@ -194,10 +194,10 @@ const Navbar = () => {
               <Link
                 key={l.label}
                 to={l.to}
-                className={`text-[12px] font-bold tracking-wide uppercase transition-colors duration-300 ${
+                className={`text-[12px] font-extrabold tracking-wide uppercase transition-colors duration-300 ${
                   location.pathname === l.to
-                    ? 'text-white'
-                    : 'text-neutral-500 hover:text-white'
+                    ? 'text-[#122056]'
+                    : 'text-neutral-400 hover:text-[#122056]'
                 }`}
               >
                 {l.label}
@@ -209,7 +209,7 @@ const Navbar = () => {
             {hasFounderAccess && (
               <Link
                 to="/dashboard/insights"
-                className="hidden sm:inline-flex items-center px-4 py-2.5 rounded-full bg-white/10 border border-white/10 text-[13px] font-bold text-white hover:bg-white/15 hover:border-white/20 transition-all"
+                className="hidden sm:inline-flex items-center px-4 py-2.5 rounded-full bg-[#FAFAFD] border border-[#EEF0FD] text-[13px] font-bold text-[#122056] hover:bg-white hover:border-[#5B65DC]/20 transition-all shadow-sm"
               >
                 Daily Insights
               </Link>
@@ -219,7 +219,7 @@ const Navbar = () => {
               <div ref={dropdownRef} className="relative">
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="w-9 h-9 rounded-full bg-gradient-to-br from-neutral-800 to-neutral-700 flex items-center justify-center text-[10px] font-bold text-white border border-white/10 hover:border-white/30 transition-all font-sans"
+                  className="w-9 h-9 rounded-full bg-gradient-to-br from-[#122056] to-[#0A1128] flex items-center justify-center text-[10px] font-bold text-white border border-[#EEF0FD] hover:border-[#5B65DC]/30 transition-all"
                 >
                   {initials}
                 </button>
@@ -231,11 +231,11 @@ const Navbar = () => {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.96 }}
                       transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                      className="absolute right-0 mt-5 w-60 rounded-[28px] bg-neutral-900 border border-white/10 shadow-2xl p-2.5 z-50 overflow-hidden"
+                      className="absolute right-0 mt-5 w-60 rounded-[28px] bg-white border border-[#EEF0FD] shadow-2xl shadow-[#122056]/5 p-2.5 z-50 overflow-hidden"
                     >
-                      <div className="px-3.5 py-3.5 mb-1.5 border-b border-white/5">
-                        <p className="text-[13px] font-bold text-white leading-tight">{user?.name || 'Founder'}</p>
-                        <p className="text-[11px] text-neutral-500 truncate mt-0.5">{user?.email}</p>
+                      <div className="px-3.5 py-3.5 mb-1.5 border-b border-[#EEF0FD]">
+                        <p className="text-[13px] font-bold text-[#122056] leading-tight">{user?.name || 'Founder'}</p>
+                        <p className="text-[11px] text-neutral-400 truncate mt-0.5 font-medium">{user?.email}</p>
                         {roleLabel && <p className="text-[10px] text-[#5B65DC] uppercase tracking-wide mt-1 tracking-[0.2em] font-bold">{roleLabel}</p>}
                       </div>
 
@@ -246,20 +246,20 @@ const Navbar = () => {
                             setDropdownOpen(false)
                             navigate(item.to)
                           }}
-                          className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-[13px] font-medium text-neutral-400 hover:bg-white/5 hover:text-white transition-all text-left group"
+                          className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-[13px] font-semibold text-neutral-500 hover:bg-[#FAFAFD] hover:text-[#122056] transition-all text-left group"
                         >
-                          <svg className="w-4 h-4 text-neutral-600 group-hover:text-neutral-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                          <svg className="w-4 h-4 text-neutral-300 group-hover:text-[#5B65DC] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                             <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
                           </svg>
                           {item.label}
                         </button>
                       ))}
 
-                      <div className="my-1.5 border-t border-white/5" />
+                      <div className="my-1.5 border-t border-[#EEF0FD]" />
 
                       <button
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-[13px] font-medium text-rose-500 hover:bg-rose-500/10 transition-all text-left"
+                        className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-[13px] font-semibold text-rose-500 hover:bg-rose-50/50 transition-all text-left"
                       >
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
@@ -274,13 +274,13 @@ const Navbar = () => {
               <>
                 <Link
                   to="/signin"
-                  className="text-[13px] font-bold text-neutral-400 hover:text-white transition-colors"
+                  className="text-[13px] font-bold text-neutral-400 hover:text-[#122056] transition-colors pr-2"
                 >
                   Sign In
                 </Link>
                 <Link
                   to="/signup?role=founder"
-                  className="px-6 py-2.5 rounded-full bg-white text-neutral-950 text-[13px] font-bold hover:bg-neutral-200 transition-all shadow-lg"
+                  className="px-6 py-2.5 rounded-full bg-[#122056] text-white text-[13px] font-bold hover:bg-[#5B65DC] transition-all shadow-lg shadow-[#122056]/10"
                 >
                   Sign Up
                 </Link>
