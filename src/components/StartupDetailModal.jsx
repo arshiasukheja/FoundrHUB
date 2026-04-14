@@ -5,6 +5,8 @@ import { X, Eye, Bookmark, ArrowUpRight, MapPin, Briefcase, Globe, MessageCircle
 const StartupDetailModal = ({ startup, isOpen, onClose }) => {
   if (!startup) return null
 
+  const description = startup.description || 'A focused team building a credible path to traction with clear market signals.'
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -69,7 +71,7 @@ const StartupDetailModal = ({ startup, isOpen, onClose }) => {
                     </div>
                     <h2 className="text-4xl font-serif font-black text-[#122056] mb-3">{startup.name}</h2>
                     <p className="text-lg text-[#122056]/60 font-medium mb-8 leading-relaxed">
-                      {startup.tagline}. {startup.description}
+                      {startup.tagline}. {description}
                     </p>
 
                     {/* Compact Specs Grid */}

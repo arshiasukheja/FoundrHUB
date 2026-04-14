@@ -1,15 +1,22 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import { useAuth } from '../context/AuthContext'
 
 const SettingsPage = () => {
   const { user, logout } = useAuth()
+  const navigate = useNavigate()
   const [notifications, setNotifications] = useState(true)
   const [emailDigest, setEmailDigest] = useState(true)
   const [publicProfile, setPublicProfile] = useState(true)
   const [darkMode, setDarkMode] = useState(false)
+
+  const handleLogout = () => {
+    logout()
+    navigate('/', { replace: true })
+  }
 
   const Toggle = ({ checked, onChange, label, desc }) => (
     <div className="flex items-center justify-between py-4 border-b border-neutral-50">
@@ -73,7 +80,7 @@ const SettingsPage = () => {
             <h2 className="text-[16px] font-semibold text-red-600 mb-4">Danger Zone</h2>
             <p className="text-[13px] text-neutral-500 mb-4">Permanently delete your account and all associated data. This action cannot be undone.</p>
             <div className="flex gap-3">
-              <button onClick={logout} className="inline-flex items-center px-5 py-2.5 rounded-full border border-red-200 text-[13px] font-medium text-red-500 hover:bg-red-50 hover:border-red-300 transition-all duration-300">
+              <button onClick={handleLogout} className="inline-flex items-center px-5 py-2.5 rounded-full border border-red-200 text-[13px] font-medium text-red-500 hover:bg-red-50 hover:border-red-300 transition-all duration-300">
                 Logout
               </button>
               <button className="inline-flex items-center px-5 py-2.5 rounded-full bg-red-500 text-white text-[13px] font-medium hover:bg-red-600 transition-all duration-300">

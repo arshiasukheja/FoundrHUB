@@ -1,7 +1,6 @@
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Link } from 'react-router-dom'
-import { Activity, Users, TrendingUp, Zap, Hexagon, Play } from 'lucide-react'
+import { Activity, Users, TrendingUp, Zap, Hexagon } from 'lucide-react'
 
 /* ── Main Hero Section ── */
 
@@ -20,7 +19,7 @@ const FloatingStatCard = ({ label, value, icon: Icon, color = '#5B65DC', trend =
   </div>
 )
 
-const CinematicHero = () => {
+const CinematicHero = ({ onGetStarted }) => {
   const floatingCards = [
     {
       label: 'Growth',
@@ -147,19 +146,13 @@ const CinematicHero = () => {
             transition={{ duration: 0.6, delay: 0.5 }}
             className="flex flex-wrap justify-center gap-4"
           >
-            <Link
-              to="/signup?role=investor"
+            <button
+              type="button"
+              onClick={onGetStarted}
               className="px-8 py-3 rounded-xl bg-[#122056] text-white text-[16px] font-semibold shadow-lg shadow-[#122056]/15 hover:bg-[#5B65DC] transition-all"
             >
               Get Started
-            </Link>
-            <Link
-              to="/verify"
-              className="px-6 py-3 rounded-xl bg-white border border-[#EEF0FD] text-[#122056] text-[16px] font-medium hover:bg-[#FAFAFD] transition-all inline-flex items-center gap-2"
-            >
-              <Play size={16} className="text-[#5B65DC]" />
-              Watch Demo
-            </Link>
+            </button>
           </motion.div>
         </motion.div>
       </div>

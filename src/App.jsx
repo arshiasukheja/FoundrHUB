@@ -30,6 +30,7 @@ import RoadmapPage from './pages/RoadmapPage'
 import PricingPage from './pages/PricingPage'
 import AnalyserPage from './pages/AnalyserPage'
 import StartupDiscoveryMapPage from './pages/StartupDiscoveryMapPage'
+import NicheValidationInsightsPage from './pages/NicheValidationInsightsPage'
 
 /* Page transition wrapper */
 const PageTransition = ({ children }) => (
@@ -61,6 +62,7 @@ const AppRoutes = () => {
         <Route path="/pricing" element={<PageTransition><PricingPage /></PageTransition>} />
         <Route path="/analyser" element={<PageTransition><AnalyserPage /></PageTransition>} />
         <Route path="/startup-map" element={<PageTransition><StartupDiscoveryMapPage /></PageTransition>} />
+        <Route path="/niche-validation" element={<PageTransition><NicheValidationInsightsPage /></PageTransition>} />
         <Route 
           path="/verify" 
           element={
