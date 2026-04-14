@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, Filter, ChevronDown, MessageSquare, ThumbsUp, Zap, SlidersHorizontal, LayoutGrid, List, ArrowUpRight } from 'lucide-react'
 import Navbar from '../components/Navbar'
@@ -9,6 +9,37 @@ const ExplorePage = () => {
   const [selectedStartup, setSelectedStartup] = useState(null)
   const [searchValue, setSearchValue] = useState('')
   const [viewType, setViewType] = useState('grid')
+  const [selectedMyStartupId, setSelectedMyStartupId] = useState('my-1')
+
+  const myStartups = [
+    {
+      id: 'my-1',
+      name: 'NovaLedger',
+      niche: 'FinTech',
+      stage: 'Growth',
+      growth: 34,
+      views: 22300,
+      location: 'Delhi'
+    },
+    {
+      id: 'my-2',
+      name: 'GreenGrid Labs',
+      niche: 'Sustainability',
+      stage: 'Seed',
+      growth: 28,
+      views: 14400,
+      location: 'Bangalore'
+    },
+    {
+      id: 'my-3',
+      name: 'MentorSpark',
+      niche: 'EdTech',
+      stage: 'MVP',
+      growth: 22,
+      views: 9100,
+      location: 'Mumbai'
+    }
+  ]
 
   const startups = [
     {
@@ -94,6 +125,40 @@ const ExplorePage = () => {
        verified: false
     }
   ]
+
+  const selectedMyStartup = useMemo(
+    () => myStartups.find((startup) => startup.id === selectedMyStartupId) || myStartups[0],
+    [myStartups, selectedMyStartupId]
+  )
+
+  const nichePeers = useMemo(
+    () => startups.filter((startup) => startup.category === selectedMyStartup.niche),
+    [selectedMyStartup, startups]
+  )
+
+  const averagePeerGrowth = useMemo(() => {
+    if (!nichePeers.length) return 0
+    const totalGrowth = nichePeers.reduce((sum, startup) => sum + startup.growth, 0)
+    return Math.round(totalGrowth / nichePeers.length)
+  }, [nichePeers])
+
+  const averagePeerViews = useMemo(() => {
+    if (!nichePeers.length) return 0
+    const totalViews = nichePeers.reduce((sum, startup) => sum + startup.views, 0)
+    return Math.round(totalViews / nichePeers.length)
+  }, [nichePeers])
+
+  const growthGap = selectedMyStartup.growth - averagePeerGrowth
+  const viewsGap = selectedMyStartup.views - averagePeerViews
+
+  const filteredStartups = useMemo(() => {
+    const q = searchValue.trim().toLowerCase()
+    if (!q) return startups
+    return startups.filter((startup) =>
+      [startup.name, startup.tagline, startup.category, startup.location, startup.stage]
+        .some((field) => field.toLowerCase().includes(q))
+    )
+  }, [searchValue, startups])
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -192,6 +257,108 @@ const ExplorePage = () => {
           </div>
         </div>
 
+        {/* Niche Comparison Section */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.6 }}
+          className="mb-20 rounded-[2rem] bg-white border border-[#EEF0FD] shadow-[0_12px_50px_rgba(18,32,86,0.06)] p-6 md:p-8"
+        >
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5 mb-6">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#5B65DC]">Niche Benchmark</p>
+              <h2 className="text-2xl md:text-3xl font-serif font-black text-[#122056] mt-2">Compare my startup with ongoing startups</h2>
+              <p className="text-sm text-[#122056]/55 mt-2">Pick your startup and instantly compare growth and discovery performance in the same niche.</p>
+            </div>
+
+            <div className="w-full lg:w-auto">
+              <label className="text-[11px] font-bold uppercase tracking-widest text-[#122056]/40 block mb-2">My startup</label>
+              <select
+                value={selectedMyStartupId}
+                onChange={(e) => setSelectedMyStartupId(e.target.value)}
+                className="w-full lg:w-[280px] h-11 rounded-xl border border-[#EEF0FD] bg-[#FAFAFD] px-4 text-sm font-semibold text-[#122056] focus:outline-none focus:border-[#5B65DC]/40"
+              >
+                {myStartups.map((startup) => (
+                  <option key={startup.id} value={startup.id}>
+                    {startup.name} - {startup.niche}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-7">
+            <div className="rounded-2xl border border-[#EEF0FD] bg-[#FAFAFD] p-4">
+              <p className="text-[11px] uppercase tracking-widest font-bold text-[#122056]/40 mb-1">My Growth</p>
+              <p className="text-2xl font-black text-[#122056]">{selectedMyStartup.growth}%</p>
+              <p className={`text-xs font-semibold mt-1 ${growthGap >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                {growthGap >= 0 ? '+' : ''}{growthGap}% vs niche average
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-[#EEF0FD] bg-[#FAFAFD] p-4">
+              <p className="text-[11px] uppercase tracking-widest font-bold text-[#122056]/40 mb-1">My Views</p>
+              <p className="text-2xl font-black text-[#122056]">{selectedMyStartup.views.toLocaleString()}</p>
+              <p className={`text-xs font-semibold mt-1 ${viewsGap >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                {viewsGap >= 0 ? '+' : ''}{viewsGap.toLocaleString()} vs niche average
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-[#EEF0FD] bg-[#FAFAFD] p-4">
+              <p className="text-[11px] uppercase tracking-widest font-bold text-[#122056]/40 mb-1">Niche Snapshot</p>
+              <p className="text-sm font-bold text-[#122056]">{selectedMyStartup.niche} - {nichePeers.length} active peers</p>
+              <p className="text-xs text-[#122056]/55 mt-2">Avg growth {averagePeerGrowth}% • Avg views {averagePeerViews.toLocaleString()}</p>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto rounded-2xl border border-[#EEF0FD]">
+            <table className="w-full min-w-[680px]">
+              <thead className="bg-[#FAFAFD] border-b border-[#EEF0FD]">
+                <tr>
+                  <th className="text-left px-4 py-3 text-[11px] uppercase tracking-widest text-[#122056]/45">Startup</th>
+                  <th className="text-left px-4 py-3 text-[11px] uppercase tracking-widest text-[#122056]/45">Stage</th>
+                  <th className="text-left px-4 py-3 text-[11px] uppercase tracking-widest text-[#122056]/45">Growth</th>
+                  <th className="text-left px-4 py-3 text-[11px] uppercase tracking-widest text-[#122056]/45">Views</th>
+                  <th className="text-left px-4 py-3 text-[11px] uppercase tracking-widest text-[#122056]/45">Gap vs Mine</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b border-[#EEF0FD] bg-[#5B65DC]/[0.04]">
+                  <td className="px-4 py-3 text-sm font-bold text-[#122056]">{selectedMyStartup.name} (My Startup)</td>
+                  <td className="px-4 py-3 text-sm text-[#122056]/75">{selectedMyStartup.stage}</td>
+                  <td className="px-4 py-3 text-sm font-bold text-emerald-600">{selectedMyStartup.growth}%</td>
+                  <td className="px-4 py-3 text-sm text-[#122056]/75">{selectedMyStartup.views.toLocaleString()}</td>
+                  <td className="px-4 py-3 text-sm font-semibold text-[#122056]">Baseline</td>
+                </tr>
+
+                {nichePeers.length > 0 ? (
+                  nichePeers.map((peer) => {
+                    const peerGrowthGap = peer.growth - selectedMyStartup.growth
+                    return (
+                      <tr key={peer.id} className="border-b border-[#EEF0FD] last:border-b-0">
+                        <td className="px-4 py-3 text-sm font-semibold text-[#122056]">{peer.name}</td>
+                        <td className="px-4 py-3 text-sm text-[#122056]/75">{peer.stage}</td>
+                        <td className="px-4 py-3 text-sm font-bold text-[#122056]">{peer.growth}%</td>
+                        <td className="px-4 py-3 text-sm text-[#122056]/75">{peer.views.toLocaleString()}</td>
+                        <td className={`px-4 py-3 text-sm font-semibold ${peerGrowthGap >= 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
+                          {peerGrowthGap >= 0 ? '+' : ''}{peerGrowthGap}% growth
+                        </td>
+                      </tr>
+                    )
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="px-4 py-6 text-sm text-[#122056]/60">
+                      No ongoing peers found in this niche yet. Add more startup profiles to improve comparison depth.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </motion.section>
+
         {/* Full Width Masonry-Style Grid */}
         <motion.div 
           variants={containerVariants}
@@ -199,7 +366,7 @@ const ExplorePage = () => {
           animate="visible"
           className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10`}
         >
-          {startups.map((startup) => (
+          {filteredStartups.map((startup) => (
             <motion.div 
               key={startup.id}
               variants={itemVariants}

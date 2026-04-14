@@ -9,7 +9,7 @@ const Navbar = () => {
   const [featuresOpen, setFeaturesOpen] = useState(false)
   const dropdownRef = useRef(null)
   const featuresRef = useRef(null)
-  const { user, isAuthenticated, logout } = useAuth()
+  const { user, isAuthenticated, logout, getDashboardPathForRole } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -46,7 +46,8 @@ const Navbar = () => {
     navigate('/', { replace: true })
   }
 
-  const dashboardPath = user?.role === 'founder' ? '/dashboard/founder' : '/dashboard/explore'
+  const dashboardPath = getDashboardPathForRole(user?.role)
+  const hasFounderAccess = user?.role === 'founder' && Boolean(user?.verification?.isCompleted) && Boolean(user?.brandName)
 
   const featureItems = [
     {
@@ -73,7 +74,7 @@ const Navbar = () => {
       { label: 'Get Verified', to: '/verify' },
     ]
 
-    if (isAuthenticated && user?.role === 'founder') {
+    if (hasFounderAccess || user?.role === 'investor') {
       return [
         { label: 'Dashboard', to: dashboardPath },
         ...base
@@ -87,16 +88,22 @@ const Navbar = () => {
   }
 
   const navLinks = getNavLinks()
-  const featuresActive = featureItems.some((item) => item.to === location.pathname)
+  const featuresActive = hasFounderAccess && featureItems.some((item) => item.to === location.pathname)
   const initials = user?.name
     ? user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
     : 'FH'
 
-  const roleLabel = user?.role === 'founder' ? 'Founder' : user?.role === 'discoverer' ? 'Discoverer' : ''
+  const dashboardLabel = user?.role === 'founder'
+    ? 'Founder Dashboard'
+    : user?.role === 'investor'
+      ? 'Investor Dashboard'
+      : 'Dashboard'
+
+  const roleLabel = user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : ''
 
   const dropdownItems = [
     { label: 'My Profile', to: '/profile', icon: 'M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0' },
-    { label: 'Dashboard', to: dashboardPath, icon: 'M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z' },
+    ...(hasFounderAccess ? [{ label: dashboardLabel, to: dashboardPath, icon: 'M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z' }] : []),
     { label: 'Startup Map', to: '/startup-map', icon: 'M3.75 6.75l4.5-1.5 7.5 3 4.5-1.5v10.5l-4.5 1.5-7.5-3-4.5 1.5V6.75z' },
     { label: 'Roadmap', to: '/roadmap', icon: 'M4.5 6.75h15m-15 5.25h10.5m-10.5 5.25h6m10.5-8.25l-3.75 3.75-1.5-1.5' },
     { label: 'Analyser', to: '/analyser', icon: 'M3 3h18v18H3V3zm4 12h10M7 11h6M7 7h10' },
@@ -138,46 +145,50 @@ const Navbar = () => {
           className="bg-neutral-950/90 backdrop-blur-xl border border-white/10 rounded-full px-7 py-3 flex items-center gap-10 shadow-2xl shadow-black/20 pointer-events-auto"
         >
           {/* Navigation Buttons */}
-          <div className="flex items-center gap-7 pr-7 border-r border-white/10 relative" ref={featuresRef}>
-            <button
-              type="button"
-              onClick={() => setFeaturesOpen((prev) => !prev)}
-              className={`text-[12px] font-bold tracking-wide uppercase transition-colors duration-300 flex items-center gap-1.5 ${featuresActive || featuresOpen ? 'text-white' : 'text-neutral-500 hover:text-white'}`}
-            >
-              Features
-              <svg className={`h-3.5 w-3.5 transition-transform ${featuresOpen ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
-              </svg>
-            </button>
-
-            <AnimatePresence>
-              {featuresOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10, scale: 0.98 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 8, scale: 0.98 }}
-                  transition={{ duration: 0.2, ease: 'easeOut' }}
-                  className="absolute left-0 top-full mt-4 w-[560px] rounded-2xl border border-white/10 bg-neutral-950/95 backdrop-blur-xl p-3.5 shadow-2xl"
+          <div className={`flex items-center gap-7 pr-7 relative ${hasFounderAccess ? 'border-r border-white/10' : ''}`} ref={featuresRef}>
+            {hasFounderAccess && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setFeaturesOpen((prev) => !prev)}
+                  className={`text-[12px] font-bold tracking-wide uppercase transition-colors duration-300 flex items-center gap-1.5 ${featuresActive || featuresOpen ? 'text-white' : 'text-neutral-500 hover:text-white'}`}
                 >
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    {featureItems.map((item) => (
-                      <button
-                        key={item.label}
-                        type="button"
-                        onClick={() => {
-                          setFeaturesOpen(false)
-                          navigate(item.to)
-                        }}
-                        className="rounded-xl px-3.5 py-3 text-left hover:bg-white/5 transition-colors"
-                      >
-                        <p className="text-sm font-semibold text-white">{item.label}</p>
-                        <p className="mt-1 text-xs text-neutral-400">{item.desc}</p>
-                      </button>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                  Features
+                  <svg className={`h-3.5 w-3.5 transition-transform ${featuresOpen ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+                  </svg>
+                </button>
+
+                <AnimatePresence>
+                  {featuresOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                      transition={{ duration: 0.2, ease: 'easeOut' }}
+                      className="absolute left-0 top-full mt-4 w-[560px] rounded-2xl border border-white/10 bg-neutral-950/95 backdrop-blur-xl p-3.5 shadow-2xl"
+                    >
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        {featureItems.map((item) => (
+                          <button
+                            key={item.label}
+                            type="button"
+                            onClick={() => {
+                              setFeaturesOpen(false)
+                              navigate(item.to)
+                            }}
+                            className="rounded-xl px-3.5 py-3 text-left hover:bg-white/5 transition-colors"
+                          >
+                            <p className="text-sm font-semibold text-white">{item.label}</p>
+                            <p className="mt-1 text-xs text-neutral-400">{item.desc}</p>
+                          </button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </>
+            )}
 
             {navLinks.map(l => (
               <Link
@@ -195,6 +206,15 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-5">
+            {hasFounderAccess && (
+              <Link
+                to="/dashboard/insights"
+                className="hidden sm:inline-flex items-center px-4 py-2.5 rounded-full bg-white/10 border border-white/10 text-[13px] font-bold text-white hover:bg-white/15 hover:border-white/20 transition-all"
+              >
+                Daily Insights
+              </Link>
+            )}
+
             {isAuthenticated ? (
               <div ref={dropdownRef} className="relative">
                 <button
@@ -253,7 +273,7 @@ const Navbar = () => {
             ) : (
               <>
                 <Link
-                  to="/signin?role=discoverer"
+                  to="/signin"
                   className="text-[13px] font-bold text-neutral-400 hover:text-white transition-colors"
                 >
                   Sign In

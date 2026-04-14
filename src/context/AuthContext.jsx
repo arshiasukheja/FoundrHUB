@@ -20,7 +20,8 @@ const normalizeEmail = (email = '') => email.trim().toLowerCase()
 
 const getDashboardPathForRole = (role) => {
   if (role === 'founder') return '/dashboard/founder'
-  return '/dashboard/explore'
+  if (role === 'investor') return '/dashboard/investor'
+  return '/signin'
 }
 
 const readUsers = () => {
@@ -63,13 +64,13 @@ export const AuthProvider = ({ children }) => {
 
   const signup = useCallback(async ({ name, email, password, role }) => {
     const cleanEmail = normalizeEmail(email)
-    const cleanName = (name || '').trim()
+    const cleanName = (name || '').trim() || cleanEmail.split('@')[0].replace(/[._-]+/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())
 
     if (!cleanName || !cleanEmail || !password) {
       return { ok: false, error: 'Please fill in all required fields.' }
     }
 
-    const selectedRole = role === 'founder' ? 'founder' : 'discoverer'
+    const selectedRole = role === 'founder' ? 'founder' : 'investor'
     const users = readUsers()
     const exists = users.some(u => normalizeEmail(u.email) === cleanEmail)
 

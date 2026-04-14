@@ -7,12 +7,12 @@ const roles = [
   {
     value: 'founder',
     title: "I'm a Founder",
-    description: 'List and grow your startup with visibility tools.',
+    description: 'Submit and grow your startup with a clean workspace.',
   },
   {
-    value: 'discoverer',
-    title: "I'm here to Discover startups",
-    description: 'Find, follow, and track high-potential startups.',
+    value: 'investor',
+    title: "I'm an Investor",
+    description: 'Track startups, trends, and market activity quickly.',
   },
 ]
 
@@ -24,11 +24,10 @@ const SignUpPage = () => {
 
   const roleFromQuery = useMemo(() => {
     const role = searchParams.get('role')
-    return role === 'founder' ? 'founder' : role === 'discoverer' ? 'discoverer' : 'founder'
+    return role === 'investor' ? 'investor' : 'founder'
   }, [searchParams])
 
   const [form, setForm] = useState({
-    name: '',
     email: '',
     password: '',
     role: roleFromQuery,
@@ -50,8 +49,7 @@ const SignUpPage = () => {
       return
     }
 
-    const from = location.state?.from?.pathname || getDashboardPathForRole(result.user.role)
-    navigate(from, { replace: true })
+    navigate(location.state?.from?.pathname || getDashboardPathForRole(result.user.role), { replace: true })
   }
 
   return (
@@ -69,7 +67,7 @@ const SignUpPage = () => {
 
         <div className="bg-white rounded-3xl border border-[#EEF0FD] shadow-[0_8px_30px_rgba(18,32,86,0.06)] p-7 md:p-10">
           <h1 className="text-3xl font-bold text-[#122056] tracking-tight">Create your account</h1>
-          <p className="mt-2 text-[#122056]/60">Pick your role to personalize your dashboard experience.</p>
+          <p className="mt-2 text-[#122056]/60">Pick founder or investor, then use email and password to continue.</p>
 
           <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
             <div className="grid sm:grid-cols-2 gap-3">
@@ -94,18 +92,6 @@ const SignUpPage = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-[#122056] mb-1.5">Name</label>
-              <input
-                type="text"
-                value={form.name}
-                onChange={(e) => updateForm('name', e.target.value)}
-                placeholder="Your full name"
-                className="w-full rounded-xl border border-[#EEF0FD] px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#5B65DC]/30 focus:border-[#5B65DC]"
-                required
-              />
-            </div>
-
-            <div>
               <label className="block text-sm font-semibold text-[#122056] mb-1.5">Email</label>
               <input
                 type="email"
@@ -125,10 +111,16 @@ const SignUpPage = () => {
                 onChange={(e) => updateForm('password', e.target.value)}
                 placeholder="Create a password"
                 className="w-full rounded-xl border border-[#EEF0FD] px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#5B65DC]/30 focus:border-[#5B65DC]"
-                minLength={6}
                 required
               />
             </div>
+
+            <button
+              type="button"
+              className="w-full rounded-xl border border-[#EEF0FD] px-4 py-3 text-sm font-semibold text-[#122056] hover:border-[#5B65DC]/40 hover:bg-[#EEF0FD]/40 transition-colors"
+            >
+              Continue with Google
+            </button>
 
             {error && <p className="text-sm text-red-600">{error}</p>}
 
