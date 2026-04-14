@@ -22,9 +22,9 @@ const founderPlans = [
   },
   {
     name: 'Pro',
-    description: 'Full AI power for growth.',
-    priceMonthly: 1999,
-    priceYearly: 1999,
+    description: 'For founders ready to scale with confidence.',
+    priceMonthly: 499,
+    priceYearly: 349,
     popular: true,
     cta: 'Upgrade to Pro',
     features: [
@@ -37,10 +37,10 @@ const founderPlans = [
     ]
   },
   {
-    name: 'Premium',
-    description: 'Get investor-ready in months.',
-    priceMonthly: 4999,
-    priceYearly: 4999,
+    name: 'Scale',
+    description: 'For teams optimizing growth and operations.',
+    priceMonthly: 699,
+    priceYearly: 499,
     popular: false,
     cta: 'Upgrade to Premium',
     features: [
