@@ -31,6 +31,7 @@ import PricingPage from './pages/PricingPage'
 import AnalyserPage from './pages/AnalyserPage'
 import StartupDiscoveryMapPage from './pages/StartupDiscoveryMapPage'
 import NicheValidationInsightsPage from './pages/NicheValidationInsightsPage'
+import CommunicationPage from './pages/CommunicationPage'
 
 /* Page transition wrapper */
 const PageTransition = ({ children }) => (
@@ -142,9 +143,25 @@ const AppRoutes = () => {
           }
         />
         <Route
+          path="/dashboard/communication"
+          element={
+            <ProtectedRoute allowedRoles={['founder']}>
+              <PageTransition><CommunicationPage /></PageTransition>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/discovery"
+          element={
+            <ProtectedRoute allowedRoles={['founder']}>
+              <PageTransition><ExplorePage embedded /></PageTransition>
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/dashboard/explore"
           element={
-            <Navigate to="/dashboard/insights" replace />
+            <Navigate to="/dashboard/discovery" replace />
           }
         />
       </Routes>

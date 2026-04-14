@@ -2,8 +2,8 @@ import React from 'react'
 import { motion } from 'framer-motion'
 import { Calendar, Clock, MapPin, Video } from 'lucide-react'
 
-const EventsPanel = () => {
-  const events = [
+const EventsPanel = ({ events: providedEvents }) => {
+  const events = providedEvents || [
     {
       id: 1,
       title: 'Product Demo Call',
@@ -36,6 +36,12 @@ const EventsPanel = () => {
     },
   ]
 
+  const iconMap = {
+    video: Video,
+    'in-person': MapPin,
+    event: Calendar
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
@@ -52,7 +58,7 @@ const EventsPanel = () => {
       {/* Events List */}
       <div className="divide-y divide-[#EEF0FD]">
         {events.map((event, i) => {
-          const Icon = event.icon
+          const Icon = typeof event.icon === 'string' ? iconMap[event.icon] || Calendar : event.icon
           return (
             <motion.div
               key={event.id}

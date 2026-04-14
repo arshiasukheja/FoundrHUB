@@ -1,9 +1,11 @@
 import React from 'react'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import { Search, Bell, Mail, ChevronDown } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 
 const DashboardHeader = () => {
+  const navigate = useNavigate()
   const { user } = useAuth()
 
   return (
@@ -39,7 +41,8 @@ const DashboardHeader = () => {
         </button>
         <button
           type="button"
-          className="flex items-center gap-3 rounded-2xl bg-white border border-[#e5e7eb] px-3 py-2 shadow-[0_10px_24px_rgba(31,41,55,0.05)]"
+          onClick={() => navigate('/profile')}
+          className="flex items-center gap-3 rounded-2xl bg-white border border-[#e5e7eb] px-3 py-2 shadow-[0_10px_24px_rgba(31,41,55,0.05)] hover:bg-[#f5f7fb] transition"
         >
           <div className="h-9 w-9 rounded-xl bg-[#6b7cff]/15 flex items-center justify-center text-[#1f2937] text-sm font-semibold">
             {user?.name ? user.name.charAt(0).toUpperCase() : 'F'}
