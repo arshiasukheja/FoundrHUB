@@ -17,8 +17,6 @@ export const verificationSchema = {
   identity: {
     founderName: 'string',
     officialEmail: 'string',
-    phoneNumber: 'string',
-    phoneVerified: 'boolean',
     emailVerified: 'boolean',
     governmentIdUrl: 'string',
     governmentIdNumber: 'string',
@@ -60,8 +58,6 @@ export const verificationSchema = {
 export const initialVerificationForm = {
   founderName: '',
   officialEmail: '',
-  phoneNumber: '',
-  phoneVerified: false,
   emailVerified: false,
   governmentIdUrl: '',
   governmentIdNumber: '',
@@ -100,7 +96,7 @@ const aiFeedbackFromSignals = (signals) => {
   const improve = []
 
   if (!signals.verifiedContact) {
-    missing.push('Verify both phone and email to increase trust confidence.')
+    missing.push('Verify your email to increase trust confidence.')
   }
   if (!signals.linkedinStrong) {
     improve.push('Strengthen your LinkedIn footprint with recent activity and richer experience details.')
@@ -137,7 +133,7 @@ export const evaluateIdentityStep = (form) => {
   const idCompleteness =
     [form.governmentIdUrl, form.governmentIdNumber, form.selfieUrl].filter((v) => (v || '').trim()).length / 3
 
-  const contactVerification = [Boolean(form.phoneVerified), Boolean(form.emailVerified && hasProfessionalEmail)].filter(Boolean).length / 2
+  const contactVerification = Boolean(form.emailVerified && hasProfessionalEmail) ? 1 : 0
 
   const linkedinStrength =
     (hasUrl(form.linkedinUrl) ? 0.55 : 0) +
@@ -156,13 +152,13 @@ export const evaluateIdentityStep = (form) => {
   const score = scoreClamp(normalizedWithCompleteness)
 
   const flags = []
-  if (!form.phoneVerified || !form.emailVerified) flags.push('Unverified contact channels')
+  if (!form.emailVerified) flags.push('Unverified contact channels')
   if (faceMatchScore < 50) flags.push('Low selfie vs ID confidence')
   if (!hasUrl(form.linkedinUrl) || (form.linkedinHeadline || '').trim().length < 20) flags.push('Weak digital footprint')
   if (idCompleteness < 0.66) flags.push('Incomplete identity evidence')
 
   const signals = {
-    verifiedContact: form.phoneVerified && form.emailVerified,
+    verifiedContact: Boolean(form.emailVerified),
     linkedinStrong: linkedinStrength >= 0.55,
     productProofStrong: false,
     problemSolutionClear: true,

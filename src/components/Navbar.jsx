@@ -2,11 +2,13 @@ import { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
+import OnboardingFlow from './OnboardingFlow'
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [featuresOpen, setFeaturesOpen] = useState(false)
+  const [showOnboarding, setShowOnboarding] = useState(false)
   const dropdownRef = useRef(null)
   const featuresRef = useRef(null)
   const { user, isAuthenticated, logout, getDashboardPathForRole } = useAuth()
@@ -51,11 +53,6 @@ const Navbar = () => {
 
   const featureItems = [
     {
-      label: 'Startup Map',
-      to: '/startup-map',
-      desc: 'Explore startup ecosystems across India'
-    },
-    {
       label: 'Analyser',
       to: '/analyser',
       desc: 'Get a reality-check report for your idea'
@@ -73,11 +70,7 @@ const Navbar = () => {
   ]
 
   const getNavLinks = () => {
-    const base = [
-      { label: 'Pricing', to: '/pricing' },
-      { label: 'Discover', to: '/explore' },
-      { label: 'Get Verified', to: '/verify' },
-    ]
+    const base = []
 
     if (hasFounderAccess || user?.role === 'investor') {
       return [
@@ -109,10 +102,8 @@ const Navbar = () => {
   const dropdownItems = [
     { label: 'My Profile', to: '/profile', icon: 'M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0' },
     ...(hasFounderAccess ? [{ label: dashboardLabel, to: dashboardPath, icon: 'M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z' }] : []),
-    { label: 'Startup Map', to: '/startup-map', icon: 'M3.75 6.75l4.5-1.5 7.5 3 4.5-1.5v10.5l-4.5 1.5-7.5-3-4.5 1.5V6.75z' },
     { label: 'Roadmap', to: '/roadmap', icon: 'M4.5 6.75h15m-15 5.25h10.5m-10.5 5.25h6m10.5-8.25l-3.75 3.75-1.5-1.5' },
     { label: 'Analyser', to: '/analyser', icon: 'M3 3h18v18H3V3zm4 12h10M7 11h6M7 7h10' },
-    { label: 'Pricing', to: '/pricing', icon: 'M12 6v12m6-6H6' },
     { label: 'Settings', to: '/settings', icon: 'M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18c-2.305 0-4.408.867-6 2.292' }
   ]
 
@@ -283,17 +274,24 @@ const Navbar = () => {
                 >
                   Sign In
                 </Link>
-                <Link
-                  to="/signup?role=founder"
+                <button
+                  type="button"
+                  onClick={() => setShowOnboarding(true)}
                   className="px-6 py-2.5 rounded-full bg-[#122056] text-white text-[13px] font-bold hover:bg-[#5B65DC] transition-all shadow-lg shadow-[#122056]/10"
                 >
-                  Sign Up
-                </Link>
+                  Start Now
+                </button>
               </>
             )}
           </div>
         </motion.nav>
       </div>
+
+      <AnimatePresence>
+        {showOnboarding && (
+          <OnboardingFlow onClose={() => setShowOnboarding(false)} />
+        )}
+      </AnimatePresence>
     </>
   )
 }

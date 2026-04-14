@@ -32,6 +32,7 @@ import AnalyserPage from './pages/AnalyserPage'
 import StartupDiscoveryMapPage from './pages/StartupDiscoveryMapPage'
 import FounderIntelligencePage from './pages/FounderIntelligencePage'
 import InvestorMVPDashboard from './pages/InvestorMVPDashboard'
+import NicheValidationInsightsPage from './pages/NicheValidationInsightsPage'
 
 /* Page transition wrapper */
 const PageTransition = ({ children }) => (
@@ -64,6 +65,7 @@ const AppRoutes = () => {
         <Route path="/analyser" element={<PageTransition><AnalyserPage /></PageTransition>} />
         <Route path="/startup-map" element={<PageTransition><StartupDiscoveryMapPage /></PageTransition>} />
         <Route path="/founder-intelligence" element={<PageTransition><FounderIntelligencePage /></PageTransition>} />
+        <Route path="/niche-validation" element={<PageTransition><NicheValidationInsightsPage /></PageTransition>} />
         <Route 
           path="/verify" 
           element={

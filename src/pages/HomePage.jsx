@@ -1,8 +1,8 @@
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import React from 'react'
-import Navbar from '../components/Navbar'
+import OnboardingFlow from '../components/OnboardingFlow'
 import Footer from '../components/Footer'
 import CinematicHero from '../components/CinematicHero'
 import GlassCard from '../components/GlassCard'
@@ -817,13 +817,51 @@ const FinalCTA = () => (
 
 const HomePage = () => {
   useReveal()
+  const [showOnboarding, setShowOnboarding] = useState(false)
 
   return (
     <>
-      <Navbar />
       <main className="relative bg-white">
+        <header className="absolute top-6 left-0 right-0 z-40">
+          <div className="max-w-6xl mx-auto px-6 lg:px-10 flex items-center justify-between">
+            <Link
+              to="/"
+              className="text-[22px] font-extrabold tracking-tight text-[#122056]"
+            >
+              Foundr<span className="text-[#5B65DC]">HUB</span>
+            </Link>
+
+            <div className="flex items-center gap-4 relative">
+              <Link
+                to="/signin"
+                className="text-[13px] font-bold text-neutral-400 hover:text-[#122056] transition-colors"
+              >
+                Sign In
+              </Link>
+              <div className="relative">
+                <Link
+                  to="/signup"
+                  className="px-5 py-2.5 rounded-full bg-[#122056] text-white text-[13px] font-bold hover:bg-[#5B65DC] transition-all shadow-lg shadow-[#122056]/15"
+                >
+                  Sign Up
+                </Link>
+                <div className="absolute top-full right-0 mt-3 rounded-2xl border border-[#EEF0FD] bg-white/90 backdrop-blur-xl px-4 py-3 shadow-[0_18px_40px_rgba(18,32,86,0.12)]">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#5B65DC]">Mentor or Investor</p>
+                  <p className="text-[12px] text-[#122056]/70 mt-1">Get early access</p>
+                  <Link
+                    to="/signup?role=investor"
+                    className="mt-2 inline-flex items-center text-[11px] font-bold text-[#122056] hover:text-[#5B65DC]"
+                  >
+                    Sign up
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+
         <GlobalGridBackground />
-        <CinematicHero />
+        <CinematicHero onGetStarted={() => setShowOnboarding(true)} />
 
         <ProblemCluster />
 
@@ -849,6 +887,12 @@ const HomePage = () => {
       </main>
 
       <Footer />
+
+      <AnimatePresence>
+        {showOnboarding && (
+          <OnboardingFlow onClose={() => setShowOnboarding(false)} />
+        )}
+      </AnimatePresence>
     </>
   )
 }

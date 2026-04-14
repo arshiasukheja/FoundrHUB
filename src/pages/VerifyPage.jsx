@@ -44,12 +44,6 @@ const identityFieldConfig = {
     helper: 'A company or professional email boosts credibility with investors.',
     trustCue: 'We never expose your email publicly without consent.'
   },
-  phoneNumber: {
-    label: 'Phone Number',
-    placeholder: '+91 98765 43210',
-    helper: 'We send a one-time OTP to confirm this number is yours.',
-    trustCue: 'OTP is used only for verification and fraud prevention.'
-  },
   city: {
     label: 'City',
     placeholder: 'Bengaluru',
@@ -145,9 +139,6 @@ const VerifyPage = () => {
   const [sessionMeta, setSessionMeta] = useState({ startedAt: Date.now(), lastUpdatedAt: Date.now() })
   const [investorRecords, setInvestorRecords] = useState([])
   const [identityTouched, setIdentityTouched] = useState({})
-  const [otpCode, setOtpCode] = useState('')
-  const [otpSent, setOtpSent] = useState(false)
-  const [otpError, setOtpError] = useState('')
   const [linkedInStatus, setLinkedInStatus] = useState({ state: 'idle', message: '' })
   const [identityUploads, setIdentityUploads] = useState({ governmentIdName: '', selfieName: '' })
   const [readinessTouched, setReadinessTouched] = useState({})
@@ -164,7 +155,6 @@ const VerifyPage = () => {
 
   const isEmailValid = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || '').trim())
   const isUrlValid = (value) => /^(https?:\/\/|data:image\/|blob:)/i.test(String(value || '').trim())
-  const isPhoneValid = (value) => /^\+?[0-9\s()-]{8,15}$/.test(String(value || '').trim())
   const isNameLikelyFake = (value) => /(test|asdf|qwerty|admin|fake|unknown)/i.test(String(value || '').trim())
   const isRandomEmail = (value) => /@(mailinator|tempmail|10minutemail|yopmail)\./i.test(String(value || '').trim())
 
@@ -179,12 +169,6 @@ const VerifyPage = () => {
       if (!String(value || '').trim()) return 'Add your official email so we can verify contact authenticity.'
       if (!isEmailValid(value)) return 'That email format seems off. Try name@company.com.'
       if (isRandomEmail(value)) return 'Disposable emails are not accepted for founder verification.'
-    }
-
-    if (key === 'phoneNumber') {
-      if (!String(value || '').trim()) return 'Enter your phone number to receive a verification OTP.'
-      if (!isPhoneValid(value)) return 'Please enter a valid phone number with country code if needed.'
-      if (!form.phoneVerified) return 'Verify your phone number with OTP to continue.'
     }
 
     if (key === 'city') {
@@ -427,7 +411,6 @@ const VerifyPage = () => {
     return (
       !getIdentityFieldError('founderName', form.founderName) &&
       !getIdentityFieldError('officialEmail', form.officialEmail) &&
-      !getIdentityFieldError('phoneNumber', form.phoneNumber) &&
       !getIdentityFieldError('city', form.city)
     )
   }, [form])
@@ -448,7 +431,6 @@ const VerifyPage = () => {
   const step1RequiredFields = useMemo(() => ([
     'founderName',
     'officialEmail',
-    'phoneNumber',
     'city',
     'governmentIdUrl',
     'governmentIdNumber',
@@ -788,57 +770,6 @@ const VerifyPage = () => {
                             <p className="verify-trust">{identityFieldConfig.officialEmail.trustCue}</p>
                             {form.emailVerified && <p className="verify-success">Email signal verified.</p>}
                             {identityTouched.officialEmail && getIdentityFieldError('officialEmail', form.officialEmail) && <p className="verify-error">{getIdentityFieldError('officialEmail', form.officialEmail)}</p>}
-                          </div>
-
-                          <div>
-                            <label className="verify-label">{identityFieldConfig.phoneNumber.label}</label>
-                            <input value={form.phoneNumber} onChange={(e) => up('phoneNumber', e.target.value)} className={`verify-input ${identityTouched.phoneNumber && getIdentityFieldError('phoneNumber', form.phoneNumber) ? 'verify-input-error' : ''}`} placeholder={identityFieldConfig.phoneNumber.placeholder} />
-                            <div className="flex flex-wrap gap-2 mt-2">
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  if (!isPhoneValid(form.phoneNumber)) {
-                                    setOtpError('Enter a valid phone number before requesting OTP.')
-                                    return
-                                  }
-                                  setOtpSent(true)
-                                  setOtpError('')
-                                }}
-                                className="px-3 py-1.5 rounded-lg border border-[#D8E1FF] text-[#122056] text-xs font-semibold"
-                              >
-                                Send OTP
-                              </button>
-
-                              {otpSent && !form.phoneVerified && (
-                                <>
-                                  <input
-                                    value={otpCode}
-                                    onChange={(e) => setOtpCode(e.target.value)}
-                                    placeholder="Enter 6-digit OTP"
-                                    className="verify-input max-w-[170px]"
-                                  />
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      if (!/^\d{6}$/.test(otpCode)) {
-                                        setOtpError('OTP should be 6 digits. Please try again.')
-                                        return
-                                      }
-                                      up('phoneVerified', true)
-                                      setOtpError('')
-                                    }}
-                                    className="px-3 py-1.5 rounded-lg bg-[#122056] text-white text-xs font-semibold"
-                                  >
-                                    Verify OTP
-                                  </button>
-                                </>
-                              )}
-                            </div>
-                            <p className="verify-helper">{identityFieldConfig.phoneNumber.helper}</p>
-                            <p className="verify-trust">{identityFieldConfig.phoneNumber.trustCue}</p>
-                            {otpError && <p className="verify-error">{otpError}</p>}
-                            {form.phoneVerified && <p className="verify-success">Phone verified successfully.</p>}
-                            {identityTouched.phoneNumber && getIdentityFieldError('phoneNumber', form.phoneNumber) && <p className="verify-error">{getIdentityFieldError('phoneNumber', form.phoneNumber)}</p>}
                           </div>
 
                           <div>
