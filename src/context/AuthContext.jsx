@@ -28,6 +28,18 @@ const getDashboardPathForRole = (role) => {
   return '/signin'
 }
 
+const mapAuthError = (error, fallback) => {
+  const code = error?.code || ''
+  if (code === 'auth/email-already-in-use') return 'This email is already registered. Try signing in instead.'
+  if (code === 'auth/invalid-email') return 'That email address looks invalid. Please check and try again.'
+  if (code === 'auth/weak-password') return 'Password is too weak. Use at least 6 characters.'
+  if (code === 'auth/user-not-found') return 'No account found with that email.'
+  if (code === 'auth/wrong-password') return 'Incorrect password. Please try again.'
+  if (code === 'auth/too-many-requests') return 'Too many attempts. Please wait a minute and try again.'
+  if (code === 'auth/network-request-failed') return 'Network error. Check your connection and retry.'
+  return fallback
+}
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [isReady, setIsReady] = useState(false)
@@ -46,7 +58,10 @@ export const AuthProvider = ({ children }) => {
         uid: authUser.uid,
         email: authUser.email || profile.email || '',
         name: authUser.displayName || profile.name || 'Founder',
-        role: profile.role || 'founder'
+        role: profile.role || 'founder',
+        hasConnectedSources: profile.hasConnectedSources ?? false,
+        ga_connected: profile.ga_connected ?? false,
+        payments_connected: profile.payments_connected ?? false
       }
 
       setUser(normalizedUser)
@@ -71,7 +86,10 @@ export const AuthProvider = ({ children }) => {
       const profile = {
         name: cleanName,
         email: credential.user.email || email,
-        role: selectedRole
+        role: selectedRole,
+        hasConnectedSources: false,
+        ga_connected: false,
+        payments_connected: false
       }
 
       await ensureUserData(credential.user.uid, profile)
@@ -80,7 +98,7 @@ export const AuthProvider = ({ children }) => {
 
       return { ok: true, user: sessionUser }
     } catch (error) {
-      return { ok: false, error: error?.message || 'Unable to create your account.' }
+      return { ok: false, error: mapAuthError(error, 'Unable to create your account.') }
     }
   }, [])
 
@@ -95,12 +113,15 @@ export const AuthProvider = ({ children }) => {
         uid: credential.user.uid,
         name: profile.name || credential.user.displayName || 'Founder',
         email: credential.user.email || email,
-        role: profile.role || 'founder'
+        role: profile.role || 'founder',
+        hasConnectedSources: profile.hasConnectedSources ?? false,
+        ga_connected: profile.ga_connected ?? false,
+        payments_connected: profile.payments_connected ?? false
       }
       setUser(sessionUser)
       return { ok: true, user: sessionUser }
     } catch (error) {
-      return { ok: false, error: error?.message || 'Unable to sign in.' }
+      return { ok: false, error: mapAuthError(error, 'Unable to sign in.') }
     }
   }, [])
 

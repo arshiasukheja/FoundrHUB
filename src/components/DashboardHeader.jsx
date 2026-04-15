@@ -7,6 +7,7 @@ const DashboardHeader = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const { user } = useAuth()
 
+  // Remove search bar, add onboarding button
   return (
     <motion.div
       initial={{ opacity: 0, y: -20 }}
@@ -14,17 +15,14 @@ const DashboardHeader = () => {
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       className="w-full flex items-center gap-6"
     >
-      <div className="flex-1">
-        <div className="flex items-center gap-3 rounded-2xl bg-white border border-[#e5e7eb] px-4 py-3 shadow-[0_10px_30px_rgba(31,41,55,0.06)]">
-          <Search size={16} className="text-[#9ca3af]" />
-          <input
-            type="text"
-            placeholder="Search for tasks, projects..."
-            className="w-full text-sm text-[#1f2937] placeholder:text-[#9ca3af] outline-none bg-transparent"
-          />
-        </div>
-      </div>
-
+      <div className="flex-1" />
+      <button
+        type="button"
+        className="px-4 py-2 rounded-xl bg-[#6366f1] text-white font-semibold shadow"
+        onClick={() => window.dispatchEvent(new CustomEvent('open-onboarding'))}
+      >
+        Open Onboarding
+      </button>
       <div className="flex items-center gap-3">
         <button
           type="button"

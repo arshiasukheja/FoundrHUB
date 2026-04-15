@@ -1,5 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import { motion } from 'framer-motion'
+import React, { useEffect, useMemo, useState, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useLocation } from 'react-router-dom'
 import SidebarMenu from '../components/SidebarMenu'
 import DashboardHeader from '../components/DashboardHeader'
 import Calendar from 'react-calendar'
@@ -9,6 +10,7 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'rec
 import { useAuth } from '../context/AuthContext'
 import { useRealtimeValue } from '../lib/realtime'
 import { buildDefaultUserData } from '../lib/seedData'
+import Toast from '../components/Toast'
 
 const MONTHS = [
   'January','February','March','April','May','June',
@@ -42,6 +44,208 @@ const Card = ({ children, className = '' }) => (
   >
     {children}
   </motion.div>
+)
+
+const StatusPill = ({ connected }) => (
+  <span
+    className={`text-[11px] font-semibold px-2.5 py-1 rounded-full ${connected ? 'text-emerald-600 bg-emerald-50' : 'text-rose-500 bg-rose-50'}`}
+  >
+    {connected ? 'Connected' : 'Not connected'}
+  </span>
+)
+
+const OnboardingOverlay = ({
+  open,
+  gaConnected,
+  gaOAuthConnected,
+  gaLoading,
+  gaProperties,
+  selectedProperty,
+  onConnectGA,
+  onSelectProperty,
+  onConfirmProperty,
+  paymentsConnected,
+  paymentsLoading,
+  paymentsSuccess,
+  onConnectStripe,
+  razorpayKeys,
+  onRazorpayChange,
+  onConnectRazorpay,
+  canContinue,
+  onContinue,
+  onClose
+}) => (
+  <AnimatePresence>
+    {open && (
+      <motion.div
+        className="fixed inset-0 z-[120] bg-[#0f172a]/60 backdrop-blur-sm flex items-center justify-center px-4 py-8"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 24, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 18, scale: 0.98 }}
+          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full max-w-3xl bg-white rounded-[28px] border border-[#e5e7eb] shadow-[0_40px_120px_rgba(15,23,42,0.35)] p-6 lg:p-8"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[#6366f1]">FoundrHub Setup</p>
+              <h2 className="text-[22px] font-semibold text-[#0f172a] mt-2">Let's get your data in 2 minutes</h2>
+            </div>
+            <button
+              type="button"
+              aria-label="Close onboarding"
+              onClick={onClose}
+              className="text-[#64748b] hover:text-[#0f172a] text-xl font-bold rounded-full w-9 h-9 flex items-center justify-center bg-[#f3f4f6] hover:bg-[#e5e7eb] transition"
+            >
+              ×
+            </button>
+          </div>
+
+          <div className="mt-6 space-y-5">
+            <div className="rounded-2xl border border-[#eef0f5] bg-[#f8fafc] p-5">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="text-[12px] font-semibold text-[#0f172a]">Connect Traffic</p>
+                  <p className="text-[11px] text-[#64748b]">Bring in users and sessions</p>
+                </div>
+                <StatusPill connected={gaConnected} />
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <button
+                  type="button"
+                  onClick={onConnectGA}
+                  disabled={gaLoading || gaConnected}
+                  className="px-4 py-2.5 rounded-xl text-[12px] font-semibold text-white bg-gradient-to-r from-[#6366f1] to-[#4f46e5] disabled:opacity-50"
+                >
+                  {gaLoading ? (
+                    <span className="inline-flex items-center gap-2">
+                      Connecting...
+                      <span className="h-3 w-3 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                    </span>
+                  ) : gaConnected ? 'Google Analytics Connected' : 'Connect Google Analytics'}
+                </button>
+                {gaConnected && (
+                  <span className="text-[11px] font-semibold text-emerald-600">Connected successfully ✅</span>
+                )}
+                {!gaConnected && gaOAuthConnected && (
+                  <span className="text-[11px] font-semibold text-sky-600">OAuth complete. Select a property.</span>
+                )}
+                {gaProperties?.length > 0 && !gaConnected && (
+                  <div className="flex flex-1 items-center gap-2">
+                    <select
+                      value={selectedProperty}
+                      onChange={(event) => onSelectProperty(event.target.value)}
+                      className="flex-1 px-3 py-2.5 rounded-xl border border-[#e5e7eb] text-[12px]"
+                    >
+                      <option value="">Select a property</option>
+                      {gaProperties.map((prop) => (
+                        <option key={prop.id} value={prop.id}>{prop.name}</option>
+                      ))}
+                    </select>
+                    <button
+                      type="button"
+                      onClick={onConfirmProperty}
+                      disabled={!selectedProperty}
+                      className="px-3 py-2.5 rounded-xl text-[12px] font-semibold border border-[#e5e7eb] disabled:opacity-50"
+                    >
+                      Save
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-[#eef0f5] bg-[#f8fafc] p-5">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="text-[12px] font-semibold text-[#0f172a]">Connect Revenue</p>
+                  <p className="text-[11px] text-[#64748b]">Track revenue and transactions</p>
+                </div>
+                <StatusPill connected={paymentsConnected} />
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4">
+                <div className="rounded-xl border border-[#e5e7eb] bg-white p-4">
+                  <p className="text-[12px] font-semibold text-[#0f172a]">Stripe</p>
+                  <p className="text-[11px] text-[#64748b] mt-1">OAuth connection</p>
+                  <button
+                    type="button"
+                    onClick={onConnectStripe}
+                    disabled={paymentsLoading || paymentsConnected}
+                    className="mt-3 w-full px-4 py-2.5 rounded-xl text-[12px] font-semibold text-white bg-[#0f172a] disabled:opacity-50"
+                  >
+                    {paymentsLoading ? (
+                      <span className="inline-flex items-center gap-2">
+                        Connecting...
+                        <span className="h-3 w-3 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                      </span>
+                    ) : paymentsConnected ? 'Stripe Connected' : 'Connect Stripe'}
+                  </button>
+                  {paymentsSuccess && (
+                    <p className="text-[11px] font-semibold text-emerald-600 mt-2">Connected successfully ✅</p>
+                  )}
+                </div>
+
+                <div className="rounded-xl border border-[#e5e7eb] bg-white p-4">
+                  <p className="text-[12px] font-semibold text-[#0f172a]">Razorpay</p>
+                  <p className="text-[11px] text-[#64748b] mt-1">Use your API keys</p>
+                  <div className="mt-3 space-y-2">
+                    <input
+                      type="text"
+                      placeholder="Key ID"
+                      value={razorpayKeys.keyId}
+                      onChange={(event) => onRazorpayChange('keyId', event.target.value)}
+                      className="w-full px-3 py-2.5 rounded-xl border border-[#e5e7eb] text-[12px]"
+                    />
+                    <input
+                      type="password"
+                      placeholder="Key Secret"
+                      value={razorpayKeys.keySecret}
+                      onChange={(event) => onRazorpayChange('keySecret', event.target.value)}
+                      className="w-full px-3 py-2.5 rounded-xl border border-[#e5e7eb] text-[12px]"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={onConnectRazorpay}
+                    disabled={paymentsLoading || paymentsConnected}
+                    className="mt-3 w-full px-4 py-2.5 rounded-xl text-[12px] font-semibold border border-[#e5e7eb] disabled:opacity-50"
+                  >
+                    {paymentsLoading ? (
+                      <span className="inline-flex items-center gap-2">
+                        Connecting...
+                        <span className="h-3 w-3 rounded-full border-2 border-[#0f172a] border-t-transparent animate-spin" />
+                      </span>
+                    ) : paymentsConnected ? 'Razorpay Connected' : 'Connect Razorpay'}
+                  </button>
+                  {paymentsSuccess && (
+                    <p className="text-[11px] font-semibold text-emerald-600 mt-2">Connected successfully ✅</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 flex items-center justify-between">
+            <p className="text-[12px] text-[#64748b]">Continue once at least one data source is connected.</p>
+            <button
+              type="button"
+              onClick={onContinue}
+              disabled={!canContinue}
+              className="px-5 py-2.5 rounded-xl text-[12px] font-semibold text-white bg-gradient-to-r from-[#111827] to-[#334155] disabled:opacity-40"
+            >
+              Continue to Dashboard
+            </button>
+          </div>
+        </motion.div>
+      </motion.div>
+    )}
+  </AnimatePresence>
 )
 
 /* ══════════════════════════════════════════════
@@ -441,20 +645,236 @@ const EquityValuationCard = ({ snapshot }) => {
    MAIN DASHBOARD PAGE
    ══════════════════════════════════════════════ */
 const FounderDashboard = () => {
-  const { user } = useAuth()
+  const { user, updateUser } = useAuth()
+  const location = useLocation()
   const fallback = useMemo(() => buildDefaultUserData({}).dashboard, [])
   const { value: dashboardData } = useRealtimeValue(
     user?.uid ? `users/${user.uid}/dashboard` : null,
     fallback
   )
+  const { value: profile, loading: profileLoading } = useRealtimeValue(
+    user?.uid ? `users/${user.uid}/profile` : null,
+    {}
+  )
   const apiBase = import.meta.env.VITE_API_URL || ''
   const [apiData, setApiData] = useState([])
   const [dayData, setDayData] = useState(null)
   const [selectedDate, setSelectedDate] = useState(null)
+  const [toastMessage, setToastMessage] = useState('')
+  const [dashboardMetrics, setDashboardMetrics] = useState(null)
+  const [isDashboardLoading, setIsDashboardLoading] = useState(false)
+  const [onboardingOpen, setOnboardingOpen] = useState(false)
+  const [gaState, setGaState] = useState({ loading: false, properties: [], selectedProperty: '', oauthConnected: false })
+  const [paymentsLoading, setPaymentsLoading] = useState(false)
+  const [razorpayKeys, setRazorpayKeys] = useState({ keyId: '', keySecret: '' })
   const stats = dashboardData?.stats || fallback.stats
   const distribution = dashboardData?.userDistribution || fallback.userDistribution
   const equitySnapshot = dashboardData?.equitySnapshot || fallback.equitySnapshot
   const timeline = dashboardData?.activityTimeline || fallback.activityTimeline
+  const hasConnectedSources = profile?.hasConnectedSources ?? false
+  const gaConnected = profile?.ga_connected ?? false
+  const paymentsConnected = profile?.payments_connected ?? false
+  const hasPartialSources = hasConnectedSources && (!gaConnected || !paymentsConnected)
+  const showToast = useCallback((message) => {
+    setToastMessage(message)
+  }, [])
+
+  const updateConnectionFlags = useCallback(async (updates) => {
+    if (!user?.uid) return
+    await updateUser(updates)
+  }, [updateUser, user?.uid])
+
+  const refreshIntegrationStatus = useCallback(async () => {
+    if (!apiBase || !user?.uid) return
+    try {
+      const res = await fetch(`${apiBase}/api/integrations/status?user_id=${user.uid}`)
+      if (!res.ok) throw new Error('status failed')
+      const payload = await res.json()
+      const nextGaConnected = payload?.ga?.connected ?? false
+      const nextPaymentsConnected = payload?.payments?.connected ?? false
+      await updateConnectionFlags({
+        ga_connected: nextGaConnected,
+        payments_connected: nextPaymentsConnected,
+        hasConnectedSources: nextGaConnected || nextPaymentsConnected
+      })
+      setGaState((prev) => ({
+        ...prev,
+        oauthConnected: payload?.ga?.oauth_connected ?? false,
+        properties: payload?.ga?.properties || [],
+        selectedProperty: payload?.ga?.ga_property_id || prev.selectedProperty
+      }))
+    } catch (error) {
+      showToast('Unable to refresh integration status.')
+    }
+  }, [apiBase, showToast, updateConnectionFlags, user?.uid])
+
+  useEffect(() => {
+    if (!user?.uid) return
+    refreshIntegrationStatus()
+  }, [refreshIntegrationStatus, user?.uid])
+
+  useEffect(() => {
+    if (!user?.uid) return
+    const params = new URLSearchParams(location.search)
+    const connected = params.get('connected')
+    const error = params.get('error')
+    if (!connected) return
+    if (error) {
+      showToast(`Connection failed for ${connected}.`)
+    } else {
+      showToast(`${connected} connected successfully.`)
+      refreshIntegrationStatus()
+    }
+    const url = window.location.pathname
+    window.history.replaceState({}, '', url)
+  }, [location.search, refreshIntegrationStatus, showToast, user?.uid])
+
+  const handlePropertyChange = useCallback((value) => {
+    setGaState((prev) => ({ ...prev, selectedProperty: value }))
+  }, [])
+
+  const handleRazorpayChange = useCallback((field, value) => {
+    setRazorpayKeys((prev) => ({ ...prev, [field]: value }))
+  }, [])
+
+  const integrationStats = useMemo(() => {
+    if (!dashboardMetrics) return null
+    return {
+      activeUsers: { ...stats.activeUsers, value: dashboardMetrics.users ?? 0 },
+      profileViews: { ...stats.profileViews, value: dashboardMetrics.sessions ?? 0 },
+      aiActions: { ...stats.aiActions, value: dashboardMetrics.transactions ?? 0 },
+      investorInteractions: { ...stats.investorInteractions, value: dashboardMetrics.revenue ?? 0 }
+    }
+  }, [dashboardMetrics, stats])
+
+  const formatCurrency = useCallback((value) => {
+    const numeric = Number.isFinite(value) ? value : 0
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(numeric)
+  }, [])
+
+  const formatStatValue = useCallback((key, value) => {
+    if (!dashboardMetrics) return (value ?? 0).toLocaleString()
+    if (key === 'investorInteractions') return formatCurrency(value)
+    return (value ?? 0).toLocaleString()
+  }, [dashboardMetrics, formatCurrency])
+
+  const statLabels = dashboardMetrics ? {
+    activeUsers: 'Users',
+    profileViews: 'Sessions',
+    aiActions: 'Transactions',
+    investorInteractions: 'Revenue'
+  } : {
+    activeUsers: 'Active Users',
+    profileViews: 'Startup Profile Views',
+    aiActions: 'AI Actions',
+    investorInteractions: 'Investor Interactions'
+  }
+
+  useEffect(() => {
+    if (profileLoading || !user?.uid) return
+    setOnboardingOpen(!hasConnectedSources)
+  }, [profileLoading, hasConnectedSources, user?.uid])
+
+  const handleConnectGA = useCallback(async () => {
+    if (!apiBase || !user?.uid) {
+      showToast('API is not configured yet.')
+      return
+    }
+    setGaState((prev) => ({ ...prev, loading: true }))
+    window.location.href = `${apiBase}/auth/google?user_id=${user.uid}`
+  }, [apiBase, showToast, user?.uid])
+
+  const handleSelectGaProperty = useCallback(async () => {
+    if (!gaState.selectedProperty || !apiBase || !user?.uid) return
+    setGaState((prev) => ({ ...prev, loading: true }))
+    try {
+      const res = await fetch(`${apiBase}/api/integrations/ga/select`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: user.uid, ga_property_id: gaState.selectedProperty })
+      })
+      if (!res.ok) throw new Error('Unable to save GA property')
+      await updateConnectionFlags({ ga_connected: true, hasConnectedSources: true })
+      setGaState((prev) => ({ ...prev, loading: false }))
+      showToast('Google Analytics property saved.')
+    } catch (error) {
+      setGaState((prev) => ({ ...prev, loading: false }))
+      showToast('Google Analytics property save failed.')
+    }
+  }, [apiBase, gaState.selectedProperty, showToast, updateConnectionFlags, user?.uid])
+
+  const handleConnectStripe = useCallback(async () => {
+    if (!apiBase || !user?.uid) {
+      showToast('API is not configured yet.')
+      return
+    }
+    setPaymentsLoading(true)
+    window.location.href = `${apiBase}/auth/stripe?user_id=${user.uid}`
+  }, [apiBase, showToast, updateConnectionFlags, user?.uid])
+
+  const handleConnectRazorpay = useCallback(async () => {
+    if (!apiBase || !user?.uid) {
+      showToast('API is not configured yet.')
+      return
+    }
+    if (!razorpayKeys.keyId || !razorpayKeys.keySecret) {
+      showToast('Enter Razorpay key ID and secret.')
+      return
+    }
+    setPaymentsLoading(true)
+    try {
+      const res = await fetch(`${apiBase}/api/integrations/payments/connect`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: user.uid,
+          provider: 'razorpay',
+          razorpay_key_id: razorpayKeys.keyId,
+          razorpay_key_secret: razorpayKeys.keySecret
+        })
+      })
+      if (!res.ok) throw new Error('Unable to connect Razorpay')
+      await updateConnectionFlags({ payments_connected: true, hasConnectedSources: true })
+      setRazorpayKeys({ keyId: '', keySecret: '' })
+      showToast('Razorpay connected.')
+    } catch (error) {
+      showToast('Razorpay connection failed.')
+    } finally {
+      setPaymentsLoading(false)
+    }
+  }, [apiBase, razorpayKeys, showToast, updateConnectionFlags, user?.uid])
+
+  const handleContinueToDashboard = useCallback(async () => {
+    if (!apiBase || !user?.uid) return
+    if (!gaConnected && !paymentsConnected) return
+    setIsDashboardLoading(true)
+    try {
+      const res = await fetch(`${apiBase}/api/dashboard?user_id=${user.uid}`)
+      if (!res.ok) throw new Error('Unable to load dashboard')
+      const payload = await res.json()
+      setDashboardMetrics(payload)
+      await updateConnectionFlags({ hasConnectedSources: true })
+      setOnboardingOpen(false)
+      showToast('Dashboard updated with live data.')
+    } catch (error) {
+      showToast('Dashboard data fetch failed.')
+    } finally {
+      setIsDashboardLoading(false)
+    }
+  }, [apiBase, gaConnected, paymentsConnected, showToast, updateConnectionFlags, user?.uid])
+
+  useEffect(() => {
+    if (!apiBase || !user?.uid || !hasConnectedSources) return
+    if (dashboardMetrics) return
+    fetch(`${apiBase}/api/dashboard?user_id=${user.uid}`)
+      .then((res) => res.json())
+      .then((payload) => setDashboardMetrics(payload))
+      .catch(() => {})
+  }, [apiBase, dashboardMetrics, hasConnectedSources, user?.uid])
 
   useEffect(() => {
     if (!timeline) return
@@ -567,6 +987,10 @@ const FounderDashboard = () => {
     { name: 'Lightspeed', round: 'Angel', equity: 3.1 }
   ]
 
+  const displayStats = integrationStats || derivedDashboard.stats
+  const canContinue = gaConnected || paymentsConnected
+  const paymentsSuccess = paymentsConnected && !paymentsLoading
+
   return (
     <div className="min-h-screen bg-[#f5f7fb] text-[#1f2937] relative overflow-hidden">
       {/* Ambient blurs */}
@@ -592,6 +1016,31 @@ const FounderDashboard = () => {
           animate="visible"
           className="max-w-[1280px] mx-auto px-6 lg:px-8 py-6"
         >
+          {(!hasConnectedSources || hasPartialSources) && (
+            <motion.div
+              variants={itemVariants}
+              className="mb-5 rounded-2xl border border-[#e5e7eb] bg-white px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+            >
+              <div>
+                <p className="text-[13px] font-semibold text-[#111827]">
+                  {!hasConnectedSources ? 'Connect your data to see insights' : 'Connect remaining sources to unlock full insights'}
+                </p>
+                <p className="text-[11px] text-[#64748b]">
+                  {!hasConnectedSources
+                    ? 'Link Google Analytics or your payment provider to populate your dashboard.'
+                    : 'You are partially connected. Add the remaining source to complete your metrics.'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setOnboardingOpen(true)}
+                className="px-4 py-2.5 rounded-xl text-[12px] font-semibold text-white bg-[#111827]"
+              >
+                {hasConnectedSources ? 'Connect remaining sources' : 'Start connecting'}
+              </button>
+            </motion.div>
+          )}
+
           {/* ── ROW 1 ── */}
           <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr_320px] gap-5 mb-5">
             {/* Calendar */}
@@ -606,8 +1055,8 @@ const FounderDashboard = () => {
               <SmallStatCard
                 icon={<span className="text-base">🟦</span>}
                 iconBg="bg-[#dbeafe]"
-                label="Active Users"
-                value={derivedDashboard.stats.activeUsers.value.toLocaleString()}
+                label={statLabels.activeUsers}
+                value={formatStatValue('activeUsers', displayStats.activeUsers.value)}
                 period="Last 7 days"
                 delta={`+${derivedDashboard.stats.activeUsers.delta}%`}
                 deltaUp={derivedDashboard.stats.activeUsers.delta >= 0}
@@ -615,8 +1064,8 @@ const FounderDashboard = () => {
               <SmallStatCard
                 icon={<span className="text-base">🟪</span>}
                 iconBg="bg-[#ede9fe]"
-                label="Startup Profile Views"
-                value={derivedDashboard.stats.profileViews.value.toLocaleString()}
+                label={statLabels.profileViews}
+                value={formatStatValue('profileViews', displayStats.profileViews.value)}
                 period="Last 7 days"
                 delta={`+${derivedDashboard.stats.profileViews.delta}%`}
                 deltaUp={derivedDashboard.stats.profileViews.delta >= 0}
@@ -624,8 +1073,8 @@ const FounderDashboard = () => {
               <SmallStatCard
                 icon={<span className="text-base">🟩</span>}
                 iconBg="bg-[#dcfce7]"
-                label="AI Actions"
-                value={derivedDashboard.stats.aiActions.value.toLocaleString()}
+                label={statLabels.aiActions}
+                value={formatStatValue('aiActions', displayStats.aiActions.value)}
                 period="Last 7 days"
                 delta={`+${derivedDashboard.stats.aiActions.delta}%`}
                 deltaUp={derivedDashboard.stats.aiActions.delta >= 0}
@@ -633,8 +1082,8 @@ const FounderDashboard = () => {
               <SmallStatCard
                 icon={<span className="text-base">🟨</span>}
                 iconBg="bg-[#fef3c7]"
-                label="Investor Interactions"
-                value={derivedDashboard.stats.investorInteractions.value.toLocaleString()}
+                label={statLabels.investorInteractions}
+                value={formatStatValue('investorInteractions', displayStats.investorInteractions.value)}
                 period="Last 7 days"
                 delta={`+${derivedDashboard.stats.investorInteractions.delta}%`}
                 deltaUp={derivedDashboard.stats.investorInteractions.delta >= 0}
@@ -732,6 +1181,32 @@ const FounderDashboard = () => {
           </div>
         </motion.main>
       </div>
+
+      <OnboardingOverlay
+        open={onboardingOpen}
+        gaConnected={gaConnected}
+        gaOAuthConnected={gaState.oauthConnected}
+        gaLoading={gaState.loading}
+        gaProperties={gaState.properties}
+        selectedProperty={gaState.selectedProperty}
+        onConnectGA={handleConnectGA}
+        onSelectProperty={handlePropertyChange}
+        onConfirmProperty={handleSelectGaProperty}
+        paymentsConnected={paymentsConnected}
+        paymentsLoading={paymentsLoading}
+        paymentsSuccess={paymentsSuccess}
+        onConnectStripe={handleConnectStripe}
+        razorpayKeys={razorpayKeys}
+        onRazorpayChange={handleRazorpayChange}
+        onConnectRazorpay={handleConnectRazorpay}
+        canContinue={canContinue && !isDashboardLoading}
+        onContinue={handleContinueToDashboard}
+        onClose={() => setOnboardingOpen(false)}
+      />
+
+      {toastMessage && (
+        <Toast message={toastMessage} onClose={() => setToastMessage('')} />
+      )}
     </div>
   )
 }

@@ -2,7 +2,10 @@ export const buildDefaultUserData = ({ name, email, role }) => ({
   profile: {
     name: name || 'Founder',
     email: email || '',
-    role: role || 'founder'
+    role: role || 'founder',
+    hasConnectedSources: false,
+    ga_connected: false,
+    payments_connected: false
   },
   dashboard: {
     stats: {
