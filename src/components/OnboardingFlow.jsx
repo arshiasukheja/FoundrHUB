@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { 
   Shirt, 
   Palette, 
@@ -37,6 +37,8 @@ const OnboardingFlow = ({ onClose }) => {
   const [selectedNiche, setSelectedNiche] = useState(null)
   const [otherNiche, setOtherNiche] = useState('')
   const navigate = useNavigate()
+  const location = useLocation()
+  const isStudentFounderPage = location.pathname === '/student-founders'
 
   useEffect(() => {
     const originalOverflow = document.body.style.overflow
@@ -56,6 +58,15 @@ const OnboardingFlow = ({ onClose }) => {
   const handleNext = () => {
     if (step === 1 && founderStatus) {
       if (founderStatus === 'yes') {
+        if (isStudentFounderPage) {
+          // On student founders page: close modal and scroll to inline signup form
+          onClose?.()
+          setTimeout(() => {
+            const el = document.getElementById('signup-form')
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          }, 100)
+          return
+        }
         navigate('/signup?role=founder')
         return
       }
