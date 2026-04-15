@@ -11,6 +11,8 @@ import {
   Send, BadgeCheck, Flame, Eye, HandshakeIcon, X,
   Play, ArrowUpRight, MapPin, Lock, MousePointerClick
 } from 'lucide-react'
+import { db } from '../lib/firebase'
+import { ref, set } from 'firebase/database'
 
 /* ── Reveal Observer ── */
 const useReveal = () => {
@@ -168,7 +170,7 @@ const HeroSection = ({ onOpenForm }) => {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25, duration: 0.7 }}
-            className="text-[18px] lg:text-[19px] text-neutral-500 leading-relaxed max-w-2xl mx-auto mb-10"
+            className="text-[15px] lg:text-[16px] text-neutral-500 leading-relaxed max-w-2xl mx-auto mb-10"
           >
             Join the private founder network built for college startups, hackathon winners, incubated teams, and student entrepreneurs building the next big thing.
           </motion.p>
@@ -182,7 +184,7 @@ const HeroSection = ({ onOpenForm }) => {
           >
             <button
               onClick={onOpenForm}
-              className="group relative inline-flex items-center justify-center px-10 py-4 rounded-full text-white text-[18px] font-semibold tracking-wide overflow-hidden transition-all duration-500 hover:shadow-[0_20px_50px_rgba(91,101,220,0.25)]"
+              className="group relative inline-flex items-center justify-center px-10 py-4 rounded-full text-white text-[15px] font-semibold tracking-wide overflow-hidden transition-all duration-500 hover:shadow-[0_20px_50px_rgba(91,101,220,0.25)]"
               style={{ background: 'linear-gradient(135deg, #5B65DC 0%, #122056 100%)' }}
             >
               <span className="absolute inset-0 bg-gradient-to-r from-violet-500 to-[#5B65DC] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -195,7 +197,7 @@ const HeroSection = ({ onOpenForm }) => {
 
             <a
               href="#features"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-full border border-[#EEF0FD] bg-white/70 backdrop-blur-sm text-[#122056] text-[18px] font-semibold hover:bg-white hover:border-[#5B65DC]/20 transition-all duration-300"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-full border border-[#EEF0FD] bg-white/70 backdrop-blur-sm text-[#122056] text-[15px] font-semibold hover:bg-white hover:border-[#5B65DC]/20 transition-all duration-300"
             >
               <Play size={16} className="text-[#5B65DC]" />
               Explore Features
@@ -222,7 +224,7 @@ const HeroSection = ({ onOpenForm }) => {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.5 + i * 0.06 }}
                 whileHover={{ scale: 1.05, y: -2 }}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/60 backdrop-blur-sm border border-[#EEF0FD] text-[18px] font-semibold text-[#122056]/80 hover:bg-white hover:border-[#5B65DC]/20 hover:shadow-[0_8px_20px_rgba(18,32,86,0.06)] transition-all duration-300 cursor-default"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/60 backdrop-blur-sm border border-[#EEF0FD] text-[15px] font-semibold text-[#122056]/80 hover:bg-white hover:border-[#5B65DC]/20 hover:shadow-[0_8px_20px_rgba(18,32,86,0.06)] transition-all duration-300 cursor-default"
               >
                 <Icon size={14} style={{ color }} />
                 {label}
@@ -277,7 +279,7 @@ const LiveActivityTicker = () => {
         >
           <span className="text-lg">{activities[current].emoji}</span>
           <div className="flex-1 min-w-0">
-            <p className="text-[18px] text-[#122056]">
+            <p className="text-[15px] text-[#122056]">
               <span className="font-bold">{activities[current].name}</span>{' '}
               <span className="text-neutral-500">{activities[current].action}</span>
             </p>
@@ -299,7 +301,7 @@ const interactiveFeatures = [
     icon: Shield,
     color: '#5B65DC',
     gradient: 'from-[#5B65DC]/10 to-violet-500/5',
-    size: 'lg:col-span-2',
+    size: '',
     visual: 'profile',
   },
   {
@@ -326,7 +328,7 @@ const interactiveFeatures = [
     icon: BookOpen,
     color: '#8B5CF6',
     gradient: 'from-violet-500/10 to-purple-500/5',
-    size: 'lg:col-span-2',
+    size: '',
     visual: 'resources',
   },
   {
@@ -456,10 +458,10 @@ const FeaturesSection = ({ onOpenForm }) => (
         <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#EEF0FD] bg-white/60 text-[11px] font-bold uppercase tracking-[0.2em] text-[#5B65DC] mb-6">
           What You Get — 100% Free
         </span>
-        <h2 className="font-bold text-[clamp(2rem,4vw,3rem)] leading-[1.1] tracking-tight text-[#122056] mb-4">
+        <h2 className="font-bold text-[clamp(1.5rem,3vw,2.5rem)] leading-tight tracking-tight text-[#122056] mb-4">
           Everything a student founder <span className="text-[#5B65DC] italic">needs</span>
         </h2>
-        <p className="text-[18px] text-neutral-500 max-w-xl mx-auto leading-relaxed">
+        <p className="text-[15px] text-neutral-500 max-w-xl mx-auto leading-relaxed">
           No credit card. No trial period. Just powerful tools built for campus founders.
         </p>
       </motion.div>
@@ -490,9 +492,9 @@ const FeaturesSection = ({ onOpenForm }) => (
                 >
                   <feat.icon size={20} />
                 </div>
-                <h3 className="text-[18px] font-bold text-[#122056]">{feat.title}</h3>
+                <h3 className="text-[15px] font-bold text-[#122056]">{feat.title}</h3>
               </div>
-              <p className="text-[18px] text-neutral-500 leading-relaxed">{feat.desc}</p>
+              <p className="text-[15px] text-neutral-500 leading-relaxed">{feat.desc}</p>
               <FeatureVisual type={feat.visual} color={feat.color} />
             </div>
           </motion.div>
@@ -509,7 +511,7 @@ const FeaturesSection = ({ onOpenForm }) => (
       >
         <button
           onClick={onOpenForm}
-          className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-[#122056] text-white text-[18px] font-semibold hover:bg-[#5B65DC] transition-all duration-300 hover:shadow-xl hover:shadow-[#122056]/15 group"
+          className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-[#122056] text-white text-[15px] font-semibold hover:bg-[#5B65DC] transition-all duration-300 hover:shadow-xl hover:shadow-[#122056]/15 group"
         >
           <MousePointerClick size={16} />
           Claim Your Free Access
@@ -546,10 +548,10 @@ const CampusLeaderboard = ({ onOpenForm }) => (
         <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#EEF0FD] bg-white/60 text-[11px] font-bold uppercase tracking-[0.2em] text-[#5B65DC] mb-6">
           Campus Leaderboard
         </span>
-        <h2 className="font-bold text-[clamp(2rem,4vw,3rem)] leading-[1.1] tracking-tight text-[#122056] mb-4">
+        <h2 className="font-bold text-[clamp(1.5rem,3vw,2.5rem)] leading-tight tracking-tight text-[#122056] mb-4">
           Top Startup Campuses <span className="text-[#5B65DC] italic">This Week</span>
         </h2>
-        <p className="text-[18px] text-neutral-500 max-w-xl mx-auto leading-relaxed">
+        <p className="text-[15px] text-neutral-500 max-w-xl mx-auto leading-relaxed">
           See which colleges are producing the most student founders. Represent your campus.
         </p>
       </motion.div>
@@ -571,7 +573,7 @@ const CampusLeaderboard = ({ onOpenForm }) => (
               <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl transition-colors duration-300" style={{ background: i < 3 ? campus.color : 'transparent' }} />
               
               {/* Rank */}
-              <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-[18px] font-black shrink-0 ${
+              <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-[15px] font-black shrink-0 ${
                 i === 0
                   ? 'bg-gradient-to-br from-amber-400 to-amber-500 text-white shadow-lg shadow-amber-400/20'
                   : i === 1
@@ -584,12 +586,12 @@ const CampusLeaderboard = ({ onOpenForm }) => (
               </div>
 
               {/* Campus emoji */}
-              <span className="text-xl">{campus.logo}</span>
+              <span className="text-[16px]l">{campus.logo}</span>
 
               {/* Campus Info */}
               <div className="flex-1 min-w-0">
-                <p className="text-[18px] font-bold text-[#122056] truncate group-hover:text-[#5B65DC] transition-colors">{campus.name}</p>
-                <p className="text-[18px] text-neutral-400 font-medium">
+                <p className="text-[15px] font-bold text-[#122056] truncate group-hover:text-[#5B65DC] transition-colors">{campus.name}</p>
+                <p className="text-[15px] text-neutral-400 font-medium">
                   <AnimatedCounter target={campus.founders} /> active founders
                 </p>
               </div>
@@ -597,7 +599,7 @@ const CampusLeaderboard = ({ onOpenForm }) => (
               {/* Trend Chip */}
               <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-100">
                 <TrendingUp size={12} className="text-emerald-600" />
-                <span className="text-[18px] font-bold text-emerald-600">{campus.trend}</span>
+                <span className="text-[15px] font-bold text-emerald-600">{campus.trend}</span>
               </div>
 
               {/* Activity bar */}
@@ -622,7 +624,7 @@ const CampusLeaderboard = ({ onOpenForm }) => (
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
         transition={{ delay: 0.6 }}
-        className="text-center text-[18px] text-neutral-400 mt-8"
+        className="text-center text-[15px] text-neutral-400 mt-8"
       >
         <Sparkles size={14} className="inline mr-1 text-[#5B65DC]" />
         Your campus not here?{' '}
@@ -677,7 +679,7 @@ const publicUpdates = [
     update: 'Hiring campus interns for content & growth 📢',
     time: '8h ago',
     badge: 'Hiring',
-    badgeColor: 'bg-purple-500/10 text-purple-700 border-purple-200/60',
+    badgeColor: 'bg-purple-500/10 text-[16px]urple-700 border-purple-200/60',
     initials: 'SD',
     color: '#F59E0B',
     reactions: { '🎯': 9, '✅': 7 },
@@ -701,10 +703,10 @@ const BuildInPublicWall = () => (
         <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#EEF0FD] bg-white/60 text-[11px] font-bold uppercase tracking-[0.2em] text-[#5B65DC] mb-6">
           Build in Public
         </span>
-        <h2 className="font-bold text-[clamp(2rem,4vw,3rem)] leading-[1.1] tracking-tight text-[#122056] mb-4">
+        <h2 className="font-bold text-[clamp(1.5rem,3vw,2.5rem)] leading-tight tracking-tight text-[#122056] mb-4">
           The Founder <span className="text-[#5B65DC] italic">Wall</span>
         </h2>
-        <p className="text-[18px] text-neutral-500 max-w-xl mx-auto leading-relaxed">
+        <p className="text-[15px] text-neutral-500 max-w-xl mx-auto leading-relaxed">
           Real updates from real student founders. Share your journey, celebrate wins, find collaborators.
         </p>
       </motion.div>
@@ -723,20 +725,20 @@ const BuildInPublicWall = () => (
             {/* Top: Avatar + Name + Time */}
             <div className="flex items-center gap-3 mb-4">
               <div
-                className="w-10 h-10 rounded-2xl flex items-center justify-center text-[18px] font-bold text-white shrink-0 shadow-md"
+                className="w-10 h-10 rounded-2xl flex items-center justify-center text-[15px] font-bold text-white shrink-0 shadow-md"
                 style={{ background: `linear-gradient(135deg, ${item.color}, ${item.color}88)` }}
               >
                 {item.initials}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[18px] font-bold text-[#122056]">{item.name}</p>
+                <p className="text-[15px] font-bold text-[#122056]">{item.name}</p>
                 <p className="text-[11px] text-neutral-400 font-medium">{item.college}</p>
               </div>
               <span className="text-[11px] text-neutral-300 font-medium shrink-0">{item.time}</span>
             </div>
 
             {/* Update */}
-            <p className="text-[18px] text-[#122056]/80 font-medium leading-relaxed mb-4">
+            <p className="text-[15px] text-[#122056]/80 font-medium leading-relaxed mb-4">
               {item.update}
             </p>
 
@@ -793,9 +795,9 @@ const FloatingFormModal = ({ isOpen, onClose, onSubmit }) => {
     onSubmit(formData)
   }
 
-  const inputClass = "w-full px-4 py-3.5 rounded-2xl bg-white/80 backdrop-blur-sm border border-[#EEF0FD] text-[18px] text-[#122056] font-medium placeholder:text-neutral-300 focus:outline-none focus:border-[#5B65DC]/40 focus:ring-2 focus:ring-[#5B65DC]/10 transition-all"
-  const labelClass = "block text-[18px] font-bold uppercase tracking-[0.12em] text-[#122056]/60 mb-2"
-  const selectClass = "w-full px-4 py-3.5 rounded-2xl bg-white/80 backdrop-blur-sm border border-[#EEF0FD] text-[18px] text-[#122056] font-medium focus:outline-none focus:border-[#5B65DC]/40 focus:ring-2 focus:ring-[#5B65DC]/10 transition-all appearance-none cursor-pointer"
+  const inputClass = "w-full px-4 py-3.5 rounded-2xl bg-white/80 backdrop-blur-sm border border-[#EEF0FD] text-[15px] text-[#122056] font-medium placeholder:text-neutral-300 focus:outline-none focus:border-[#5B65DC]/40 focus:ring-2 focus:ring-[#5B65DC]/10 transition-all"
+  const labelClass = "block text-[15px] font-bold uppercase tracking-[0.12em] text-[#122056]/60 mb-2"
+  const selectClass = "w-full px-4 py-3.5 rounded-2xl bg-white/80 backdrop-blur-sm border border-[#EEF0FD] text-[15px] text-[#122056] font-medium focus:outline-none focus:border-[#5B65DC]/40 focus:ring-2 focus:ring-[#5B65DC]/10 transition-all appearance-none cursor-pointer"
 
   return (
     <AnimatePresence>
@@ -833,8 +835,8 @@ const FloatingFormModal = ({ isOpen, onClose, onSubmit }) => {
                     <Rocket size={18} className="text-white" />
                   </div>
                   <div>
-                    <h2 className="text-[20px] font-bold text-[#122056]">Join the Founder Network</h2>
-                    <p className="text-[18px] text-neutral-400">It takes 2 minutes. Be among the first founders.</p>
+                    <h2 className="text-[16px] font-bold text-[#122056]">Join the Founder Network</h2>
+                    <p className="text-[15px] text-neutral-400">It takes 2 minutes. Be among the first founders.</p>
                   </div>
                 </div>
               </div>
@@ -850,7 +852,7 @@ const FloatingFormModal = ({ isOpen, onClose, onSubmit }) => {
                       key={opt}
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, isStudentFounder: opt }))}
-                      className={`flex-1 px-3 py-3 rounded-2xl text-[18px] font-semibold border transition-all duration-300 ${
+                      className={`flex-1 px-3 py-3 rounded-2xl text-[15px] font-semibold border transition-all duration-300 ${
                         formData.isStudentFounder === opt
                           ? 'bg-[#122056] text-white border-[#122056] shadow-lg shadow-[#122056]/10'
                           : 'bg-white/50 text-[#122056]/70 border-[#EEF0FD] hover:border-[#5B65DC]/20'
@@ -929,7 +931,7 @@ const FloatingFormModal = ({ isOpen, onClose, onSubmit }) => {
                         key={opt}
                         type="button"
                         onClick={() => setFormData(prev => ({ ...prev, lookingForCofounder: opt }))}
-                        className={`flex-1 px-4 py-3 rounded-2xl text-[18px] font-semibold border transition-all duration-300 ${
+                        className={`flex-1 px-4 py-3 rounded-2xl text-[15px] font-semibold border transition-all duration-300 ${
                           formData.lookingForCofounder === opt
                             ? 'bg-[#122056] text-white border-[#122056] shadow-lg shadow-[#122056]/10'
                             : 'bg-white/50 text-[#122056]/70 border-[#EEF0FD] hover:border-[#5B65DC]/20'
@@ -988,7 +990,7 @@ const FloatingFormModal = ({ isOpen, onClose, onSubmit }) => {
               <div className="pt-2 pb-2">
                 <button
                   type="submit"
-                  className="w-full px-8 py-4.5 rounded-full bg-[#6366f1] text-white text-[19px] font-bold tracking-wide shadow-md hover:bg-[#4f46e5] transition-all duration-200 flex items-center justify-center gap-2 group focus:outline-none focus:ring-4 focus:ring-[#6366f1]/20"
+                  className="w-full px-8 py-4.5 rounded-full bg-[#6366f1] text-white text-[16px] font-bold tracking-wide shadow-md hover:bg-[#4f46e5] transition-all duration-200 flex items-center justify-center gap-2 group focus:outline-none focus:ring-4 focus:ring-[#6366f1]/20"
                 >
                   <Sparkles size={20} className="-ml-1" />
                   Claim Your Free Access
@@ -1098,7 +1100,7 @@ const ThankYouPage = ({ founderName, niche }) => {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.6 }}
-          className="text-[18px] text-neutral-500 leading-relaxed mb-3"
+          className="text-[15px] text-neutral-500 leading-relaxed mb-3"
         >
           Welcome aboard, <span className="font-bold text-[#122056]">{founderName}</span>!
         </motion.p>
@@ -1107,7 +1109,7 @@ const ThankYouPage = ({ founderName, niche }) => {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.6 }}
-          className="text-[18px] text-neutral-400 leading-relaxed mb-8"
+          className="text-[15px] text-neutral-400 leading-relaxed mb-8"
         >
           You have registered as an <span className="font-bold text-[#5B65DC]">Early Access Member</span>.
           We're taking you to curated startups and opportunities in your niche.
@@ -1121,7 +1123,7 @@ const ThankYouPage = ({ founderName, niche }) => {
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#5B65DC]/10 border border-[#5B65DC]/20 mb-8"
         >
           <Target size={14} className="text-[#5B65DC]" />
-          <span className="text-[18px] font-bold text-[#5B65DC]">{niche}</span>
+          <span className="text-[15px] font-bold text-[#5B65DC]">{niche}</span>
         </motion.div>
 
         {/* Progress bar */}
@@ -1139,7 +1141,7 @@ const ThankYouPage = ({ founderName, niche }) => {
               transition={{ duration: 5, ease: 'linear' }}
             />
           </div>
-          <p className="text-[18px] text-neutral-400">
+          <p className="text-[15px] text-neutral-400">
             Redirecting in <span className="font-bold text-[#122056]">{countdown}s</span>...
           </p>
         </motion.div>
@@ -1150,7 +1152,7 @@ const ThankYouPage = ({ founderName, niche }) => {
           animate={{ opacity: 1 }}
           transition={{ delay: 1 }}
           onClick={() => navigate(`/early-access-opportunities?niche=${encodeURIComponent(niche)}&name=${encodeURIComponent(founderName)}`)}
-          className="mt-6 inline-flex items-center gap-2 text-[18px] font-semibold text-[#5B65DC] hover:underline"
+          className="mt-6 inline-flex items-center gap-2 text-[15px] font-semibold text-[#5B65DC] hover:underline"
         >
           Skip to opportunities
           <ArrowRight size={14} />
@@ -1181,22 +1183,13 @@ const FooterCTA = ({ onOpenForm }) => (
           <span className="text-[11px] font-semibold tracking-[0.15em] uppercase text-neutral-400">First 100 Spots</span>
         </span>
 
-        <h2 className="font-bold text-[clamp(1.8rem,4.5vw,3rem)] leading-[1.08] tracking-tight text-white mb-6">
+        <h2 className="font-bold text-[clamp(1.5rem,3vw,2.5rem)] leading-[1.08] tracking-tight text-white mb-6">
           Be among the first 100 student founders<br className="hidden sm:block" /> shaping the next startup ecosystem.
         </h2>
 
-        <p className="text-[18px] text-neutral-400 leading-relaxed max-w-xl mx-auto mb-10">
+        <p className="text-[15px] text-neutral-400 leading-relaxed max-w-xl mx-auto mb-10">
           This isn't just a platform — it's your launchpad. Get exclusive access, connect with fellow founders, and build something that matters.
         </p>
-
-        <button
-          onClick={onOpenForm}
-          className="inline-flex items-center gap-2 px-12 py-4.5 rounded-full bg-[#6366f1] text-white text-[19px] font-bold tracking-wide shadow-md hover:bg-[#4f46e5] transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-[#6366f1]/20 group"
-        >
-          <Sparkles size={20} className="-ml-1" />
-          Claim Your Free Access
-          <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-        </button>
       </motion.div>
     </div>
   </section>
@@ -1211,8 +1204,23 @@ const StudentFounderEarlyAccessPage = () => {
   const [showThankYou, setShowThankYou] = useState(false)
   const [submittedData, setSubmittedData] = useState(null)
 
-  const handleFormSubmit = (formData) => {
+  const handleFormSubmit = async (formData) => {
     console.log('Founder signup:', formData)
+    
+    try {
+      const timestamp = Date.now()
+      const rawName = formData.founderName || 'Founder'
+      const safeName = rawName.replace(/[\.\#\$\/\[\]]/g, "") + "_" + timestamp
+      
+      const newFounderRef = ref(db, `early founders/names/${safeName}/details`)
+      await set(newFounderRef, {
+        ...formData,
+        submittedAt: new Date().toISOString()
+      })
+    } catch (err) {
+      console.error("Error saving to Firebase:", err)
+    }
+
     setShowForm(false)
     setSubmittedData(formData)
     setShowThankYou(true)
@@ -1239,7 +1247,7 @@ const StudentFounderEarlyAccessPage = () => {
       >
         <Link
           to="/"
-          className="text-[24px] font-extrabold tracking-tighter text-[#122056] hover:opacity-70 transition-opacity"
+          className="text-[20px] font-extrabold tracking-tighter text-[#122056] hover:opacity-70 transition-opacity"
         >
           Foundr<span className="text-[#5B65DC]">HUB</span>
         </Link>
