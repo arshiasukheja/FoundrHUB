@@ -16,13 +16,7 @@ const DashboardHeader = () => {
       className="w-full flex items-center gap-6"
     >
       <div className="flex-1" />
-      <button
-        type="button"
-        className="px-4 py-2 rounded-xl bg-[#6366f1] text-white font-semibold shadow"
-        onClick={() => window.dispatchEvent(new CustomEvent('open-onboarding'))}
-      >
-        Open Onboarding
-      </button>
+      {/* Onboarding button removed */}
       <div className="flex items-center gap-3">
         <button
           type="button"
