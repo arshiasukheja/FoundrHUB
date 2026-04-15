@@ -119,7 +119,15 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
-        <Route path="/dashboard" element={<Navigate to={isAuthenticated ? getDashboardPathForRole(user?.role) : '/signin'} replace />} />
+        <Route
+          path="/dashboard"
+          element={
+            <Navigate
+              to={isAuthenticated ? `${getDashboardPathForRole(user?.role)}${location.search || ''}` : '/signin'}
+              replace
+            />
+          }
+        />
         <Route
           path="/dashboard/investor"
           element={

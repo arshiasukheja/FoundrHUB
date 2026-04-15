@@ -5,6 +5,11 @@ import { buildDefaultUserData } from './seedData'
 export const ensureUserData = async (uid, profile) => {
   const userRef = ref(db, `users/${uid}`)
   const snapshot = await get(userRef)
+  const profileDefaults = {
+    hasConnectedSources: false,
+    ga_connected: false,
+    payments_connected: false
+  }
 
   if (!snapshot.exists()) {
     const data = buildDefaultUserData(profile)
@@ -12,8 +17,11 @@ export const ensureUserData = async (uid, profile) => {
     return data
   }
 
-  if (profile) {
-    await update(ref(db, `users/${uid}/profile`), profile)
+  const existingProfile = snapshot.val()?.profile || {}
+  const normalizedProfile = { ...profileDefaults, ...existingProfile, ...profile }
+
+  if (profile || Object.keys(profileDefaults).some((key) => existingProfile[key] === undefined)) {
+    await update(ref(db, `users/${uid}/profile`), normalizedProfile)
   }
 
   return snapshot.val()

@@ -30,6 +30,13 @@ const Card = ({ children, className = '' }) => (
 const AIAnalyticsPage = () => {
   const { user } = useAuth()
   const [implementedFixIds, setImplementedFixIds] = useState([])
+  const [expandedRecommendationId, setExpandedRecommendationId] = useState(null)
+  const [fundraisingInput, setFundraisingInput] = useState({
+    raiseAmount: '4.5',
+    runwayMonths: '8',
+    growthRate: '18',
+    retentionRate: '41'
+  })
   const [allocationInput, setAllocationInput] = useState({
     valuation: '12.5',
     equity: '18',
@@ -109,6 +116,27 @@ const AIAnalyticsPage = () => {
     update(ref(db, `users/${user.uid}/aiAnalytics/allocationDefaults`), { [key]: value })
   }
 
+  const fundraisingAssessment = useMemo(() => {
+    const raiseAmount = toNumber(fundraisingInput.raiseAmount)
+    const runwayMonths = toNumber(fundraisingInput.runwayMonths)
+    const growthRate = toNumber(fundraisingInput.growthRate)
+    const retentionRate = toNumber(fundraisingInput.retentionRate)
+
+    const score =
+      (growthRate >= 15 ? 1 : 0) +
+      (retentionRate >= 40 ? 1 : 0) +
+      (runwayMonths >= 6 ? 1 : 0)
+
+    const verdict = score >= 2 ? 'Effective' : 'Needs work'
+    const tone = score >= 2 ? 'text-emerald-600 bg-emerald-50 border-emerald-100' : 'text-rose-600 bg-rose-50 border-rose-100'
+
+    const guidance = score >= 2
+      ? `Your inputs look investor-ready for a Rs${raiseAmount.toFixed(1)}Cr raise. Keep retention stable and maintain a 6+ month runway.`
+      : 'Tighten retention or growth before raising. Aim for 15%+ growth and 40%+ retention to improve your odds.'
+
+    return { verdict, tone, guidance }
+  }, [fundraisingInput])
+
   const markImplemented = (id) => {
     setImplementedFixIds((prev) => {
       const next = prev.includes(id) ? prev : [...prev, id]
@@ -143,60 +171,68 @@ const AIAnalyticsPage = () => {
           </section>
 
           <section className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-            <Card className="xl:col-span-5 p-6 lg:p-7">
-              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#6366f1]">What You Should Do Next</p>
-              <h2 className="font-serif text-2xl text-[#1f2937] mt-1">Top 3 actions</h2>
-              <div className="mt-4 space-y-4">
+            <Card className="xl:col-span-8 p-6 lg:p-7">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#6366f1]">What You Should Do Next</p>
+              <h2 className="font-serif text-3xl text-[#1f2937] mt-1">Top 3 actions</h2>
+              <div className="mt-5 space-y-4">
                 {(recommendations.length ? recommendations : [
-                  { id: 'a1', title: 'Fix investor follow-up lag', reason: 'Warm leads are aging past their response window.', fix: 'Send a 2-line traction memo within 48 hours and propose a 20-min call.', impact: 'Increase close rate by ~12%' },
-                  { id: 'a2', title: 'Improve activation conversion', reason: 'Trial users are not hitting the aha moment quickly.', fix: 'Add a guided onboarding checklist with the first success action.', impact: 'Lift activation by 8-10%' },
-                  { id: 'a3', title: 'Tighten positioning', reason: 'Messaging is broad and founders look similar.', fix: 'Refine ICP to top 2 segments and update deck narrative.', impact: 'Reduce investor objections by 15%' }
-                ]).slice(0, 3).map((item) => (
-                  <div key={item.id} className="rounded-2xl border border-[#eef0f5] bg-[#fbfcff] p-4">
-                    <p className="text-sm font-bold text-[#1f2937]">{item.title}</p>
-                    <p className="text-xs text-[#6b7280] mt-2"><span className="font-semibold">Problem:</span> {item.reason}</p>
-                    <p className="text-xs text-[#6b7280] mt-1"><span className="font-semibold">Action:</span> {item.fix}</p>
-                    <p className="text-xs font-semibold text-emerald-700 mt-2">Impact: {item.impact}</p>
-                  </div>
-                ))}
+                  { id: 'r1', title: 'Fix onboarding drop in first session', reason: 'Most users bounce before completing setup step 2.', fix: 'Replace long setup with 2-step onboarding + sample data autofill.', impact: 'Lift activation by ~18%' },
+                  { id: 'r2', title: 'Improve pricing page conversion', reason: 'Annual plan value prop is not visible above the fold.', fix: 'Move annual plan card to first position and add savings badge near CTA.', impact: 'Increase paid conversion by ~11%' },
+                  { id: 'r3', title: 'Target high-converting segment', reason: 'Teams with 5-10 members convert much higher than solo users.', fix: 'Launch a dedicated landing page and outreach flow for 5-10 team segment.', impact: 'Increase qualified pipeline by ~14%' }
+                ]).slice(0, 3).map((item, index) => {
+                  const isOpen = expandedRecommendationId === item.id
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => setExpandedRecommendationId(isOpen ? null : item.id)}
+                      className="w-full text-left rounded-2xl border border-[#eef0f5] bg-[#fbfcff] p-5 transition hover:shadow-[0_8px_20px_rgba(15,23,42,0.08)]"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-start gap-3">
+                          <div className="flex flex-col items-center gap-1">
+                            <span className="h-10 w-10 rounded-full bg-[#6366f1] text-white text-sm font-bold flex items-center justify-center shadow-[0_6px_16px_rgba(99,102,241,0.35)]">
+                              {index + 1}
+                            </span>
+                            <span className="text-[11px] font-semibold text-[#6366f1]">Step {index + 1}</span>
+                          </div>
+                          <div>
+                            <p className="text-base font-semibold text-[#1f2937]">{item.title}</p>
+                            <p className="text-sm text-[#4b5563] mt-1">Impact: {item.impact}</p>
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end gap-2">
+                          <span className="text-xs font-semibold text-[#94a3b8]">{index + 1} of 3</span>
+                          <ArrowRight size={18} className={`mt-1 text-[#6366f1] transition-transform ${isOpen ? 'rotate-90' : ''}`} />
+                        </div>
+                      </div>
+                      {isOpen && (
+                        <div className="mt-4 space-y-3 text-sm text-[#4b5563]">
+                          <p className="text-xs uppercase tracking-[0.18em] text-[#6366f1] font-semibold">AI Steps</p>
+                          <div className="grid gap-2">
+                            <div className="flex items-start gap-2">
+                              <span className="h-6 w-6 rounded-full bg-[#eef2ff] text-[#4f46e5] text-xs font-semibold flex items-center justify-center">1</span>
+                              <p><span className="font-semibold text-[#1f2937]">Diagnose:</span> {item.reason}</p>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <span className="h-6 w-6 rounded-full bg-[#eef2ff] text-[#4f46e5] text-xs font-semibold flex items-center justify-center">2</span>
+                              <p><span className="font-semibold text-[#1f2937]">Implement:</span> {item.fix}</p>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <span className="h-6 w-6 rounded-full bg-[#eef2ff] text-[#4f46e5] text-xs font-semibold flex items-center justify-center">3</span>
+                              <p><span className="font-semibold text-[#1f2937]">Validate:</span> Track the key metric for 7-14 days and confirm the lift matches the expected impact.</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </button>
+                  )
+                })}
               </div>
             </Card>
 
             <Card className="xl:col-span-4 p-6 lg:p-7">
-              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#6366f1]">How You Compare</p>
-              <h2 className="font-serif text-2xl text-[#1f2937] mt-1">Benchmark vs similar startups</h2>
-              <div className="mt-4 overflow-hidden rounded-2xl border border-[#eef0f5]">
-                <table className="w-full text-xs">
-                  <thead className="bg-[#f8fafc] text-[#6b7280]">
-                    <tr>
-                      <th className="px-4 py-3 text-left font-semibold">Metric</th>
-                      <th className="px-4 py-3 text-left font-semibold">You</th>
-                      <th className="px-4 py-3 text-left font-semibold">Benchmark</th>
-                      <th className="px-4 py-3 text-left font-semibold">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="text-[#1f2937]">
-                    {[
-                      { label: 'Growth rate', you: '18%', avg: '14%', good: true },
-                      { label: 'Conversion', you: '3.2%', avg: '4.1%', good: false },
-                      { label: 'Retention', you: '41%', avg: '38%', good: true }
-                    ].map((row) => (
-                      <tr key={row.label} className="border-t border-[#eef0f5]">
-                        <td className="px-4 py-3 font-semibold">{row.label}</td>
-                        <td className="px-4 py-3">{row.you}</td>
-                        <td className="px-4 py-3">{row.avg}</td>
-                        <td className={`px-4 py-3 font-semibold ${row.good ? 'text-emerald-600' : 'text-rose-500'}`}>
-                          {row.good ? 'Above avg' : 'Below avg'}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </Card>
-
-            <Card className="xl:col-span-3 p-6 lg:p-7">
-              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#6366f1]">Fundraising Intelligence</p>
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#6366f1]">Fundraising Intelligence</p>
               <h2 className="font-serif text-2xl text-[#1f2937] mt-1">Readiness & next move</h2>
               <div className="mt-4 space-y-3 text-sm">
                 <div className="flex items-center justify-between rounded-xl bg-[#f8fafc] border border-[#eef0f5] px-3 py-2">
@@ -218,6 +254,48 @@ const AIAnalyticsPage = () => {
                 <div className="rounded-xl border border-rose-100 bg-rose-50 px-3 py-2 text-rose-600 text-xs font-semibold">
                   Top objection: "Retention needs to stabilize before scale."
                 </div>
+              </div>
+
+              <div className="mt-5 rounded-2xl border border-[#eef0f5] bg-[#fbfcff] p-4">
+                <p className="text-xs font-semibold text-[#6366f1] uppercase tracking-[0.18em]">Check effectiveness</p>
+                <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
+                  <label className="text-xs font-semibold text-[#6b7280]">
+                    Raise amount (Cr)
+                    <input
+                      value={fundraisingInput.raiseAmount}
+                      onChange={(e) => setFundraisingInput((prev) => ({ ...prev, raiseAmount: e.target.value }))}
+                      className="mt-2 w-full rounded-xl border border-[#e5e7eb] bg-white px-3 py-2 text-sm"
+                    />
+                  </label>
+                  <label className="text-xs font-semibold text-[#6b7280]">
+                    Runway (months)
+                    <input
+                      value={fundraisingInput.runwayMonths}
+                      onChange={(e) => setFundraisingInput((prev) => ({ ...prev, runwayMonths: e.target.value }))}
+                      className="mt-2 w-full rounded-xl border border-[#e5e7eb] bg-white px-3 py-2 text-sm"
+                    />
+                  </label>
+                  <label className="text-xs font-semibold text-[#6b7280]">
+                    Growth rate (%)
+                    <input
+                      value={fundraisingInput.growthRate}
+                      onChange={(e) => setFundraisingInput((prev) => ({ ...prev, growthRate: e.target.value }))}
+                      className="mt-2 w-full rounded-xl border border-[#e5e7eb] bg-white px-3 py-2 text-sm"
+                    />
+                  </label>
+                  <label className="text-xs font-semibold text-[#6b7280]">
+                    Retention (%)
+                    <input
+                      value={fundraisingInput.retentionRate}
+                      onChange={(e) => setFundraisingInput((prev) => ({ ...prev, retentionRate: e.target.value }))}
+                      className="mt-2 w-full rounded-xl border border-[#e5e7eb] bg-white px-3 py-2 text-sm"
+                    />
+                  </label>
+                </div>
+                <div className={`mt-4 rounded-xl border px-3 py-2 text-sm font-semibold ${fundraisingAssessment.tone}`}>
+                  {fundraisingAssessment.verdict}
+                </div>
+                <p className="mt-2 text-xs text-[#6b7280]">{fundraisingAssessment.guidance}</p>
               </div>
             </Card>
           </section>
