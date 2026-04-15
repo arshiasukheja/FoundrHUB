@@ -30,6 +30,8 @@ import RoadmapPage from './pages/RoadmapPage'
 import PricingPage from './pages/PricingPage'
 import AnalyserPage from './pages/AnalyserPage'
 import StartupDiscoveryMapPage from './pages/StartupDiscoveryMapPage'
+import FounderIntelligencePage from './pages/FounderIntelligencePage'
+import InvestorMVPDashboard from './pages/InvestorMVPDashboard'
 import NicheValidationInsightsPage from './pages/NicheValidationInsightsPage'
 import CommunicationPage from './pages/CommunicationPage'
 
@@ -63,6 +65,7 @@ const AppRoutes = () => {
         <Route path="/pricing" element={<PageTransition><PricingPage /></PageTransition>} />
         <Route path="/analyser" element={<PageTransition><AnalyserPage /></PageTransition>} />
         <Route path="/startup-map" element={<PageTransition><StartupDiscoveryMapPage /></PageTransition>} />
+        <Route path="/founder-intelligence" element={<PageTransition><FounderIntelligencePage /></PageTransition>} />
         <Route path="/niche-validation" element={<PageTransition><NicheValidationInsightsPage /></PageTransition>} />
         <Route 
           path="/verify" 
@@ -164,6 +167,7 @@ const AppRoutes = () => {
             <Navigate to="/dashboard/discovery" replace />
           }
         />
+        <Route path="/investor-mvp" element={<PageTransition><InvestorMVPDashboard /></PageTransition>} />
       </Routes>
     </AnimatePresence>
   )

@@ -61,6 +61,11 @@ const Navbar = () => {
       label: 'Roadmap',
       to: '/roadmap',
       desc: 'Generate execution phases for your startup'
+    },
+    {
+      label: 'Founder Intelligence',
+      to: '/founder-intelligence',
+      desc: 'AI-powered ecosystem analytics & recommendations'
     }
   ]
 
