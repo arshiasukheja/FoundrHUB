@@ -5,11 +5,18 @@ const safeNumber = (value) => {
 
 const hasUrl = (value) => typeof value === 'string' && /^(https?:\/\/|blob:|data:)/i.test(value.trim())
 
-const splitCsv = (value) =>
-  (value || '')
+const splitCsv = (value) => {
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => String(item || '').trim())
+      .filter(Boolean)
+  }
+
+  return (value || '')
     .split(',')
     .map((item) => item.trim())
     .filter(Boolean)
+}
 
 const scoreClamp = (value) => Math.max(0, Math.min(100, Math.round(value)))
 
@@ -40,18 +47,15 @@ export const verificationSchema = {
     demoLink: 'string',
     githubUrl: 'string',
     websiteUrl: 'string',
-    screenshotLinks: 'csv-string'
+    screenshotLinks: 'array'
   },
   investorReadiness: {
-    totalUsers: 'number',
-    monthlyActiveUsers: 'number',
-    growthRateMonthly: 'number',
-    monthlyRevenue: 'number',
+    revenueMode: 'string',
+    revenueTillNow: 'number',
+    companyStartedAt: 'string',
     pitchDeckUrl: 'string',
     businessModel: 'string',
-    targetMarket: 'string',
-    competitors: 'string',
-    askAmountUsd: 'number'
+    marketSize: 'string'
   }
 }
 
@@ -79,13 +83,17 @@ export const initialVerificationForm = {
   demoLink: '',
   githubUrl: '',
   websiteUrl: '',
-  screenshotLinks: '',
+  screenshotLinks: [],
   totalUsers: '',
   monthlyActiveUsers: '',
   growthRateMonthly: '',
   monthlyRevenue: '',
+  revenueTillNow: '',
+  companyStartedAt: '',
+  revenueMode: 'pre-revenue',
   pitchDeckUrl: '',
   businessModel: '',
+  marketSize: '',
   targetMarket: '',
   competitors: '',
   askAmountUsd: ''
@@ -102,7 +110,7 @@ const aiFeedbackFromSignals = (signals) => {
     improve.push('Strengthen your LinkedIn footprint with recent activity and richer experience details.')
   }
   if (!signals.productProofStrong) {
-    missing.push('Add a working MVP/demo and at least 2 screenshots to prove build execution.')
+    missing.push('Add product images and a demo link to prove build execution.')
   }
   if (!signals.problemSolutionClear) {
     improve.push('Clarify the problem and solution in concrete, measurable terms.')
@@ -183,36 +191,30 @@ export const evaluateIdentityStep = (form) => {
 export const evaluateExecutionStep = (form) => {
   const screenshotCount = splitCsv(form.screenshotLinks).length
 
-  const productProof =
-    [form.mvpLink, form.demoLink, form.githubUrl, form.websiteUrl].filter(hasUrl).length / 4
+  const startupNameScore = (form.startupName || '').trim().length >= 3 ? 1 : 0
+  const demoProof = hasUrl(form.demoLink) ? 1 : 0
+  const screenshotProof = Math.min(screenshotCount, 3) / 3
 
-  const buildEvidence = Math.min((productProof * 0.7) + (Math.min(screenshotCount, 4) / 4) * 0.3, 1)
+  const productProof = (startupNameScore * 0.15) + (demoProof * 0.35) + (screenshotProof * 0.5)
 
-  const problemDepth = Math.min((form.problemStatement || '').trim().length / 240, 1)
-  const solutionDepth = Math.min((form.solutionDescription || '').trim().length / 280, 1)
-
-  const stageWeight = {
-    idea: 0.25,
-    wireframe: 0.45,
-    prototype: 0.65,
-    mvp: 0.82,
-    live: 1
-  }[form.prototypeStage] || 0.25
+  const problemDepth = Math.min((form.problemStatement || '').trim().length / 220, 1)
+  const solutionDepth = Math.min((form.solutionDescription || '').trim().length / 260, 1)
 
   const clarity = (problemDepth * 0.45) + (solutionDepth * 0.55)
-  const executionRaw = buildEvidence * 45 + clarity * 30 + stageWeight * 25
+  const executionRaw = productProof * 50 + clarity * 50
   const score = scoreClamp(executionRaw)
 
   const flags = []
-  if (productProof < 0.5) flags.push('Insufficient working product proof')
+  if (!startupNameScore) flags.push('Startup name is missing')
+  if (!demoProof) flags.push('Demo video URL is missing or invalid')
+  if (screenshotCount === 0) flags.push('No product images uploaded')
+  if (productProof < 0.5) flags.push('Insufficient product proof')
   if (clarity < 0.55) flags.push('Problem/solution clarity is low')
-  if (screenshotCount === 0) flags.push('No product screenshots uploaded')
-  if (form.prototypeStage === 'idea' && productProof === 0) flags.push('Idea-stage only submission')
 
   const signals = {
     verifiedContact: true,
     linkedinStrong: true,
-    productProofStrong: buildEvidence >= 0.6,
+    productProofStrong: productProof >= 0.6,
     problemSolutionClear: clarity >= 0.6,
     tractionSignalStrong: true,
     deckReady: true
@@ -224,46 +226,45 @@ export const evaluateExecutionStep = (form) => {
     signals,
     details: {
       productProof,
-      buildEvidence,
       clarity,
-      stageWeight,
       screenshotCount
     }
   }
 }
 
 export const evaluateReadinessStep = (form) => {
-  const totalUsers = safeNumber(form.totalUsers)
-  const mau = safeNumber(form.monthlyActiveUsers)
-  const growthRate = safeNumber(form.growthRateMonthly)
-  const monthlyRevenue = safeNumber(form.monthlyRevenue)
+  const revenueTillNow = safeNumber(form.revenueTillNow)
+  const revenueMode = form.revenueMode || 'pre-revenue'
+  const companyStartedAt = (form.companyStartedAt || '').trim()
 
-  const tractionScore =
-    Math.min(totalUsers / 10000, 1) * 0.35 +
-    Math.min(mau / 5000, 1) * 0.25 +
-    Math.min(growthRate / 25, 1) * 0.25 +
-    Math.min(monthlyRevenue / 25000, 1) * 0.15
+  const revenueSignal = revenueMode === 'revenue'
+    ? Math.min(revenueTillNow / 100000, 1)
+    : 0.2
 
   const narrativeScore =
-    Math.min((form.businessModel || '').trim().length / 180, 1) * 0.4 +
-    Math.min((form.targetMarket || '').trim().length / 160, 1) * 0.3 +
-    Math.min((form.competitors || '').trim().length / 140, 1) * 0.3
+    Math.min((form.businessModel || '').trim().length / 180, 1) * 0.55 +
+    Math.min((form.marketSize || '').trim().length / 120, 1) * 0.45
 
   const deckSignal = hasUrl(form.pitchDeckUrl) ? 1 : 0
-  const readinessRaw = tractionScore * 50 + narrativeScore * 35 + deckSignal * 15
+  const startDateSignal = revenueMode === 'revenue' && companyStartedAt ? 1 : revenueMode === 'pre-revenue' ? 0.4 : 0
+  const readinessRaw = revenueSignal * 40 + narrativeScore * 40 + deckSignal * 15 + startDateSignal * 5
   const score = scoreClamp(readinessRaw)
 
   const flags = []
+  if (revenueMode === 'revenue') {
+    if (!companyStartedAt) flags.push('Company start date is missing')
+    if (!revenueTillNow) flags.push('Revenue till now is missing')
+  }
   if (!hasUrl(form.pitchDeckUrl)) flags.push('Pitch deck missing')
-  if (tractionScore < 0.35) flags.push('Weak traction evidence')
-  if (narrativeScore < 0.55) flags.push('Market model narrative needs depth')
+  if ((form.businessModel || '').trim().length < 30) flags.push('Revenue model needs more detail')
+  if ((form.marketSize || '').trim().length < 10) flags.push('Market size is missing or too vague')
 
   const signals = {
     verifiedContact: true,
     linkedinStrong: true,
     productProofStrong: true,
     problemSolutionClear: true,
-    tractionSignalStrong: tractionScore >= 0.5,
+    tractionSignalStrong: revenueSignal >= 0.5,
     deckReady: deckSignal === 1
   }
 
@@ -272,9 +273,10 @@ export const evaluateReadinessStep = (form) => {
     flags,
     signals,
     details: {
-      tractionScore,
+      revenueSignal,
       narrativeScore,
-      deckSignal
+      deckSignal,
+      companyStartedAt
     }
   }
 }
@@ -374,11 +376,17 @@ export const toInvestorRecord = ({ form, scores, badges, flags, dropoff }) => {
       monthlyRevenue: safeNumber(form.monthlyRevenue)
     },
     links: {
-      mvpLink: form.mvpLink,
-      githubUrl: form.githubUrl,
-      websiteUrl: form.websiteUrl,
+      demoLink: form.demoLink,
+      screenshotLinks: form.screenshotLinks,
       pitchDeckUrl: form.pitchDeckUrl,
       linkedinUrl: form.linkedinUrl
+    },
+    readiness: {
+      revenueMode: form.revenueMode || 'pre-revenue',
+      revenueTillNow: safeNumber(form.revenueTillNow),
+      companyStartedAt: form.companyStartedAt || '',
+      businessModel: form.businessModel || '',
+      marketSize: form.marketSize || ''
     }
   }
 }

@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import { useAuth } from '../context/AuthContext'
 import {
@@ -85,8 +84,26 @@ const identityFieldConfig = {
     placeholder: 'Founder at FoundrHUB | Ex-PM at Acme | 8+ years in SaaS',
     helper: 'Share concise experience highlights to support your founder story.',
     trustCue: 'Used only for credibility assessment in this verification flow.'
+  },
+  category: {
+    label: 'Founder Niche',
+    placeholder: 'Select your niche',
+    helper: 'Choose the niche that best matches the startup you are building.',
+    trustCue: 'Used for profile matching and startup categorization.'
   }
 }
+
+const founderNicheOptions = [
+  'SaaS',
+  'AI',
+  'FinTech',
+  'HealthTech',
+  'Consumer',
+  'EdTech',
+  'Climate',
+  'Marketplace',
+  'Other'
+]
 
 const stepMeta = [
   {
@@ -98,7 +115,7 @@ const stepMeta = [
   {
     key: 'execution',
     title: 'Execution Proof',
-    subtitle: 'Working product, quality proof, clarity checks',
+    subtitle: 'Startup name, problem/solution, product images, demo URL',
     output: 'Execution Score'
   },
   {
@@ -118,6 +135,60 @@ const userRangeOptions = [
 
 const askSuggestions = [25000, 50000, 100000, 250000, 500000]
 
+const buildRevenueModelSummary = (rawText) => {
+  const text = String(rawText || '').trim()
+  if (!text) return []
+
+  const lines = text
+    .split(/\n+/)
+    .map((line) => line.replace(/\s+/g, ' ').trim())
+    .filter(Boolean)
+
+  const tokens = lines.map((line) => line.toLowerCase())
+  const hasFounder = tokens.some((line) => line.includes('founder'))
+  const hasInvestor = tokens.some((line) => line.includes('investor'))
+
+  const planNames = ['free', 'pro', 'premium', 'elite']
+  const planSet = new Set()
+  lines.forEach((line) => {
+    planNames.forEach((name) => {
+      if (line.toLowerCase() === name) planSet.add(name)
+    })
+  })
+
+  const currencyMatches = text.match(/[₹$]\s?\d[\d,]*/g) || []
+  const normalizedPrices = currencyMatches
+    .map((match) => match.replace('₹', 'INR ').replace('$', 'USD '))
+    .map((value) => value.replace(/\s+/g, ' '))
+
+  const benefits = lines.filter((line) => {
+    const lower = line.toLowerCase()
+    return !planNames.includes(lower) && !lower.includes('founder plans') && !lower.includes('investor plans') && !lower.match(/^[₹$]/)
+  })
+
+  const topBenefits = benefits.slice(0, 8)
+  const segments = []
+
+  if (hasFounder || hasInvestor) {
+    const label = [hasFounder ? 'Founder plans' : null, hasInvestor ? 'Investor plans' : null].filter(Boolean).join(' and ')
+    segments.push(`Plan tracks: ${label}`)
+  }
+
+  if (planSet.size > 0) {
+    segments.push(`Tiers: ${Array.from(planSet).map((item) => item[0].toUpperCase() + item.slice(1)).join(', ')}`)
+  }
+
+  if (normalizedPrices.length > 0) {
+    segments.push(`Pricing: ${Array.from(new Set(normalizedPrices)).slice(0, 5).join(', ')}`)
+  }
+
+  if (topBenefits.length > 0) {
+    segments.push(`Benefits: ${topBenefits.join('; ')}`)
+  }
+
+  return segments
+}
+
 const StepTag = ({ index, active, complete }) => (
   <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-sm font-black border transition-all ${complete ? 'bg-emerald-500 text-white border-emerald-500' : active ? 'bg-[#122056] text-white border-[#122056]' : 'bg-white text-[#122056]/50 border-[#E6EAFD]'}`}>
     {complete ? <CheckCircle size={16} /> : `0${index + 1}`}
@@ -130,6 +201,8 @@ const VerifyPage = () => {
   const [step, setStep] = useState(0)
   const [form, setForm] = useState(initialVerificationForm)
   const [submitted, setSubmitted] = useState(false)
+  const [verificationStatus, setVerificationStatus] = useState('idle')
+  const [verificationIssues, setVerificationIssues] = useState([])
   const [identityResult, setIdentityResult] = useState(null)
   const [executionResult, setExecutionResult] = useState(null)
   const [readinessResult, setReadinessResult] = useState(null)
@@ -141,6 +214,7 @@ const VerifyPage = () => {
   const [identityTouched, setIdentityTouched] = useState({})
   const [linkedInStatus, setLinkedInStatus] = useState({ state: 'idle', message: '' })
   const [identityUploads, setIdentityUploads] = useState({ governmentIdName: '', selfieName: '' })
+  const [productUploads, setProductUploads] = useState([])
   const [readinessTouched, setReadinessTouched] = useState({})
   const [revenueMode, setRevenueMode] = useState('pre-revenue')
   const [deckUpload, setDeckUpload] = useState({ status: 'idle', fileName: '' })
@@ -152,6 +226,8 @@ const VerifyPage = () => {
   const selfieCameraRef = useRef(null)
   const selfieGalleryRef = useRef(null)
   const deckUploadRef = useRef(null)
+  const productImagesRef = useRef(null)
+  const verificationTimerRef = useRef(null)
 
   const isEmailValid = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || '').trim())
   const isUrlValid = (value) => /^(https?:\/\/|data:image\/|blob:)/i.test(String(value || '').trim())
@@ -184,6 +260,7 @@ const VerifyPage = () => {
     if (key === 'governmentIdNumber') {
       if (!String(value || '').trim()) return 'Enter your government ID number.'
       if (String(value || '').trim().length < 6) return 'This ID number looks too short. Please re-check it.'
+      if (!/^[a-z0-9-]{6,}$/i.test(String(value || '').trim())) return 'Use a valid ID number (letters and numbers only).'
     }
 
     if (key === 'selfieUrl') {
@@ -201,6 +278,10 @@ const VerifyPage = () => {
     if (key === 'linkedinHeadline') {
       if (!String(value || '').trim()) return 'Share a short headline and experience summary.'
       if (String(value || '').trim().length < 20) return 'Add a bit more detail so reviewers can trust your background.'
+    }
+
+    if (key === 'category') {
+      if (!String(value || '').trim()) return 'Choose a niche for your startup profile.'
     }
 
     return ''
@@ -225,6 +306,32 @@ const VerifyPage = () => {
     event.target.value = ''
   }
 
+  const handleProductImagesUpload = async (event) => {
+    const files = Array.from(event.target.files || [])
+    if (!files.length) return
+
+    const imageFiles = files.filter((file) => file.type.startsWith('image/'))
+    if (!imageFiles.length) {
+      event.target.value = ''
+      return
+    }
+
+    const readFile = (file) => new Promise((resolve) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(String(reader.result || ''))
+      reader.onerror = () => resolve('')
+      reader.readAsDataURL(file)
+    })
+
+    const dataUrls = (await Promise.all(imageFiles.map(readFile))).filter(Boolean)
+    if (dataUrls.length > 0) {
+      up('screenshotLinks', dataUrls)
+      setProductUploads(imageFiles.map((file) => file.name))
+    }
+
+    event.target.value = ''
+  }
+
   const up = (k, v) => {
     setForm((prev) => ({ ...prev, [k]: v }))
     setSessionMeta((prev) => ({ ...prev, lastUpdatedAt: Date.now() }))
@@ -245,28 +352,30 @@ const VerifyPage = () => {
   const readinessLive = useMemo(() => evaluateReadinessStep(form), [form])
 
   const readinessSections = useMemo(() => {
-    const tractionComplete = Boolean(form.totalUsers) && Boolean(form.monthlyActiveUsers) && Number(form.growthRateMonthly || 0) > 0
-    const businessComplete = Boolean(form.businessModel?.trim()) && Boolean(form.askAmountUsd) && Boolean(form.pitchDeckUrl)
-    const marketComplete = Boolean(form.targetMarket?.trim()) && Boolean(form.competitors?.trim())
+    const revenueComplete = form.revenueMode === 'revenue'
+      ? Boolean(form.companyStartedAt?.trim()) && Boolean(form.revenueTillNow)
+      : true
+    const pitchComplete = Boolean(form.pitchDeckUrl) && Boolean(form.businessModel?.trim())
+    const marketComplete = Boolean(form.marketSize?.trim())
 
     return [
       {
-        key: 'traction',
-        title: 'Traction Signals',
-        complete: tractionComplete,
-        contribution: Math.round((readinessLive.details?.tractionScore || 0) * 50)
+        key: 'revenue',
+        title: 'Revenue Status',
+        complete: revenueComplete,
+        contribution: Math.round((readinessLive.details?.revenueSignal || 0) * 40)
       },
       {
-        key: 'business',
-        title: 'Business Model',
-        complete: businessComplete,
-        contribution: Math.round((readinessLive.details?.narrativeScore || 0) * 35)
+        key: 'pitch',
+        title: 'Pitch Deck & Revenue Model',
+        complete: pitchComplete,
+        contribution: Math.round((readinessLive.details?.narrativeScore || 0) * 40)
       },
       {
         key: 'market',
-        title: 'Market Understanding',
+        title: 'Market Size',
         complete: marketComplete,
-        contribution: (readinessLive.details?.deckSignal || 0) ? 15 : 0
+        contribution: (readinessLive.details?.deckSignal || 0) ? 20 : 0
       }
     ]
   }, [form, readinessLive])
@@ -274,23 +383,13 @@ const VerifyPage = () => {
   const readinessCriticalErrors = useMemo(() => {
     const issues = []
 
-    if (!form.totalUsers) issues.push('Add a traction range or manual total users input.')
-    if (!form.growthRateMonthly) issues.push('Set monthly growth to show momentum.')
-    if (!form.askAmountUsd) issues.push('Add your funding ask to complete readiness analysis.')
+    if (form.revenueMode === 'revenue') {
+      if (!form.companyStartedAt?.trim()) issues.push('Add when the company was started.')
+      if (!form.revenueTillNow) issues.push('Add revenue till now.')
+    }
     if (!form.pitchDeckUrl) issues.push('Upload your pitch deck to unlock investor readiness.')
-    if (!form.businessModel?.trim()) issues.push('Describe your business model in at least a few lines.')
-    if (!form.targetMarket?.trim()) issues.push('Define your target market clearly.')
-    if (!form.competitors?.trim()) issues.push('List competitors and differentiation.')
-
-    if (Number(form.totalUsers || 0) > 10000 && Number(form.monthlyActiveUsers || 0) < 50) {
-      issues.push('User count and MAU seem inconsistent. Please verify traction accuracy.')
-    }
-    if (Number(form.growthRateMonthly || 0) > 60 && revenueMode === 'pre-revenue' && Number(form.totalUsers || 0) < 100) {
-      issues.push('Very high growth with low users looks unrealistic. Recheck metrics.')
-    }
-    if ((form.competitors || '').trim().toLowerCase() === 'none') {
-      issues.push('No competitors is usually unrealistic. Mention alternatives and your edge.')
-    }
+    if (!form.businessModel?.trim()) issues.push('Describe your revenue model in at least a few lines.')
+    if (!form.marketSize?.trim()) issues.push('Define your market size clearly.')
 
     return issues
   }, [form, revenueMode])
@@ -300,69 +399,60 @@ const VerifyPage = () => {
     const warnings = []
     const redFlags = []
 
-    if (Number(form.growthRateMonthly || 0) >= 15) positives.push('Strong early traction momentum.')
-    if (Number(form.totalUsers || 0) >= 1000) positives.push('Healthy top-of-funnel adoption signal.')
-    if (revenueMode === 'revenue' && Number(form.monthlyRevenue || 0) > 0) positives.push('Revenue signal improves investor confidence.')
+    if (revenueMode === 'revenue' && Number(form.revenueTillNow || 0) > 0) positives.push('Revenue evidence improves investor confidence.')
+    if ((form.businessModel || '').trim().length >= 45) positives.push('Revenue model is detailed enough for review.')
+    if ((form.marketSize || '').trim().length >= 20) positives.push('Market size framing looks credible.')
 
-    if (revenueMode === 'pre-revenue' && Number(form.growthRateMonthly || 0) < 10) warnings.push('No revenue yet. Pair this with stronger growth proof.')
-    if ((form.businessModel || '').trim().length < 45) warnings.push('Business model is unclear. Add pricing and monetization mechanics.')
+    if (revenueMode === 'pre-revenue') warnings.push('Pre-revenue is acceptable, but the model and market size need to be tight.')
+    if ((form.businessModel || '').trim().length < 45) warnings.push('Revenue model is unclear. Add pricing and monetization mechanics.')
 
-    if ((form.competitors || '').trim().toLowerCase() === 'none') redFlags.push('No competitors is unrealistic.')
-    if (Number(form.totalUsers || 0) > 50000 && Number(form.monthlyRevenue || 0) === 0 && revenueMode === 'revenue') {
-      redFlags.push('Large user base with no revenue data looks inconsistent.')
+    if (revenueMode === 'revenue' && (!form.companyStartedAt?.trim() || !form.revenueTillNow)) {
+      redFlags.push('Revenue mode is selected but start date or revenue history is missing.')
     }
 
     return { positives, warnings, redFlags }
   }, [form, revenueMode])
 
   const readinessBadges = useMemo(() => {
-    const builder = Boolean(form.mvpLink || form.demoLink || form.githubUrl || form.websiteUrl)
-    const growingStartup = Number(form.totalUsers || 0) > 0 && Number(form.growthRateMonthly || 0) >= 8
+    const builder = Boolean(form.pitchDeckUrl || form.businessModel)
+    const revenueReady = revenueMode === 'revenue' ? Boolean(form.companyStartedAt?.trim()) && Boolean(form.revenueTillNow) : true
     const investorReady = readinessCriticalErrors.length === 0 && readinessLive.score >= 65
-    return { builder, growingStartup, investorReady }
+    return { builder, revenueReady, investorReady }
   }, [form, readinessCriticalErrors, readinessLive])
 
   const readinessNextAction = useMemo(() => {
-    if (!form.pitchDeckUrl) return 'Upload a strong pitch deck to unlock investor readiness confidence.'
-    if ((form.businessModel || '').trim().length < 45) return 'Clarify pricing, margins, and monetization in your business model.'
-    if (revenueMode === 'pre-revenue' && Number(form.growthRateMonthly || 0) < 10) return 'Strengthen traction narrative with user retention or growth proof.'
-    if ((form.competitors || '').trim().toLowerCase() === 'none') return 'Add realistic competitors and your moat.'
-    return 'Your profile looks strong. Finalize and submit for verification.'
+    if (revenueMode === 'revenue' && (!form.companyStartedAt?.trim() || !form.revenueTillNow)) return 'Add the company start date and revenue till now.'
+    if (!form.pitchDeckUrl) return 'Upload a pitch deck to complete investor readiness.'
+    if ((form.businessModel || '').trim().length < 45) return 'Clarify your revenue model, pricing, and monetization.'
+    if ((form.marketSize || '').trim().length < 10) return 'Add a clear market size estimate.'
+    return 'Your readiness profile looks strong. Finalize and submit for verification.'
   }, [form, revenueMode])
 
   const executionLive = useMemo(() => evaluateExecutionStep(form), [form])
 
-  const executionStageOptions = useMemo(() => ([
-    { label: 'Idea', value: 'idea' },
-    { label: 'Wireframe', value: 'wireframe' },
-    { label: 'Prototype', value: 'prototype' },
-    { label: 'MVP', value: 'mvp' },
-    { label: 'Live', value: 'live' }
-  ]), [])
-
   const executionSections = useMemo(() => {
-    const productComplete = [form.mvpLink, form.demoLink, form.githubUrl, form.websiteUrl].filter((value) => isUrlValid(value)).length >= 2
+    const startupComplete = (form.startupName || '').trim().length >= 3
     const narrativeComplete = (form.problemStatement || '').trim().length >= 40 && (form.solutionDescription || '').trim().length >= 60
-    const screenshotComplete = (form.screenshotLinks || '').split(',').map((v) => v.trim()).filter(Boolean).length >= 2
+    const mediaComplete = Array.isArray(form.screenshotLinks) && form.screenshotLinks.length >= 1 && isUrlValid(form.demoLink)
 
     return [
       {
-        key: 'product',
-        title: 'Product Proof',
-        complete: productComplete,
-        contribution: Math.round((executionLive.details?.buildEvidence || 0) * 45)
+        key: 'startup',
+        title: 'Startup Basics',
+        complete: startupComplete,
+        contribution: Math.round((executionLive.details?.productProof || 0) * 15)
       },
       {
         key: 'narrative',
         title: 'Problem-Solution Clarity',
         complete: narrativeComplete,
-        contribution: Math.round((executionLive.details?.clarity || 0) * 30)
+        contribution: Math.round((executionLive.details?.clarity || 0) * 50)
       },
       {
-        key: 'stage',
-        title: 'Build Stage & Evidence',
-        complete: screenshotComplete,
-        contribution: Math.round((executionLive.details?.stageWeight || 0) * 25)
+        key: 'media',
+        title: 'Product Images & Demo',
+        complete: mediaComplete,
+        contribution: Math.round((executionLive.details?.productProof || 0) * 35)
       }
     ]
   }, [form, executionLive, isUrlValid])
@@ -370,8 +460,11 @@ const VerifyPage = () => {
   const executionCriticalErrors = useMemo(() => {
     const issues = []
 
-    if ([form.mvpLink, form.demoLink, form.githubUrl, form.websiteUrl].filter((value) => isUrlValid(value)).length < 2) {
-      issues.push('Add at least 2 valid links among MVP, demo, GitHub, or website.')
+    if ((form.startupName || '').trim().length < 3) {
+      issues.push('Enter your startup name.')
+    }
+    if (!isUrlValid(form.demoLink)) {
+      issues.push('Add a valid demo video URL.')
     }
     if ((form.problemStatement || '').trim().length < 40) {
       issues.push('Expand your problem statement with concrete pain points.')
@@ -379,25 +472,25 @@ const VerifyPage = () => {
     if ((form.solutionDescription || '').trim().length < 60) {
       issues.push('Add more detail in solution description with workflow clarity.')
     }
-    if ((form.screenshotLinks || '').split(',').map((v) => v.trim()).filter(Boolean).length === 0) {
-      issues.push('Attach at least one product screenshot URL.')
-    }
-    if (form.prototypeStage === 'idea' && [form.mvpLink, form.demoLink, form.githubUrl, form.websiteUrl].filter((value) => isUrlValid(value)).length > 0) {
-      issues.push('Prototype stage says idea, but links suggest build exists. Reconcile this signal.')
+    if (!Array.isArray(form.screenshotLinks) || form.screenshotLinks.length === 0) {
+      issues.push('Attach at least one product image.')
     }
 
     return issues
   }, [form, isUrlValid])
 
   const executionNextAction = useMemo(() => {
-    if ([form.mvpLink, form.demoLink, form.githubUrl, form.websiteUrl].filter((value) => isUrlValid(value)).length < 2) {
-      return 'Add one more proof link to strengthen execution confidence.'
+    if ((form.startupName || '').trim().length < 3) {
+      return 'Add your startup name first.'
+    }
+    if (!isUrlValid(form.demoLink)) {
+      return 'Add a demo video URL to strengthen execution confidence.'
     }
     if ((form.solutionDescription || '').trim().length < 60) {
       return 'Deepen your solution flow: onboarding, core loop, and differentiator.'
     }
-    if ((form.screenshotLinks || '').split(',').map((v) => v.trim()).filter(Boolean).length < 2) {
-      return 'Add screenshot links showing onboarding, dashboard, and a key user outcome.'
+    if (!Array.isArray(form.screenshotLinks) || form.screenshotLinks.length < 1) {
+      return 'Add product images showing the core experience and key outcome.'
     }
     return 'Execution proof looks solid. Move to traction and investor readiness.'
   }, [form, isUrlValid])
@@ -411,7 +504,8 @@ const VerifyPage = () => {
     return (
       !getIdentityFieldError('founderName', form.founderName) &&
       !getIdentityFieldError('officialEmail', form.officialEmail) &&
-      !getIdentityFieldError('city', form.city)
+      !getIdentityFieldError('city', form.city) &&
+      !getIdentityFieldError('category', form.category)
     )
   }, [form])
 
@@ -432,6 +526,7 @@ const VerifyPage = () => {
     'founderName',
     'officialEmail',
     'city',
+    'category',
     'governmentIdUrl',
     'governmentIdNumber',
     'selfieUrl',
@@ -547,10 +642,30 @@ const VerifyPage = () => {
   }, [form.officialEmail, form.emailVerified])
 
   useEffect(() => {
-    if (revenueMode === 'pre-revenue' && String(form.monthlyRevenue || '').trim() !== '') {
-      setForm((prev) => ({ ...prev, monthlyRevenue: '' }))
+    return () => {
+      if (verificationTimerRef.current) {
+        clearTimeout(verificationTimerRef.current)
+      }
     }
-  }, [revenueMode, form.monthlyRevenue])
+  }, [])
+
+  useEffect(() => {
+    if (verificationStatus === 'verified') {
+      const timer = setTimeout(() => {
+        navigate('/dashboard/founder')
+      }, 1200)
+      return () => clearTimeout(timer)
+    }
+  }, [verificationStatus, navigate])
+
+  useEffect(() => {
+    if (form.revenueMode !== revenueMode) {
+      setForm((prev) => ({ ...prev, revenueMode }))
+    }
+    if (revenueMode === 'pre-revenue' && (String(form.revenueTillNow || '').trim() !== '' || String(form.companyStartedAt || '').trim() !== '')) {
+      setForm((prev) => ({ ...prev, revenueTillNow: '', companyStartedAt: '' }))
+    }
+  }, [revenueMode, form.revenueMode, form.revenueTillNow, form.companyStartedAt])
 
   const handleDeckFile = (file) => {
     if (!file) return
@@ -615,10 +730,31 @@ const VerifyPage = () => {
   }
 
   const handleSubmit = () => {
-    if (step === 2 && readinessCriticalErrors.length > 0) {
-      markReadinessTouched(['totalUsers', 'growthRateMonthly', 'askAmountUsd', 'pitchDeckUrl', 'businessModel', 'targetMarket', 'competitors'])
-      return
+    if (verificationTimerRef.current) {
+      clearTimeout(verificationTimerRef.current)
     }
+
+    const identityErrors = step1ErrorList
+    const executionErrors = executionCriticalErrors
+    const readinessErrors = readinessCriticalErrors
+    const allFieldsComplete = identityErrors.length === 0 && executionErrors.length === 0 && readinessErrors.length === 0
+    const documentsLoaded = Boolean(form.governmentIdUrl) && Boolean(form.selfieUrl)
+    const faceMatchOk = Number(form.faceMatchScore || 0) >= 60
+    const idNumberOk = !getIdentityFieldError('governmentIdNumber', form.governmentIdNumber)
+
+    const issues = []
+    if (!allFieldsComplete) issues.push('Some required sections are incomplete.')
+    if (!documentsLoaded) issues.push('Government ID or selfie is missing.')
+    if (!faceMatchOk) issues.push('Face match score is below the required threshold.')
+    if (!idNumberOk) issues.push('Government ID number does not look valid.')
+
+    if (readinessErrors.length > 0) {
+      markReadinessTouched(['revenueMode', 'revenueTillNow', 'companyStartedAt', 'pitchDeckUrl', 'businessModel', 'marketSize'])
+    }
+
+    setVerificationIssues(issues)
+    setVerificationStatus('pending')
+    setSubmitted(true)
 
     const identity = identityResult || evaluateIdentityStep(form)
     const execution = executionResult || evaluateExecutionStep(form)
@@ -683,7 +819,7 @@ const VerifyPage = () => {
       brandName: form.startupName,
       category: form.category,
       city: form.city,
-      website: form.websiteUrl,
+      website: '',
       story: form.solutionDescription,
       verification: {
         isCompleted: true,
@@ -696,13 +832,24 @@ const VerifyPage = () => {
       }
     })
 
-    setSubmitted(true)
+    verificationTimerRef.current = setTimeout(() => {
+      const verified = allFieldsComplete && documentsLoaded && faceMatchOk && idNumberOk
+      setVerificationStatus(verified ? 'verified' : 'rejected')
+    }, 120000)
   }
 
   return (
     <>
-      <Navbar />
-      <main className="pt-[72px] min-h-screen bg-gradient-to-b from-[#FAFAFD] to-white">
+      <main className="min-h-screen bg-gradient-to-b from-[#FAFAFD] to-white">
+        <div className="absolute top-6 right-6 z-20">
+          <button
+            type="button"
+            onClick={() => navigate('/profile')}
+            className="px-4 py-2 rounded-full border border-[#D8E1FF] bg-white text-[#122056] text-sm font-semibold shadow-sm hover:shadow-md transition"
+          >
+            Profile
+          </button>
+        </div>
         <section className="py-14 lg:py-16 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
             <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#5B65DC]/5 rounded-full blur-[120px]" />
@@ -778,6 +925,25 @@ const VerifyPage = () => {
                             <p className="verify-helper">{identityFieldConfig.city.helper}</p>
                             <p className="verify-trust">{identityFieldConfig.city.trustCue}</p>
                             {identityTouched.city && getIdentityFieldError('city', form.city) && <p className="verify-error">{getIdentityFieldError('city', form.city)}</p>}
+                          </div>
+
+                          <div>
+                            <label className="verify-label">{identityFieldConfig.category.label}</label>
+                            <div className="flex flex-wrap gap-2">
+                              {founderNicheOptions.map((option) => (
+                                <button
+                                  key={option}
+                                  type="button"
+                                  className={`readiness-chip ${form.category === option ? 'readiness-chip-active' : ''}`}
+                                  onClick={() => up('category', option)}
+                                >
+                                  {option}
+                                </button>
+                              ))}
+                            </div>
+                            <p className="verify-helper mt-3">{identityFieldConfig.category.helper}</p>
+                            <p className="verify-trust">{identityFieldConfig.category.trustCue}</p>
+                            {identityTouched.category && getIdentityFieldError('category', form.category) && <p className="verify-error">{getIdentityFieldError('category', form.category)}</p>}
                           </div>
                           </div>
                         </div>
@@ -932,7 +1098,7 @@ const VerifyPage = () => {
                           <div className="execution-card-head">
                             <div>
                               <p className="execution-kicker">Product Footprint</p>
-                              <p className="execution-status">{executionSections[0].complete ? 'Strong proof' : 'Needs stronger proof'} · +{executionSections[0].contribution} pts</p>
+                              <p className="execution-status">{executionSections[0].complete ? 'Startup identified' : 'Add startup name'} · +{executionSections[0].contribution} pts</p>
                             </div>
                             <span className="execution-badge-mini">Core 1</span>
                           </div>
@@ -941,28 +1107,8 @@ const VerifyPage = () => {
                             <label className="verify-label">Startup Name</label>
                             <input value={form.startupName} onChange={(e) => up('startupName', e.target.value)} className="verify-input" placeholder="Startup name" />
 
-                            <label className="verify-label">Build Stage</label>
-                            <div className="flex flex-wrap gap-2">
-                              {executionStageOptions.map((opt) => (
-                                <button
-                                  key={opt.value}
-                                  type="button"
-                                  className={`execution-chip ${form.prototypeStage === opt.value ? 'execution-chip-active' : ''}`}
-                                  onClick={() => up('prototypeStage', opt.value)}
-                                >
-                                  {opt.label}
-                                </button>
-                              ))}
-                            </div>
-
-                            <div className="grid md:grid-cols-2 gap-3">
-                              <input value={form.mvpLink} onChange={(e) => up('mvpLink', e.target.value)} className="verify-input" placeholder="MVP URL" />
-                              <input value={form.demoLink} onChange={(e) => up('demoLink', e.target.value)} className="verify-input" placeholder="Demo video URL" />
-                              <input value={form.githubUrl} onChange={(e) => up('githubUrl', e.target.value)} className="verify-input" placeholder="GitHub repository URL" />
-                              <input value={form.websiteUrl} onChange={(e) => up('websiteUrl', e.target.value)} className="verify-input" placeholder="Website URL" />
-                            </div>
-
-                            <p className="text-xs text-[#122056]/58">Tip: Add at least 2 links to unlock a stronger execution score.</p>
+                            <label className="verify-label">Demo Video URL</label>
+                            <input value={form.demoLink} onChange={(e) => up('demoLink', e.target.value)} className="verify-input" placeholder="https://youtube.com/... or https://vimeo.com/..." />
                           </div>
                         </div>
 
@@ -970,7 +1116,7 @@ const VerifyPage = () => {
                           <div className="execution-card-head">
                             <div>
                               <p className="execution-kicker">Narrative Clarity</p>
-                              <p className="execution-status">{executionSections[1].complete ? 'Clear narrative' : 'Narrative needs depth'} · +{executionSections[1].contribution} pts</p>
+                              <p className="execution-status">{executionSections[1].complete ? 'Clear narrative' : 'Problem or solution needs depth'} · +{executionSections[1].contribution} pts</p>
                             </div>
                             <span className="execution-badge-mini">Core 2</span>
                           </div>
@@ -1000,20 +1146,42 @@ const VerifyPage = () => {
                           <div className="execution-card-head">
                             <div>
                               <p className="execution-kicker">Visual Proof Vault</p>
-                              <p className="execution-status">{executionSections[2].complete ? 'Evidence linked' : 'Add evidence links'} · +{executionSections[2].contribution} pts</p>
+                              <p className="execution-status">{executionSections[2].complete ? 'Media linked' : 'Add product images'} · +{executionSections[2].contribution} pts</p>
                             </div>
                             <span className="execution-badge-mini">Core 3</span>
                           </div>
 
                           <div className="space-y-3 mt-3">
-                            <label className="verify-label">Screenshot URLs</label>
-                            <input
-                              value={form.screenshotLinks}
-                              onChange={(e) => up('screenshotLinks', e.target.value)}
-                              className="verify-input"
-                              placeholder="https://.../screen1.png, https://.../screen2.png"
-                            />
-                            <p className="text-xs text-[#122056]/58">Use comma-separated links for onboarding, dashboard, and key outcomes.</p>
+                            <label className="verify-label">Product Images</label>
+                            <div className="verify-upload-box">
+                              <div className="flex flex-wrap gap-2">
+                                <button type="button" className="verify-upload-btn" onClick={() => productImagesRef.current?.click()}>Upload images</button>
+                                <button type="button" className="verify-upload-btn" onClick={() => {
+                                  up('screenshotLinks', [])
+                                  setProductUploads([])
+                                  if (productImagesRef.current) productImagesRef.current.value = ''
+                                }}>Clear</button>
+                              </div>
+                              <input
+                                ref={productImagesRef}
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                className="hidden"
+                                onChange={handleProductImagesUpload}
+                              />
+                              <p className="verify-upload-name">
+                                {productUploads.length > 0 ? `${productUploads.length} image(s) selected` : 'Upload product screenshots or UI images'}
+                              </p>
+                              {Array.isArray(form.screenshotLinks) && form.screenshotLinks.length > 0 && (
+                                <div className="grid grid-cols-3 gap-2 mt-3">
+                                  {form.screenshotLinks.slice(0, 6).map((src, index) => (
+                                    <img key={`${src}-${index}`} src={src} alt={`Product proof ${index + 1}`} className="verify-preview" />
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                            <p className="text-xs text-[#122056]/58">Upload product images, UI screens, or other visual proof.</p>
                           </div>
                         </div>
                       </div>
@@ -1039,9 +1207,9 @@ const VerifyPage = () => {
 
                         <div className="mt-4 pt-3 border-t border-[#E8ECFF] space-y-2">
                           <p className="text-[11px] uppercase tracking-[0.13em] font-black text-[#5B65DC]">Evidence Checks</p>
-                          <p className={`text-sm ${executionSections[0].complete ? 'text-emerald-700' : 'text-[#122056]/45'}`}>Product Proof</p>
+                          <p className={`text-sm ${executionSections[0].complete ? 'text-emerald-700' : 'text-[#122056]/45'}`}>Startup Basics</p>
                           <p className={`text-sm ${executionSections[1].complete ? 'text-emerald-700' : 'text-[#122056]/45'}`}>Narrative Clarity</p>
-                          <p className={`text-sm ${executionSections[2].complete ? 'text-emerald-700' : 'text-[#122056]/45'}`}>Visual Evidence</p>
+                          <p className={`text-sm ${executionSections[2].complete ? 'text-emerald-700' : 'text-[#122056]/45'}`}>Product Images & Demo</p>
                         </div>
 
                         <div className="mt-4 pt-3 border-t border-[#E8ECFF]">
@@ -1067,95 +1235,73 @@ const VerifyPage = () => {
                         <div className="readiness-card">
                           <div className="readiness-card-head">
                             <div>
-                              <p className="readiness-kicker">Traction Signals</p>
+                              <p className="readiness-kicker">Revenue Status</p>
                               <p className="readiness-status">{readinessSections[0].complete ? 'Completed' : 'Needs Work'} · +{readinessSections[0].contribution} pts</p>
                             </div>
                             <span className="readiness-badge-mini">Section 1</span>
                           </div>
 
                           <div className="space-y-3 mt-3">
-                            <label className="verify-label">Total Users</label>
-                            <div className="flex flex-wrap gap-2">
-                              {userRangeOptions.map((opt) => (
-                                <button
-                                  key={opt.label}
-                                  type="button"
-                                  className={`readiness-chip ${Number(form.totalUsers || 0) === opt.value ? 'readiness-chip-active' : ''}`}
-                                  onClick={() => up('totalUsers', opt.value)}
-                                >
-                                  {opt.label}
-                                </button>
-                              ))}
+                            <label className="verify-label">Revenue Mode</label>
+                            <div className="flex gap-2 flex-wrap">
+                              <button
+                                type="button"
+                                className={`readiness-chip ${revenueMode === 'pre-revenue' ? 'readiness-chip-active' : ''}`}
+                                onClick={() => {
+                                  setRevenueMode('pre-revenue')
+                                  up('revenueMode', 'pre-revenue')
+                                }}
+                              >
+                                Pre revenue
+                              </button>
+                              <button
+                                type="button"
+                                className={`readiness-chip ${revenueMode === 'revenue' ? 'readiness-chip-active' : ''}`}
+                                onClick={() => {
+                                  setRevenueMode('revenue')
+                                  up('revenueMode', 'revenue')
+                                }}
+                              >
+                                Revenue
+                              </button>
                             </div>
-                            <input
-                              type="number"
-                              value={form.totalUsers}
-                              onChange={(e) => up('totalUsers', e.target.value)}
-                              className="verify-input"
-                              placeholder="Or enter exact total users"
-                            />
 
-                            <label className="verify-label">Monthly Active Users</label>
-                            <input type="number" value={form.monthlyActiveUsers} onChange={(e) => up('monthlyActiveUsers', e.target.value)} className="verify-input" placeholder="Enter MAU" />
-
-                            <div className="readiness-range-head">
-                              <label className="verify-label mb-0">Monthly Growth Rate</label>
-                              <span className="readiness-range-value">{Number(form.growthRateMonthly || 0)}%</span>
-                            </div>
-                            <input
-                              type="range"
-                              min="0"
-                              max="100"
-                              step="1"
-                              value={Number(form.growthRateMonthly || 0)}
-                              onChange={(e) => up('growthRateMonthly', e.target.value)}
-                              className="readiness-range"
-                              style={{
-                                background: `linear-gradient(90deg, #1E3A8A 0%, #2563EB ${Number(form.growthRateMonthly || 0)}%, #E7ECFF ${Number(form.growthRateMonthly || 0)}%, #E7ECFF 100%)`
-                              }}
-                            />
-                            <div className="readiness-range-ticks">
-                              <span>0%</span>
-                              <span>25%</span>
-                              <span>50%</span>
-                              <span>75%</span>
-                              <span>100%</span>
-                            </div>
-                            <div className="readiness-mini-graph">
-                              <div style={{ width: `${Math.min(100, Number(form.growthRateMonthly || 0))}%` }} />
-                            </div>
+                            {revenueMode === 'revenue' && (
+                              <div className="grid md:grid-cols-2 gap-3">
+                                <div>
+                                  <label className="verify-label">Revenue till now</label>
+                                  <input
+                                    type="number"
+                                    value={form.revenueTillNow}
+                                    onChange={(e) => up('revenueTillNow', e.target.value)}
+                                    className="verify-input"
+                                    placeholder="Total revenue till now"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="verify-label">Company started</label>
+                                  <input
+                                    type="date"
+                                    value={form.companyStartedAt}
+                                    onChange={(e) => up('companyStartedAt', e.target.value)}
+                                    className="verify-input"
+                                  />
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
 
                         <div className="readiness-card">
                           <div className="readiness-card-head">
                             <div>
-                              <p className="readiness-kicker">Business Model</p>
+                              <p className="readiness-kicker">Pitch Deck & Revenue Model</p>
                               <p className="readiness-status">{readinessSections[1].complete ? 'Completed' : 'Needs Work'} · +{readinessSections[1].contribution} pts</p>
                             </div>
                             <span className="readiness-badge-mini">Section 2</span>
                           </div>
 
                           <div className="space-y-3 mt-3">
-                            <label className="verify-label">Revenue State</label>
-                            <div className="flex gap-2 flex-wrap">
-                              <button type="button" className={`readiness-chip ${revenueMode === 'pre-revenue' ? 'readiness-chip-active' : ''}`} onClick={() => setRevenueMode('pre-revenue')}>Pre-revenue</button>
-                              <button type="button" className={`readiness-chip ${revenueMode === 'revenue' ? 'readiness-chip-active' : ''}`} onClick={() => setRevenueMode('revenue')}>Generating revenue</button>
-                            </div>
-                            {revenueMode === 'revenue' && (
-                              <input type="number" value={form.monthlyRevenue} onChange={(e) => up('monthlyRevenue', e.target.value)} className="verify-input" placeholder="Monthly revenue (USD)" />
-                            )}
-
-                            <label className="verify-label">Funding Ask</label>
-                            <div className="flex flex-wrap gap-2 mb-2">
-                              {askSuggestions.map((ask) => (
-                                <button key={ask} type="button" className={`readiness-chip ${Number(form.askAmountUsd || 0) === ask ? 'readiness-chip-active' : ''}`} onClick={() => up('askAmountUsd', ask)}>
-                                  ${ask.toLocaleString()}
-                                </button>
-                              ))}
-                            </div>
-                            <input type="number" value={form.askAmountUsd} onChange={(e) => up('askAmountUsd', e.target.value)} className="verify-input" placeholder="Custom ask amount (USD)" />
-
                             <label className="verify-label">Pitch Deck Upload</label>
                             <div
                               className={`readiness-dropzone ${isDeckDragOver ? 'readiness-dropzone-over' : ''}`}
@@ -1185,16 +1331,24 @@ const VerifyPage = () => {
                               </p>
                             </div>
 
-                            <label className="verify-label">Business Description (Text / Voice Assist)</label>
+                            <label className="verify-label">Revenue Model</label>
                             <div className="flex gap-2 flex-wrap mb-2">
-                              <button type="button" className="readiness-chip" onClick={startVoiceCapture}><Mic size={13} /> Start voice input</button>
+                              <button type="button" className="readiness-chip" onClick={startVoiceCapture}><Mic size={13} /> Voice input</button>
                               <span className="text-xs text-[#122056]/55">Status: {voiceStatus}</span>
                             </div>
                             {voiceNote && <p className="text-xs text-[#122056]/60">Captured note: {voiceNote}</p>}
-                            <textarea value={form.businessModel} onChange={(e) => up('businessModel', e.target.value)} className="verify-input resize-none min-h-[96px]" placeholder="How do you make money? Include pricing, margins, and sales motion." />
+                            <textarea value={form.businessModel} onChange={(e) => up('businessModel', e.target.value)} className="verify-input resize-none min-h-[96px]" placeholder="Describe pricing, monetization, and sales motion." />
                             <div className="readiness-ai-note">
                               <p className="text-[11px] uppercase tracking-[0.12em] font-black text-[#5B65DC] inline-flex items-center gap-1"><Sparkles size={12} /> AI Summary</p>
-                              <p className="text-sm text-[#122056]/70 mt-1">{(form.businessModel || '').trim().length > 20 ? `${form.businessModel.trim().split('.').slice(0, 2).join('.').trim()}.` : 'Add business details and we will auto-summarize your model here.'}</p>
+                              {(form.businessModel || '').trim().length > 20 ? (
+                                <ul className="text-sm text-[#122056]/70 mt-1 list-disc pl-5 space-y-1">
+                                  {buildRevenueModelSummary(form.businessModel).map((item) => (
+                                    <li key={item}>{item}</li>
+                                  ))}
+                                </ul>
+                              ) : (
+                                <p className="text-sm text-[#122056]/70 mt-1">Add revenue model details and we will summarize it here.</p>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -1202,15 +1356,21 @@ const VerifyPage = () => {
                         <div className="readiness-card">
                           <div className="readiness-card-head">
                             <div>
-                              <p className="readiness-kicker">Market Understanding</p>
+                              <p className="readiness-kicker">Market Size</p>
                               <p className="readiness-status">{readinessSections[2].complete ? 'Completed' : 'Needs Work'} · +{readinessSections[2].contribution} pts</p>
                             </div>
                             <span className="readiness-badge-mini">Section 3</span>
                           </div>
 
                           <div className="space-y-3 mt-3">
-                            <textarea value={form.targetMarket} onChange={(e) => up('targetMarket', e.target.value)} className="verify-input resize-none min-h-[92px]" placeholder="Who is your ideal customer? Which segment is growing fastest?" />
-                            <textarea value={form.competitors} onChange={(e) => up('competitors', e.target.value)} className="verify-input resize-none min-h-[92px]" placeholder="Who are your competitors and what is your strongest edge?" />
+                            <label className="verify-label">Market Size</label>
+                            <input
+                              value={form.marketSize}
+                              onChange={(e) => up('marketSize', e.target.value)}
+                              className="verify-input"
+                              placeholder="e.g. $2.3B market, 120K target users, or India SMB segment"
+                            />
+                            <p className="text-xs text-[#122056]/58">Use a short but specific market estimate or segment description.</p>
                           </div>
                         </div>
                       </div>
@@ -1228,7 +1388,7 @@ const VerifyPage = () => {
                         <div className="mt-4 pt-3 border-t border-[#E8ECFF] space-y-2">
                           <p className="text-[11px] uppercase tracking-[0.13em] font-black text-[#5B65DC]">Unlocked Badges</p>
                           <p className={`text-sm ${readinessBadges.builder ? 'text-emerald-700' : 'text-[#122056]/45'}`}>Builder</p>
-                          <p className={`text-sm ${readinessBadges.growingStartup ? 'text-emerald-700' : 'text-[#122056]/45'}`}>Growing Startup</p>
+                          <p className={`text-sm ${readinessBadges.revenueReady ? 'text-emerald-700' : 'text-[#122056]/45'}`}>Revenue Ready</p>
                           <p className={`text-sm ${readinessBadges.investorReady ? 'text-emerald-700' : 'text-[#122056]/45'}`}>Investor Ready</p>
                         </div>
 
@@ -1276,16 +1436,48 @@ const VerifyPage = () => {
             ) : (
               <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl mx-auto">
                 <div className="bg-white rounded-[2rem] border border-[#E8EDFD] p-7 shadow-[0_20px_48px_-16px_rgba(18,32,86,0.12)]">
-                  <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-4">
+                  <div className={`w-12 h-12 rounded-2xl ${verificationStatus === 'verified' ? 'bg-emerald-100 text-emerald-700' : verificationStatus === 'rejected' ? 'bg-rose-100 text-rose-700' : 'bg-[#E9EEFF] text-[#5B65DC]'} flex items-center justify-center mb-4`}>
                     <Shield size={22} />
                   </div>
-                  <p className="text-[11px] uppercase tracking-[0.15em] font-black text-[#5B65DC]">Verification Complete</p>
-                  <h2 className="text-3xl font-serif text-[#122056] mt-1">Your profile has been verified</h2>
-                  <p className="text-sm text-[#122056]/65 mt-2">This is a one-time verification. You can now continue to your founder dashboard.</p>
 
-                  <div className="mt-7 flex items-center gap-3">
-                    <button onClick={() => navigate('/dashboard/founder')} className="px-4 py-2 rounded-xl bg-[#122056] text-white text-sm font-semibold">Go to Founder Dashboard</button>
-                  </div>
+                  {verificationStatus === 'pending' && (
+                    <>
+                      <p className="text-[11px] uppercase tracking-[0.15em] font-black text-[#5B65DC]">Verification In Progress</p>
+                      <h2 className="text-3xl font-serif text-[#122056] mt-1">We are verifying your profile</h2>
+                      <p className="text-sm text-[#122056]/65 mt-2">You will be able to access the dashboard when your profile is verified. Please come after sometime and check again.</p>
+                      <div className="mt-5 text-sm text-[#122056]/60">Estimated time: ~2 minutes</div>
+                    </>
+                  )}
+
+                  {verificationStatus === 'verified' && (
+                    <>
+                      <p className="text-[11px] uppercase tracking-[0.15em] font-black text-[#5B65DC]">Verification Complete</p>
+                      <h2 className="text-3xl font-serif text-[#122056] mt-1">Your profile has been verified</h2>
+                      <p className="text-sm text-[#122056]/65 mt-2">This is a one-time verification. You can now continue to your founder dashboard.</p>
+
+                      <div className="mt-7 flex items-center gap-3">
+                        <button onClick={() => navigate('/dashboard/founder')} className="px-4 py-2 rounded-xl bg-[#122056] text-white text-sm font-semibold">Go to Founder Dashboard</button>
+                      </div>
+                    </>
+                  )}
+
+                  {verificationStatus === 'rejected' && (
+                    <>
+                      <p className="text-[11px] uppercase tracking-[0.15em] font-black text-rose-600">Verification Failed</p>
+                      <h2 className="text-3xl font-serif text-[#122056] mt-1">Your profile could not be verified</h2>
+                      <p className="text-sm text-[#122056]/65 mt-2">Please review the items below and try again.</p>
+                      {verificationIssues.length > 0 && (
+                        <ul className="mt-4 text-sm text-rose-700 list-disc pl-5 space-y-1">
+                          {verificationIssues.map((issue) => (
+                            <li key={issue}>{issue}</li>
+                          ))}
+                        </ul>
+                      )}
+                      <div className="mt-6">
+                        <button onClick={() => { setSubmitted(false); setVerificationStatus('idle') }} className="px-4 py-2 rounded-xl border border-[#D8E1FF] text-[#122056] text-sm font-semibold">Back to verification</button>
+                      </div>
+                    </>
+                  )}
                 </div>
               </motion.div>
             )}

@@ -15,21 +15,55 @@ const ExplorePage = ({ embedded = false }) => {
   const [selectedStartup, setSelectedStartup] = useState(null)
   const [searchValue, setSearchValue] = useState('')
   const [viewType, setViewType] = useState('grid')
+  const [selectedNiche, setSelectedNiche] = useState('All')
+  const [selectedStage, setSelectedStage] = useState('All')
+  const [selectedGeo, setSelectedGeo] = useState('All')
   const fallback = useMemo(() => buildDefaultUserData({}).discovery, [])
   const { value: discoveryData } = useRealtimeValue(
     user?.uid ? `users/${user.uid}/discovery` : null,
     fallback
   )
   const startups = discoveryData?.startups || []
+  const userStartup = discoveryData?.userStartup || {
+    name: 'Your Startup',
+    tagline: 'Founder-led growth platform',
+    stage: 'Growth',
+    category: 'SaaS',
+    location: 'Bangalore',
+    growth: 28,
+    users: 4200,
+    retention: 42,
+    conversion: 3.2
+  }
+  const topCompetitor = startups[0] || {
+    name: 'Top Competitor',
+    stage: 'Growth',
+    category: 'SaaS',
+    location: 'Bangalore',
+    growth: 24,
+    users: 3800,
+    retention: 38,
+    conversion: 2.9
+  }
 
   const filteredStartups = useMemo(() => {
     const q = searchValue.trim().toLowerCase()
-    if (!q) return startups
-    return startups.filter((startup) =>
-      [startup.name, startup.tagline, startup.category, startup.location, startup.stage]
+    return startups.filter((startup) => {
+      const matchesQuery = !q || [startup.name, startup.tagline, startup.category, startup.location, startup.stage]
         .some((field) => field.toLowerCase().includes(q))
-    )
-  }, [searchValue, startups])
+      const matchesNiche = selectedNiche === 'All' || startup.category === selectedNiche
+      const matchesStage = selectedStage === 'All' || startup.stage === selectedStage
+      const matchesGeo = selectedGeo === 'All' || startup.location === selectedGeo
+      return matchesQuery && matchesNiche && matchesStage && matchesGeo
+    })
+  }, [searchValue, startups, selectedNiche, selectedStage, selectedGeo])
+
+  const marketRank = useMemo(() => {
+    if (!startups.length) return { rank: 1, total: 1 }
+    const sorted = [...startups].sort((a, b) => (b.growth || 0) - (a.growth || 0))
+    const rank = Math.max(1, sorted.findIndex((item) => item.name === userStartup.name) + 1 || 3)
+    return { rank, total: sorted.length + 1 }
+  }, [startups, userStartup.name])
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -50,136 +84,139 @@ const ExplorePage = ({ embedded = false }) => {
 
   const mainContent = (
     <main className={`max-w-7xl mx-auto px-6 lg:px-10 ${embedded ? 'py-6' : 'py-12'} relative z-10`}>
-        
-        {/* Compact Search Bar */}
-        <div className="max-w-5xl mx-auto mb-10 relative">
-          <div className="flex flex-col md:flex-row items-stretch gap-3 p-2 rounded-[2rem] bg-white border border-[#EEF0FD] shadow-[0_6px_28px_rgba(18,32,86,0.04)] focus-within:shadow-[0_10px_40px_rgba(91,101,220,0.1)] focus-within:border-[#5B65DC]/20 transition-all duration-500">
-             
-            {/* Search Input Part */}
-            <div className="flex-1 relative flex items-center group">
-              <input 
-                type="text" 
-                placeholder="Search ideas, founders, or keywords..."
+        <section className="rounded-[28px] bg-white/70 border border-[#eef0f5] p-6 lg:p-8 shadow-[0_18px_40px_rgba(15,23,42,0.08)]">
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.2em] font-semibold text-[#6366f1]">Your Position in the Market</p>
+              <h1 className="text-2xl font-semibold text-[#0f172a] mt-2">Compare yourself with the top competitor</h1>
+            </div>
+            <div className="rounded-full bg-[#eef2ff] px-4 py-1 text-xs font-semibold text-[#4f46e5]">Market Rank: #{marketRank.rank} of {marketRank.total}</div>
+          </div>
+
+          <div className="overflow-hidden rounded-2xl border border-[#eef0f5] bg-white">
+            <table className="w-full text-sm">
+              <thead className="bg-[#f8fafc] text-[#64748b]">
+                <tr>
+                  <th className="px-4 py-3 text-left font-semibold">Metric</th>
+                  <th className="px-4 py-3 text-left font-semibold">You</th>
+                  <th className="px-4 py-3 text-left font-semibold">Top Competitor</th>
+                </tr>
+              </thead>
+              <tbody className="text-[#0f172a]">
+                {[
+                  { label: 'Growth rate', you: `${userStartup.growth}%`, them: `${topCompetitor.growth || 22}%` },
+                  { label: 'Users', you: `${userStartup.users}`, them: `${topCompetitor.users || 3600}` },
+                  { label: 'Retention', you: `${userStartup.retention}%`, them: `${topCompetitor.retention || 38}%` },
+                  { label: 'Conversion', you: `${userStartup.conversion}%`, them: `${topCompetitor.conversion || 3.0}%` }
+                ].map((row) => (
+                  <tr key={row.label} className="border-t border-[#eef0f5]">
+                    <td className="px-4 py-3 font-semibold">{row.label}</td>
+                    <td className="px-4 py-3">{row.you}</td>
+                    <td className="px-4 py-3">{row.them}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mt-5 grid grid-cols-1 lg:grid-cols-[1.3fr_0.7fr] gap-4">
+            <div className="rounded-2xl border border-[#eef0f5] bg-[#fbfcff] p-4 text-sm text-[#475569]">
+              <p className="font-semibold text-[#0f172a]">AI insight</p>
+              <p className="mt-2">You win on growth velocity and user volume, but retention is below the top competitor. Tighten onboarding and core activation to close the gap.</p>
+            </div>
+            <div className="rounded-2xl border border-[#eef0f5] bg-white p-4">
+              <p className="text-xs font-semibold text-[#0f172a] uppercase tracking-[0.18em]">Actionable fixes</p>
+              <ul className="mt-3 space-y-2 text-xs text-[#475569] list-disc pl-5">
+                <li>Ship a 7-day activation checklist to improve retention.</li>
+                <li>Re-segment paid channels to reduce CAC by 10-15%.</li>
+                <li>Improve conversion by tightening landing copy and proof.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-8 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
+          <div className="rounded-[24px] bg-white border border-[#eef0f5] p-5">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+              <p className="text-[11px] uppercase tracking-[0.2em] font-semibold text-[#6366f1]">Filters</p>
+              <div className="flex items-center gap-2">
+                <button onClick={() => setViewType('grid')} className={`p-2 rounded-xl ${viewType === 'grid' ? 'bg-[#eef2ff] text-[#4f46e5]' : 'text-[#94a3b8]'}`}>
+                  <LayoutGrid size={16} />
+                </button>
+                <button onClick={() => setViewType('list')} className={`p-2 rounded-xl ${viewType === 'list' ? 'bg-[#eef2ff] text-[#4f46e5]' : 'text-[#94a3b8]'}`}>
+                  <List size={16} />
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <label className="text-xs font-semibold text-[#64748b]">
+                Niche
+                <select value={selectedNiche} onChange={(e) => setSelectedNiche(e.target.value)} className="mt-2 w-full rounded-xl border border-[#eef0f5] bg-white px-3 py-2 text-sm">
+                  {['All', 'SaaS', 'FinTech', 'AI', 'Climate', 'Marketplace', 'EdTech'].map((opt) => (
+                    <option key={opt} value={opt}>{opt}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="text-xs font-semibold text-[#64748b]">
+                Stage
+                <select value={selectedStage} onChange={(e) => setSelectedStage(e.target.value)} className="mt-2 w-full rounded-xl border border-[#eef0f5] bg-white px-3 py-2 text-sm">
+                  {['All', 'Early', 'Seed', 'Growth', 'Scale'].map((opt) => (
+                    <option key={opt} value={opt}>{opt}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="text-xs font-semibold text-[#64748b]">
+                Geography
+                <select value={selectedGeo} onChange={(e) => setSelectedGeo(e.target.value)} className="mt-2 w-full rounded-xl border border-[#eef0f5] bg-white px-3 py-2 text-sm">
+                  {['All', 'Bangalore', 'Delhi', 'Mumbai', 'Hyderabad'].map((opt) => (
+                    <option key={opt} value={opt}>{opt}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <div className="mt-4">
+              <input
+                type="text"
+                placeholder="Search by name, niche, location"
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
-                className="w-full pl-6 pr-6 bg-transparent h-14 text-base text-[#122056] placeholder:text-[#122056]/20 focus:outline-none"
+                className="w-full rounded-xl border border-[#eef0f5] bg-[#fbfcff] px-4 py-3 text-sm"
               />
             </div>
-
-            {/* View & Filter Toggles */}
-            <div className="flex items-center gap-2 px-3">
-              <div className="hidden sm:flex items-center p-1.5 rounded-2xl bg-[#FAFAFD] border border-[#EEF0FD]">
-                <button 
-                  onClick={() => setViewType('grid')}
-                  className={`p-2.5 rounded-xl transition-all ${viewType === 'grid' ? 'bg-white text-[#5B65DC] shadow-sm' : 'text-[#122056]/30 hover:text-[#122056]/60'}`}
-                >
-                  <LayoutGrid size={18} />
-                </button>
-                <button 
-                  onClick={() => setViewType('list')}
-                  className={`p-2.5 rounded-xl transition-all ${viewType === 'list' ? 'bg-white text-[#5B65DC] shadow-sm' : 'text-[#122056]/30 hover:text-[#122056]/60'}`}
-                >
-                  <List size={18} />
-                </button>
-              </div>
-              
-              <button className="flex items-center gap-2 px-5 h-11 rounded-2xl bg-[#122056] text-white font-bold text-sm shadow-xl shadow-[#122056]/20 hover:scale-[1.02] transition-all">
-                 <SlidersHorizontal size={18} />
-                 <span>Filters</span>
-              </button>
-            </div>
           </div>
 
-          {/* Quick Shortcuts */}
-          <div className="flex items-center justify-center gap-5 mt-4 overflow-x-auto no-scrollbar pb-2">
-            {['All Ideas', 'Sustainability', 'FinTech', 'Artificial Intelligence', 'Future of Work', 'Social Impact'].map((cat, i) => (
-              <button key={i} className="text-[11px] font-bold uppercase tracking-widest text-[#122056]/30 hover:text-[#5B65DC] transition-colors whitespace-nowrap">
-                {cat}
-              </button>
+          <div className="rounded-[24px] bg-white border border-[#eef0f5] p-5">
+            <p className="text-[11px] uppercase tracking-[0.2em] font-semibold text-[#6366f1]">Market Rank</p>
+            <p className="text-3xl font-semibold text-[#0f172a] mt-3">#{marketRank.rank}</p>
+            <p className="text-sm text-[#64748b]">Among {marketRank.total} similar startups</p>
+            <p className="text-xs text-[#475569] mt-4">Improve retention by 4-6% to move up a tier.</p>
+          </div>
+        </section>
+
+        <section className="mt-8">
+          <motion.div variants={containerVariants} initial="hidden" animate="visible" className={`grid gap-4 ${viewType === 'list' ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
+            {filteredStartups.map((startup) => (
+              <motion.div key={startup.id} variants={itemVariants} className="rounded-2xl bg-white border border-[#eef0f5] p-4 hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)] transition" onClick={() => setSelectedStartup(startup)}>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-[#0f172a]">{startup.name}</p>
+                    <p className="text-xs text-[#64748b]">{startup.tagline}</p>
+                  </div>
+                  <span className="text-[10px] font-semibold text-[#4f46e5] bg-[#eef2ff] px-2 py-1 rounded-full">{startup.stage}</span>
+                </div>
+                <div className="mt-3 flex items-center gap-4 text-xs text-[#475569]">
+                  <span>Users: {startup.views}</span>
+                  <span>Growth: {startup.growth}%</span>
+                </div>
+                <div className="mt-3 rounded-xl border border-[#eef0f5] bg-[#fbfcff] px-3 py-2 text-xs text-[#475569]">
+                  You vs Them: {userStartup.growth}% vs {startup.growth}% growth
+                </div>
+              </motion.div>
             ))}
-          </div>
-        </div>
-
-        {/* Full Width Masonry-Style Grid */}
-        <motion.div 
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-        >
-          {filteredStartups.map((startup) => (
-            <motion.div 
-              key={startup.id}
-              variants={itemVariants}
-              onClick={() => setSelectedStartup(startup)}
-              className="glass-card group cursor-pointer h-full flex flex-col"
-            >
-              <div className="p-6 flex flex-col h-full">
-                {/* Header Context */}
-                <div className="flex items-start justify-between mb-6">
-                  <div className="w-14 h-14 rounded-2xl bg-[#FAFAFD] border border-[#EEF0FD] group-hover:bg-[#5B65DC]/5 transition-all duration-500 flex items-center justify-center text-3xl">
-                    {startup.logo}
-                  </div>
-                  <div className="flex flex-col items-end">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#5B65DC] bg-[#5B65DC]/5 px-2.5 py-1 rounded-full mb-2">
-                      {startup.category}
-                    </span>
-                    <p className="text-[10px] font-bold text-[#122056]/20 group-hover:text-[#122056]/40 transition-colors uppercase tracking-widest">
-                      {startup.stage}
-                    </p>
-                    <span className="mt-2 text-[11px] font-bold text-[#1f2937] bg-[#eef2ff] px-2.5 py-1 rounded-full">
-                      Readiness {startup.readiness}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Cover Image (if any) */}
-                 {startup.image && (
-                   <div className="aspect-[16/10] mb-6 rounded-[1.5rem] overflow-hidden border border-[#EEF0FD] relative">
-                     <div className="absolute inset-0 bg-[#122056]/5 group-hover:bg-transparent transition-colors z-10" />
-                     <img src={startup.image} alt={startup.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
-                   </div>
-                )}
-
-                {/* Identity */}
-                <div className="flex-1">
-                  <h3 className="text-xl font-serif font-black text-[#122056] leading-tight mb-3 group-hover:text-[#5B65DC] transition-colors">
-                    {startup.name}
-                  </h3>
-                  <p className="text-[15px] font-medium text-[#122056]/50 group-hover:text-[#122056]/70 leading-relaxed transition-colors">
-                    {startup.tagline}. {startup.description}
-                  </p>
-                </div>
-
-                {/* Social Proof */}
-                <div className="flex items-center justify-between mt-8 pt-6 border-t border-[#EEF0FD]">
-                  <div className="flex items-center gap-6">
-                    <div className="flex items-center gap-2 text-[11px] font-bold text-[#122056]/30">
-                      <ThumbsUp size={14} className="text-[#5B65DC]/40" />
-                      <span>{(startup.views / 15).toFixed(0)}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-[11px] font-bold text-[#122056]/30 text-nowrap">
-                      <MessageSquare size={14} className="text-[#5B65DC]/40" />
-                      <span>{Math.floor(Math.random() * 40)} Comments</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1.5 font-bold text-[#5B65DC] group-hover:translate-x-1 transition-transform">
-                    <span className="text-[10px] uppercase tracking-widest">Profile</span>
-                    <ArrowUpRight size={14} />
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* View More Trigger */}
-        <div className="mt-20 flex justify-center">
-          <button className="flex items-center gap-3 px-10 py-5 rounded-3xl bg-white border border-[#EEF0FD] text-[#122056] font-bold text-sm tracking-widest uppercase hover:bg-[#122056] hover:text-white hover:border-[#122056] transition-all duration-500 shadow-sm">
-             Load More Ideas
-             <ChevronDown size={14} className="opacity-40" />
-          </button>
-        </div>
+          </motion.div>
+        </section>
     </main>
   )
 
@@ -209,12 +246,51 @@ const ExplorePage = ({ embedded = false }) => {
 
       {!embedded && <Footer />}
 
-      {/* Modern Center Modal */}
-      <StartupDetailModal
-        startup={selectedStartup}
-        isOpen={!!selectedStartup}
-        onClose={() => setSelectedStartup(null)}
-      />
+      {selectedStartup && (
+        <div className="fixed inset-0 z-50 bg-black/30 flex items-center justify-center px-4" onClick={() => setSelectedStartup(null)}>
+          <div className="w-full max-w-3xl rounded-3xl bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.2)]" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-[0.2em] text-[#6366f1] font-semibold">Detailed Comparison</p>
+                <h2 className="text-xl font-semibold text-[#0f172a] mt-2">{selectedStartup.name} vs {userStartup.name}</h2>
+              </div>
+              <button className="text-sm font-semibold text-[#0f172a]" onClick={() => setSelectedStartup(null)}>Close</button>
+            </div>
+
+            <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div className="rounded-2xl border border-[#eef0f5] p-4">
+                <p className="text-xs text-[#64748b]">Why competitor is better</p>
+                <ul className="mt-2 space-y-1 text-sm text-[#0f172a] list-disc pl-5">
+                  <li>Higher retention and stronger activation loop.</li>
+                  <li>More focused ICP leading to better conversion.</li>
+                </ul>
+              </div>
+              <div className="rounded-2xl border border-[#eef0f5] p-4">
+                <p className="text-xs text-[#64748b]">What you should improve</p>
+                <ul className="mt-2 space-y-1 text-sm text-[#0f172a] list-disc pl-5">
+                  <li>Increase retention by 4-6% through onboarding fixes.</li>
+                  <li>Sharpen messaging for top 2 segments.</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="mt-5 grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+              {[
+                { label: 'Growth', you: `${userStartup.growth}%`, them: `${selectedStartup.growth}%` },
+                { label: 'Users', you: `${userStartup.users}`, them: `${selectedStartup.views}` },
+                { label: 'Retention', you: `${userStartup.retention}%`, them: `${selectedStartup.retention || 38}%` },
+                { label: 'Conversion', you: `${userStartup.conversion}%`, them: `${selectedStartup.conversion || 3.1}%` }
+              ].map((row) => (
+                <div key={row.label} className="rounded-xl border border-[#eef0f5] bg-[#fbfcff] p-3">
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-[#6366f1] font-semibold">{row.label}</p>
+                  <p className="text-sm text-[#0f172a] mt-1">You: {row.you}</p>
+                  <p className="text-xs text-[#64748b]">Them: {row.them}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
