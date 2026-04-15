@@ -35,6 +35,7 @@ import InvestorMVPDashboard from './pages/InvestorMVPDashboard'
 import NicheValidationInsightsPage from './pages/NicheValidationInsightsPage'
 import CommunicationPage from './pages/CommunicationPage'
 import StudentFounderEarlyAccessPage from './pages/StudentFounderEarlyAccessPage'
+import EarlyAccessOpportunitiesPage from './pages/EarlyAccessOpportunitiesPage'
 
 /* Page transition wrapper */
 const PageTransition = ({ children }) => (
@@ -69,6 +70,7 @@ const AppRoutes = () => {
         <Route path="/founder-intelligence" element={<PageTransition><FounderIntelligencePage /></PageTransition>} />
         <Route path="/niche-validation" element={<PageTransition><NicheValidationInsightsPage /></PageTransition>} />
         <Route path="/student-founders" element={<PageTransition><StudentFounderEarlyAccessPage /></PageTransition>} />
+        <Route path="/early-access-opportunities" element={<PageTransition><EarlyAccessOpportunitiesPage /></PageTransition>} />
         <Route 
           path="/verify" 
           element={

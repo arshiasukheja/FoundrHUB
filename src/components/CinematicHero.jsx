@@ -1,6 +1,7 @@
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Activity, Users, TrendingUp, Zap, Hexagon } from 'lucide-react'
+import { Activity, Users, TrendingUp, Zap, Hexagon, Lock, Sparkles, ArrowRight } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 /* ── Main Hero Section ── */
 
@@ -146,12 +147,34 @@ const CinematicHero = ({ onGetStarted }) => {
             transition={{ duration: 0.6, delay: 0.5 }}
             className="flex flex-wrap justify-center gap-4"
           >
+            {/* Early Access Button — Primary CTA */}
+            <Link
+              to="/student-founders"
+              className="group relative px-8 py-3 rounded-xl text-white text-[16px] font-semibold shadow-lg transition-all duration-300 overflow-hidden"
+              style={{
+                background: 'linear-gradient(135deg, #5B65DC 0%, #122056 100%)',
+              }}
+            >
+              <span className="absolute inset-0 bg-gradient-to-r from-[#5B65DC] to-[#7C3AED] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <span className="relative z-10 flex items-center gap-2">
+                <Sparkles size={16} className="group-hover:animate-pulse" />
+                Join Early Access
+                <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
+              </span>
+            </Link>
+
+            {/* Get Started Button — Locked */}
             <button
               type="button"
-              onClick={onGetStarted}
-              className="px-8 py-3 rounded-xl bg-[#122056] text-white text-[16px] font-semibold shadow-lg shadow-[#122056]/15 hover:bg-[#5B65DC] transition-all"
+              disabled
+              className="relative px-8 py-3 rounded-xl bg-neutral-100 text-neutral-400 text-[16px] font-semibold cursor-not-allowed border border-neutral-200/60 flex items-center gap-2 group"
+              title="Coming soon — join Early Access first!"
             >
+              <Lock size={14} className="text-neutral-300" />
               Get Started
+              <span className="absolute -top-2 -right-2 px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-[9px] font-bold uppercase tracking-wider text-amber-600">
+                Soon
+              </span>
             </button>
           </motion.div>
         </motion.div>
